@@ -1,0 +1,25 @@
+<div class="page">
+  <app-navbar></app-navbar>
+  <main class="content card auth-card">
+    <h1>Sign in</h1>
+    <p class="muted">Access your saved results and topics.</p>
+
+    <div class="form-grid">
+      <label>Email
+        <input type="email" [(ngModel)]="email" />
+      </label>
+      <label>Password
+        <input type="password" [(ngModel)]="password" />
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="button" (click)="submit()">
+        Sign in
+      </button>
+      <a class="btn ghost" routerLink="/register">Go to sign up</a>
+    </div>
+
+    <p class="alert" *ngIf="error">{{ error }}</p>
+  </main>
+</div>

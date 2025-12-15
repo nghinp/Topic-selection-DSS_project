@@ -1,0 +1,134 @@
+$brand: #ff2d62;
+$muted: #6b6b76;
+$surface: hsl(220, 7%, 84%);
+$border: #e5e7ee;
+
+.navbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #1f2024;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  font-size: 26px;
+  line-height: 1;
+  color: #121212;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    display: block;
+  }
+}
+
+.search-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: $surface;
+  border-radius: 999px;
+  padding: 15px;
+  color: $muted;
+  min-width: 250px;
+  border: 1px solid $border;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #1f2024;
+    width: 100%;
+    font-size: 14px;
+
+    &::placeholder {
+      color: $muted;
+    }
+  }
+}
+
+.nav-center {
+  display: flex;
+  justify-content: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  font-size: 15px;
+}
+
+.nav-links a {
+  position: relative;
+  text-decoration: none;
+  color: #1f2024;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: $brand;
+  background: rgba(255, 45, 98, 0.08);
+}
+
+.nav-links a.active {
+  color: $brand;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 4px;
+    height: 3px;
+    border-radius: 6px;
+    background: $brand;
+  }
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  border-radius: 999px;
+  padding: 10px 14px;
+}
+
+.btn.ghost {
+  border-color: #ff2d62;
+  color: #1f2024;
+  background: #fff;
+  margin-right: 10px;
+}
+
+.btn.ghost:hover {
+  border-color: darken(#ff2d62, 6%);
+}
+
+.btn.primary {
+  background: $brand;
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 16px rgba(255, 45, 98, 0.25);
+}

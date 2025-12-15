@@ -1,0 +1,104 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content card">
+    <header class="quiz__header">
+      <div>
+        <p class="eyebrow">Quiz in progress</p>
+        <h1>DSS Topic Questionnaire</h1>
+        <p class="muted">Answer each statement honestly. The timer started as soon as you landed here.</p>
+      </div>
+      <div class="timer" [class.urgent]="timeLeft <= 60">
+        <span class="label">Time left</span>
+        <span class="value">{{ formattedTime }}</span>
+      </div>
+    </header>
+
+    <div class="status-row" *ngIf="loading || errorMessage">
+      <span class="muted" *ngIf="loading">Loading questions...</span>
+      <span class="pill pill--light" *ngIf="errorMessage">{{ errorMessage }}</span>
+    </div>
+
+    <div class="progress" role="progressbar" [attr.aria-valuenow]="progressPercent" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress__fill" [style.width.%]="progressPercent"></div>
+    </div>
+
+    <ng-container *ngIf="!quizFinished && questions.length; else results">
+      <section class="question">
+        <div class="question__meta">
+          <span class="pill">{{ currentIndex + 1 }} / {{ questions.length }}</span>
+        </div>
+        <h2>{{ currentQuestion.text }}</h2>
+
+        <div class="options">
+          <label class="option color-{{ option.color }}" *ngFor="let option of optionsForCurrent">
+            <input
+              type="radio"
+              name="q{{ currentQuestion.id }}"
+              [value]="option.score"
+              [ngModel]="answers[currentQuestion.id]"
+              (ngModelChange)="selectAnswer($event)"
+            />
+            <div class="option__body">
+              <span class="option__label">{{ option.text }}</span>
+              <span class="option__value">{{ option.score }}</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button class="btn ghost" [disabled]="currentIndex === 0" (click)="prev()">Back</button>
+        <div class="spacer"></div>
+        <button class="btn ghost" type="button" [disabled]="answeredCount === 0" (click)="finishQuiz()">Finish now</button>
+        <button class="btn primary" [disabled]="!canProceed()" (click)="next()">
+          {{ currentIndex === questions.length - 1 ? 'Submit answers' : 'Next question' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #results>
+      <section class="results">
+        <p class="eyebrow">Assessment ready</p>
+        <h2>Your quick snapshot</h2>
+        <p class="muted">Answered {{ answeredCount }} of {{ questions.length }} questions.</p>
+
+        <div class="traits" *ngIf="rec">
+          <article class="trait-card highlight">
+            <header>
+              <span class="trait-name">Thesis type</span>
+              <span class="score">{{ rec.thesisType }}</span>
+            </header>
+            <div class="mini-bar">
+              <div class="mini-bar__fill" style="width: 100%"></div>
+            </div>
+          </article>
+          <article class="trait-card" *ngFor="let item of rec.topAreas">
+            <header>
+              <span class="trait-name">{{ item }}</span>
+            </header>
+            <div class="mini-bar">
+              <div class="mini-bar__fill" [style.width.%]="rec.scores[item]"></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" (click)="restart()">Retake</button>
+          <button class="btn primary" routerLink="/">Back home</button>
+          <button class="btn primary" [disabled]="!submissionId" (click)="goToResult()">See the result</button>
+        </div>
+      </section>
+    </ng-template>
+  </main>
+
+  <div class="modal-backdrop" *ngIf="showTimeoutModal">
+    <div class="modal">
+      <h3>Time is up</h3>
+      <p class="muted">You reached the 60-minute limit. Your progress has been saved as-is.</p>
+      <div class="actions">
+        <button class="btn primary" (click)="showTimeoutModal = false">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

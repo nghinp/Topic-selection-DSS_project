@@ -1,0 +1,40 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content">
+    <section class="card search">
+      <div class="search__header">
+        <div>
+          <p class="eyebrow">Topic library</p>
+          <h1>Search topics</h1>
+          <p class="muted">Find topics by keyword or area. Try words like "dashboard", "AI", or "security".</p>
+        </div>
+        <form class="search__form" (ngSubmit)="submit()" novalidate>
+          <input
+            type="text"
+            name="keyword"
+            [(ngModel)]="keyword"
+            placeholder="Enter a keyword to search"
+            [disabled]="searching"
+          />
+          <button type="submit" class="btn primary" [disabled]="searching">Search</button>
+        </form>
+        <div class="error" *ngIf="searchError">{{ searchError }}</div>
+      </div>
+
+      <div class="search__results" *ngIf="hasSearched">
+        <div class="muted" *ngIf="searching">Searching topics...</div>
+        <div class="muted" *ngIf="!searching && !results.length">No topics found for "{{ keyword }}".</div>
+        <ul class="result-list" *ngIf="!searching && results.length">
+          <li *ngFor="let topic of results">
+            <div class="pill">{{ topic.area }}</div>
+            <div class="result__body">
+              <div class="title">{{ topic.title }}</div>
+              <p class="muted" *ngIf="topic.description">{{ topic.description }}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>

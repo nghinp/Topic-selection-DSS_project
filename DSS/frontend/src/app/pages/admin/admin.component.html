@@ -1,0 +1,69 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content">
+    <section class="card form-card">
+      <div class="form-header">
+        <h3>{{ editingId ? 'Edit topic' : 'Add topic' }}</h3>
+        <span class="muted" *ngIf="saving">Saving…</span>
+      </div>
+      <div class="form-grid">
+        <label>
+          <span>Area</span>
+          <select [(ngModel)]="draft.area">
+            <option value="">Select area</option>
+            <option *ngFor="let code of areaOptions" [value]="code">{{ code }}</option>
+          </select>
+        </label>
+        <label>
+          <span>Title</span>
+          <input type="text" [(ngModel)]="draft.title" placeholder="e.g., AI thesis idea" />
+        </label>
+      </div>
+      <label class="full">
+        <span>Description</span>
+        <textarea rows="3" [(ngModel)]="draft.description" placeholder="Optional summary for this topic. Images will be embedded as markdown."></textarea>
+      </label>
+      <label class="full">
+        <span>Attach image (will embed into description)</span>
+        <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+      </label>
+      <div class="actions">
+        <button class="btn primary" type="button" (click)="submit()" [disabled]="saving">
+          {{ editingId ? 'Update topic' : 'Create topic' }}
+        </button>
+        <button class="btn ghost" type="button" (click)="resetForm()" [disabled]="saving">Reset</button>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h3>Existing topics</h3>
+        <span class="muted" *ngIf="loading">Loading…</span>
+      </div>
+
+      <div *ngIf="!topics.length && !loading" class="empty muted">No topics yet.</div>
+
+      <table *ngIf="topics.length">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Title</th>
+            <th>Image</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of topics; trackBy: trackById">
+            <td class="mono">{{ t.area }}</td>
+            <td>{{ t.title }}</td>
+            <td class="row-actions">
+              <button class="btn ghost small" type="button" (click)="edit(t)" [disabled]="saving">Edit</button>
+              <button class="btn ghost small danger" type="button" (click)="remove(t.id)" [disabled]="saving">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>

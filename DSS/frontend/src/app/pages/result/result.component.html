@@ -1,0 +1,118 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content card">
+    <section class="auth" *ngIf="!auth.isAuthed()">
+      <h3>{{ authMode === 'login' ? 'Login' : 'Register' }} to save results</h3>
+      <div class="form-grid">
+        <label>Email
+          <input type="email" [(ngModel)]="authEmail" />
+        </label>
+        <label>Password
+          <input type="password" [(ngModel)]="authPassword" />
+        </label>
+        <label *ngIf="authMode === 'register'">Name
+          <input type="text" [(ngModel)]="authName" />
+        </label>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="button" (click)="submitAuth()">
+          {{ authMode === 'login' ? 'Login' : 'Register' }}
+        </button>
+        <button class="btn ghost" type="button" (click)="authMode = authMode === 'login' ? 'register' : 'login'">
+          Switch to {{ authMode === 'login' ? 'Register' : 'Login' }}
+        </button>
+      </div>
+      <p class="alert" *ngIf="authError">{{ authError }}</p>
+      <p class="muted" *ngIf="saveMessage">{{ saveMessage }}</p>
+    </section>
+    <header class="header">
+      <div>
+        <p class="eyebrow">Quiz result</p>
+        <h1>Your suggested direction</h1>
+        <p class="muted">Based on your DSS questionnaire.</p>
+      </div>
+      <div class="badge" *ngIf="thesisType">
+        <span class="label">Thesis type</span>
+        <span class="value">{{ thesisType }}</span>
+      </div>
+    </header>
+
+    <div *ngIf="loading" class="muted">Loading result...</div>
+    <div *ngIf="errorMessage && !loading" class="alert">{{ errorMessage }}</div>
+
+    <section *ngIf="rec && !loading" class="scores">
+      <div class="meta">
+        <span class="pill">Answered {{ answered }} / {{ total }}</span>
+      </div>
+
+      <div class="topics" *ngIf="rec.topAreas?.length">
+        <h3>Suggested topics</h3>
+        <div class="grid">
+          <article class="score-card" *ngFor="let area of rec.topAreas; let i = index">
+            <header>
+              <span class="trait">{{ areaLabel(area) }}</span>
+              <span class="score">Priority {{ i + 1 }}</span>
+            </header>
+            <ul>
+              <li *ngFor="let t of topicsFor(area) | slice:0:6">
+                <a [routerLink]="['/topics', t.id]">{{ t.title }}</a>
+                <button class="btn ghost small" type="button" (click)="saveTopic(t.title, area)">Save</button>
+              </li>
+            </ul>
+          </article>
+        </div>
+        <p class="muted" *ngIf="saveMessage">{{ saveMessage }}</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn ghost" routerLink="/quiz">Retake quiz</a>
+        <a class="btn primary" routerLink="/">Back home</a>
+      </div>
+
+      <section *ngIf="savedTopics.length" class="saved">
+        <h3>Your saved topics</h3>
+        <ul>
+          <li *ngFor="let item of savedTopics">
+            {{ item.topic }} <span class="muted" *ngIf="item.label">({{ item.label }})</span>
+          </li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="saved card" *ngIf="auth.isAuthed()">
+      <div class="section__header">
+        <p class="eyebrow">Saved results</p>
+        <h2>Your saved results</h2>
+        <p class="muted">Jump back into any recommendation you’ve saved.</p>
+      </div>
+      <div class="muted" *ngIf="savedLoading">Loading saved results...</div>
+      <div class="muted" *ngIf="savedError && !savedLoading">{{ savedError }}</div>
+      <div class="muted" *ngIf="!savedLoading && !savedError && !savedResults.length">
+        No results yet. Take the quiz to save your first result.
+        <a class="btn ghost small" routerLink="/quiz">Start quiz</a>
+      </div>
+      <ul class="saved-list" *ngIf="!savedLoading && savedResults.length">
+        <li *ngFor="let r of savedResults">
+          <div>
+            <div class="title">{{ r.thesisType }}</div>
+            <div class="muted tiny" *ngIf="r.createdAt">{{ r.createdAt | date: 'short' }}</div>
+            <div class="muted tiny">Top: {{ (r.topAreas || []).map(areaLabel).join(', ') || 'N/A' }}</div>
+          </div>
+          <a class="btn ghost small" [routerLink]="['/result', r.id]">View</a>
+        </li>
+      </ul>
+    </section>
+
+    <div class="modal-backdrop" *ngIf="showAuthModal">
+      <div class="modal">
+        <h3>Please log in to save your results</h3>
+        <div class="modal-actions">
+          <button class="btn primary" type="button" (click)="goToLogin()">Sign In</button>
+          <button class="btn ghost" type="button" (click)="goToRegister()">Sign Up</button>
+          <button class="btn ghost" type="button" (click)="closeAuthModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,55 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content">
+    <section class="card explore">
+      <header class="section__header">
+        <p class="eyebrow">Explore</p>
+      </header>
+
+      <div class="filter-bar">
+        <div class="filter-select">
+          <label for="area-select">Area</label>
+          <select id="area-select" [(ngModel)]="selectedArea">
+            <option *ngFor="let a of areaOptions" [value]="a">{{ a === 'ALL' ? 'All areas' : labelFor(a) }}</option>
+          </select>
+        </div>
+        <div class="filter-pills">
+          <button
+            class="pill-btn"
+            *ngFor="let a of areaOptions"
+            type="button"
+            [class.active]="selectedArea === a"
+            (click)="selectArea(a)"
+          >
+            {{ a === 'ALL' ? 'All' : labelFor(a) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="muted" *ngIf="loading">Loading topics...</div>
+      <div class="muted" *ngIf="loadError && !loading">{{ loadError }}</div>
+      <div class="topics-grid" *ngIf="!loading && !loadError">
+        <article class="topic-card" *ngFor="let topic of filteredTopics()">
+          <div class="pill">{{ labelFor(topic.area) }}</div>
+          <h3>
+            <a [routerLink]="['/topics', topic.id]">{{ topic.title }}</a>
+          </h3>
+          <button class="btn ghost small" type="button" (click)="save(topic)">Save</button>
+        </article>
+      </div>
+      <p class="muted" *ngIf="saveMessage">{{ saveMessage }}</p>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" *ngIf="showAuthModal">
+    <div class="modal">
+      <h3>Please log in to save topics</h3>
+      <div class="modal-actions">
+        <button class="btn primary" type="button" (click)="goToLogin()">Sign In</button>
+        <button class="btn ghost" type="button" (click)="goToRegister()">Sign Up</button>
+        <button class="btn ghost" type="button" (click)="closeAuthModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,188 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content">
+    <!-- HERO SECTION -->
+    <section class="hero card">
+      <div class="hero__copy">
+        <p class="eyebrow">Thesis Topic Decision Support System</p>
+        <h1>Find your ideal thesis topic in minutes.</h1>
+        <p class="lede">
+          A structured, research-informed assessment combining your interests, skills, and working style to recommend the most suitable thesis direction.
+        </p>
+
+        <div class="hero__actions">
+          <button class="btn primary" routerLink="/quiz">Start assessment</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section class="card metrics">
+      <div class="metric">
+        <div class="metric__value">{{ stats.topics }}</div>
+        <div class="metric__label">Total topics</div>
+      </div>
+      <div class="metric">
+        <div class="metric__value">{{ stats.areas }}</div>
+        <div class="metric__label">Areas covered</div>
+      </div>
+      <div class="metric" *ngIf="auth.isAuthed()">
+        <div class="metric__value">{{ stats.saved }}</div>
+        <div class="metric__label">Topics you saved</div>
+      </div>
+    </section>
+
+    <!-- TOPIC SEARCH -->
+    <section class="card search">
+      <div class="search__header">
+        <div>
+          <p class="eyebrow">Topic library</p>
+          <h2>Search topics by keyword</h2>
+          <p class="muted">Find topics added by admins across all areas. Try words like "dashboard", "cloud", or "security".</p>
+        </div>
+        <form class="search__form" (ngSubmit)="search()" novalidate>
+          <input
+            type="text"
+            name="keyword"
+            [(ngModel)]="keyword"
+            placeholder="Enter a keyword to search"
+            [disabled]="searching"
+          />
+          <button type="submit" class="btn primary" [disabled]="searching">Search</button>
+        </form>
+        <div class="error" *ngIf="searchError">{{ searchError }}</div>
+      </div>
+
+      <div class="search__results" *ngIf="hasSearched">
+        <div class="muted" *ngIf="searching">Searching topics...</div>
+        <div class="muted" *ngIf="!searching && !results.length">No topics found for "{{ keyword }}".</div>
+        <ul class="result-list" *ngIf="!searching && results.length">
+          <li *ngFor="let topic of results">
+            <div class="pill">{{ topic.area }}</div>
+            <div class="result__body">
+              <div class="title">{{ topic.title }}</div>
+              <p class="muted" *ngIf="topic.description">{{ topic.description }}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FEATURED TOPICS -->
+    <section class="card featured">
+      <div class="section__header">
+        <p class="eyebrow">Featured</p>
+        <h2>Recent topics</h2>
+        <p class="muted">Fresh entries from the library you can explore and save.</p>
+      </div>
+      <div class="muted" *ngIf="loadingFeatured">Loading topics...</div>
+      <div class="topics-grid" *ngIf="!loadingFeatured && featured.length">
+        <article class="topic-card" *ngFor="let t of featured">
+          <div class="pill">{{ t.area }}</div>
+          <h3><a [routerLink]="['/topics', t.id]">{{ t.title }}</a></h3>
+          <button class="btn ghost small" type="button" (click)="openTopic(t.id)">View</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- WHY SECTION -->
+    <section class="card articles">
+      <div class="section__header">
+        <h2>Why students choose Topic Insights</h2>
+        <p>A modern, data-driven approach to selecting the right thesis direction.</p>
+      </div>
+
+      <div class="grid features">
+        <article class="feature-card card">
+          <h3>No login required</h3>
+          <p>Your answers remain private. Nothing is stored unless you choose to save or export your results.</p>
+        </article>
+        <article class="feature-card card">
+          <h3>Clear, practical recommendations</h3>
+          <p>
+            Get categorized topic suggestions across fields like AI, Cybersecurity, Data Science, Web Development, and more.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- GUIDES/ARTICLES SECTION (moved from Articles page) -->
+    <section class="card articles">
+      <div class="section__header">
+        <h2>Guides & reads</h2>
+        <p class="muted">Short reads to help you explore thesis directions and project ideas.</p>
+      </div>
+      <div class="articles-list">
+        <article class="article-card">
+          <h3>Choosing a thesis direction</h3>
+          <p class="muted">How to balance your interests, skills, and market demand.</p>
+          <a class="btn ghost small" href="#">Read more</a>
+        </article>
+        <article class="article-card">
+          <h3>Designing a strong proposal</h3>
+          <p class="muted">Structure, scope, and metrics that impress advisors.</p>
+          <a class="btn ghost small" href="#">Read more</a>
+        </article>
+        <article class="article-card">
+          <h3>From idea to prototype</h3>
+          <p class="muted">Planning sprints, picking a stack, and validating early.</p>
+          <a class="btn ghost small" href="#">Read more</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- TRAIT DIMENSIONS -->
+    <section class="traits card">
+      <div class="traits__header">
+        <h2>The four assessment dimensions</h2>
+        <p class="muted">Each dimension contributes to your personalized topic recommendation.</p>
+      </div>
+
+      <div class="traits__grid">
+        <article class="trait">
+          <h4>Thesis Type Preference</h4>
+          <p>Helps determine whether you are better suited for research-based or application-based projects.</p>
+        </article>
+        <article class="trait">
+          <h4>Working Style</h4>
+          <p>Identifies whether you thrive in structured planning, independent work, or collaborative environments.</p>
+        </article>
+        <article class="trait">
+          <h4>Interest Area Identification</h4>
+          <p>Maps your interests to specialization areas such as AI, Web, Mobile, Cybersecurity, IoT, Data, and more.</p>
+        </article>
+        <article class="trait">
+          <h4>Skill Self-Assessment</h4>
+          <p>Evaluates your current technical capabilities to match you with realistic and achievable thesis options.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta card">
+      <div>
+        <p class="eyebrow">Begin your assessment</p>
+        <h2>Start choosing the right thesis topic today</h2>
+        <p class="muted">
+          Fast, simple, and customized for students. Your recommended topic list will be ready in minutes.
+        </p>
+      </div>
+      <button class="btn primary" routerLink="/quiz">Start now</button>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__left">
+      <span class="brand">TopicInsights</span>
+      <p class="muted">A smart decision support system for thesis topic selection.</p>
+    </div>
+
+    <div class="footer__links">
+      <a href="/about">About</a>
+      <a href="#">Guides</a>
+      <a href="#">Privacy</a>
+    </div>
+  </footer>
+</div>

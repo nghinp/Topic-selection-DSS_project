@@ -1,0 +1,26 @@
+<div class="page">
+  <app-navbar></app-navbar>
+  <main class="content card auth-card">
+    <h1>Create account</h1>
+    <p class="muted">Sign up to save your results and topics.</p>
+
+    <div class="form-grid">
+      <label>Email
+        <input type="email" [(ngModel)]="email" />
+      </label>
+      <label>Password
+        <input type="password" [(ngModel)]="password" />
+      </label>
+      <label>Name (optional)
+        <input type="text" [(ngModel)]="name" />
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="button" (click)="submit()">Sign up</button>
+      <a class="btn ghost" routerLink="/login">Back to sign in</a>
+    </div>
+
+    <p class="alert" *ngIf="error">{{ error }}</p>
+  </main>
+</div>

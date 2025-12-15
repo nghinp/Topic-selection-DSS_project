@@ -1,0 +1,36 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content">
+    <section class="card detail">
+      <div *ngIf="loading" class="muted">Loading topic...</div>
+      <div *ngIf="error && !loading" class="alert">{{ error }}</div>
+
+      <ng-container *ngIf="topic && !loading">
+        <div class="header">
+          <div>
+            <p class="eyebrow">Topic</p>
+            <h1>{{ topic.title }}</h1>
+            <div class="pill">{{ areaLabel(topic.area) }}</div>
+          </div>
+          <button class="btn ghost" type="button" (click)="back()">Back to explore</button>
+        </div>
+
+        <div class="body">
+          <div class="image" *ngIf="imageSrc; else placeholder">
+            <img [src]="imageSrc" [alt]="topic.title" />
+          </div>
+          <ng-template #placeholder>
+            <div class="image placeholder">No image</div>
+          </ng-template>
+
+          <div class="description">
+            <h3>Description</h3>
+            <p class="muted" *ngIf="descriptionClean; else noDesc">{{ descriptionClean }}</p>
+            <ng-template #noDesc><p class="muted">No description provided.</p></ng-template>
+          </div>
+        </div>
+      </ng-container>
+    </section>
+  </main>
+</div>
