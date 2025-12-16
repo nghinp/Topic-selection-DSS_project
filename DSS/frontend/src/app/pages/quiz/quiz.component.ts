@@ -7,6 +7,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import choices, { ChoiceOption } from '../../data/choices';
 import questions, { Question } from '../../data/questions';
 import { API_ENDPOINTS, ApiSubmissionResponse } from '../../constants/api';
+import { SessionService } from '../../services/session.service';
 
 type AreaCode = 'AI' | 'DATA' | 'SEC' | 'WEB' | 'MOBILE' | 'CLOUD' | 'NET' | 'IOT' | 'WEB3' | 'UX' | 'PM';
 type ThesisType = 'Research' | 'Practical Application';
@@ -38,7 +39,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   protected errorMessage = '';
   private timerId?: number;
 
-  constructor(private readonly http: HttpClient, private readonly router: Router) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly session: SessionService
+  ) {}
 
   ngOnInit(): void {
     this.fetchQuestions();
@@ -176,7 +181,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       recommendation
     };
 
-    this.http.post<ApiSubmissionResponse>(API_ENDPOINTS.submissions, body, { headers: this.authHeaders }).subscribe({
+    this.http.post<ApiSubmissionResponse>(API_ENDPOINTS.submissions, body, { headers: this.requestHeaders }).subscribe({
       next: (res) => {
         this.submissionId = res.id;
         this.rec = {
@@ -195,9 +200,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  private get authHeaders(): HttpHeaders {
+  private get requestHeaders(): HttpHeaders {
+    const headers: Record<string, string> = { 'X-Session-Id': this.session.getToken() };
     const token = localStorage.getItem('authToken');
-    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return new HttpHeaders(headers);
   }
 
   private computeRecommendation(answers: Record<string, number>, qs: Question[]): Recommendation {

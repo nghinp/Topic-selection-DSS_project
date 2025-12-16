@@ -4,6 +4,7 @@ export const API_ENDPOINTS = {
   base: API_BASE,
   questions: `${API_BASE}/questions`,
   submissions: `${API_BASE}/submissions`,
+  claimSubmissions: `${API_BASE}/submissions/claim`,
   savedTopics: `${API_BASE}/saved-topics`,
   adminTopics: `${API_BASE}/admin/topics`,
   topics: `${API_BASE}/topics`,

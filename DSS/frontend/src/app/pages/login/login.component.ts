@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AuthService } from '../../services/auth.service';
+import { SessionService } from '../../services/session.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,12 @@ export class LoginComponent implements OnInit {
   password = '';
   error = '';
 
-  constructor(private readonly auth: AuthService, private readonly router: Router, private readonly route: ActivatedRoute) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly session: SessionService
+  ) {}
 
   ngOnInit(): void {
     if (this.auth.isAuthed()) {
@@ -36,7 +42,11 @@ export class LoginComponent implements OnInit {
       next: (res) => {
         this.auth.token = res.token;
         this.auth.user = res.user;
-        this.router.navigate([this.auth.isAdmin() ? '/admin' : '/account']);
+        const redirect = this.auth.isAdmin() ? '/admin' : '/account';
+        this.auth.claimSession(this.session.getToken()).subscribe({
+          next: () => this.router.navigate([redirect]),
+          error: () => this.router.navigate([redirect])
+        });
       },
       error: (err) => {
         this.error = err?.error?.message ?? 'Authentication failed';

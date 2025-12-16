@@ -18,15 +18,12 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
 
-ensureTopicsTable()
-  .then(() => ensureImageUrlColumn())
-  .then(() => ensureSeedTopics())
-  .catch((err) => console.error('ensureTopicsTable failed', err));
+ensureSessionTokenColumn().catch((err) => console.error('ensureSessionTokenColumn failed', err));
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 app.get('/api/questions', (_, res) => res.json({ questions, choices }));
 
-// --- Auth ---
+// Auth
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, name = null } = req.body || {};
   if (!email || !password) return res.status(400).json({ message: 'email and password are required' });
@@ -63,7 +60,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// --- Protected routes ---
+// Protected routes
 app.get('/api/submissions', requireAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -81,15 +78,29 @@ app.get('/api/submissions', requireAuth, async (req, res) => {
   }
 });
 
-app.post('/api/submissions', requireAuth, async (req, res) => {
+app.post('/api/submissions', requireAuthOptional, async (req, res) => {
   const { answers = {}, durationMs = 0 } = req.body || {};
+  const sessionToken = getSessionToken(req);
+  if (!req.userId && !sessionToken) {
+    return res.status(400).json({ message: 'missing session token' });
+  }
+
   const recommendation = computeRecommendation(answers);
   const id = randomUUID();
   try {
     await pool.query(
-      `INSERT INTO quiz_submissions (id, user_id, answers, scores, top_areas, thesis_type, duration_ms)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [id, req.userId, answers, recommendation.scores, recommendation.topAreas, recommendation.thesisType, durationMs]
+      `INSERT INTO quiz_submissions (id, user_id, answers, scores, top_areas, thesis_type, duration_ms, session_token)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        id,
+        req.userId ?? null,
+        answers,
+        recommendation.scores,
+        recommendation.topAreas,
+        recommendation.thesisType,
+        durationMs,
+        req.userId ? null : sessionToken
+      ]
     );
     res.json({
       id,
@@ -101,6 +112,26 @@ app.post('/api/submissions', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'DB insert failed' });
+  }
+});
+
+app.post('/api/submissions/claim', requireAuth, async (req, res) => {
+  const sessionToken = getSessionToken(req);
+  if (!sessionToken) {
+    return res.status(400).json({ message: 'missing session token' });
+  }
+  try {
+    const result = await pool.query(
+      `UPDATE quiz_submissions
+          SET user_id = $1,
+              session_token = NULL
+        WHERE session_token = $2`,
+      [req.userId, sessionToken]
+    );
+    res.json({ ok: true, claimed: result.rowCount });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'DB claim failed' });
   }
 });
 
@@ -362,6 +393,12 @@ function getBearerToken(req) {
   return null;
 }
 
+function getSessionToken(req) {
+  const header = req.header('x-session-id') || req.header('X-Session-Id');
+  if (!header) return null;
+  return isUuid(header) ? header : null;
+}
+
 function hashPassword(password) {
   const salt = randomBytes(16);
   const hash = scryptSync(password, salt, 64);
@@ -380,72 +417,6 @@ function verifyPassword(password, stored) {
 function isUuid(value) {
   if (!value || typeof value !== 'string') return false;
   return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value);
-}
-
-async function ensureTopicsTable() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS topics (
-      id UUID PRIMARY KEY,
-      area TEXT NOT NULL,
-      title TEXT NOT NULL,
-      description TEXT,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      updated_at TIMESTAMPTZ DEFAULT NOW()
-    )`);
-}
-
-async function ensureSeedTopics() {
-  const seed = [
-    ['AI', 'Deep Learning for Plant Disease Classification'],
-    ['AI', 'Student Dropout Prediction using Machine Learning'],
-    ['AI', 'NLP Chatbot for University Support'],
-    ['AI', 'Anomaly Detection for Campus IoT Systems'],
-    ['DATA', 'Student Performance Prediction Dashboard'],
-    ['DATA', 'Social Media Sentiment Visualization'],
-    ['DATA', 'Real-time Dashboard for University KPIs'],
-    ['SEC', 'Phishing Detection Browser Plugin'],
-    ['SEC', 'API Security Testing Framework'],
-    ['WEB', 'Research Collaboration Web Portal'],
-    ['WEB', 'Online Examination Platform'],
-    ['WEB', 'Discussion Forum with AI Moderation'],
-    ['MOBILE', 'Campus Companion Mobile Application'],
-    ['MOBILE', 'AR Campus Navigation App'],
-    ['CLOUD', 'Secure Cloud Deployment Pipeline'],
-    ['CLOUD', 'Cloud Native Monitoring Platform'],
-    ['NET', 'Network Health Monitoring Dashboard'],
-    ['NET', 'Intrusion Detection System Prototype'],
-    ['IOT', 'Smart Lab Environment Monitoring System'],
-    ['IOT', 'IoT Enabled Waste Management System'],
-    ['WEB3', 'Academic Credential Verification on Blockchain'],
-    ['WEB3', 'Decentralized File Storage for Research Data'],
-    ['UX', 'Usability Testing Toolkit for Student Portals'],
-    ['UX', 'UX Metrics Dashboard'],
-    ['PM', 'Project Health Dashboard for Capstone Projects'],
-    ['PM', 'Agile Sprint Planning Tool for Students']
-  ];
-  try {
-    const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM topics');
-    const count = rows?.[0]?.count ?? 0;
-    if (count > 0) return;
-    for (const [area, title] of seed) {
-      await pool.query(
-        `INSERT INTO topics (id, area, title, description, image_url)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [randomUUID(), area, title, null, null]
-      );
-    }
-    console.log(`Seeded ${seed.length} topics`);
-  } catch (err) {
-    console.error('ensureSeedTopics failed', err);
-  }
-}
-
-async function ensureImageUrlColumn() {
-  try {
-    await pool.query('ALTER TABLE topics ADD COLUMN IF NOT EXISTS image_url TEXT');
-  } catch (err) {
-    console.error('ensureImageUrlColumn failed', err);
-  }
 }
 
 function computeRecommendation(answers) {

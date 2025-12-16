@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { API_ENDPOINTS } from '../../constants/api';
 import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 type SavedTopic = { id: string; topic: string; label?: string; createdAt?: string };
 type Submission = {
@@ -19,7 +20,7 @@ type Submission = {
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule, NavbarComponent],
+  imports: [CommonModule, RouterModule, FormsModule, NavbarComponent],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss'
 })
