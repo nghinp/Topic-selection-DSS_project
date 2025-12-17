@@ -26,7 +26,7 @@ app.get('/api/questions', (_, res) => res.json({ questions, choices }));
 // Auth
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, name = null } = req.body || {};
-  if (!email || !password) return res.status(400).json({ message: 'email and password are required' });
+  if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
   try {
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rowCount) return res.status(409).json({ message: 'Email already exists' });
