@@ -68,7 +68,7 @@ export class HomeComponent implements OnInit {
         this.stats.topics = rows.length;
         const areas = new Set(rows.map((t) => t.area));
         this.stats.areas = areas.size;
-        this.featured = rows.slice(0, 8);
+        this.featured = rows.slice(0, 10);
         this.loadingFeatured = false;
       },
       error: () => {

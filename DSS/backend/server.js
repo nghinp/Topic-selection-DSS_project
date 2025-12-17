@@ -18,8 +18,6 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
 
-ensureSessionTokenColumn().catch((err) => console.error('ensureSessionTokenColumn failed', err));
-
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 app.get('/api/questions', (_, res) => res.json({ questions, choices }));
 

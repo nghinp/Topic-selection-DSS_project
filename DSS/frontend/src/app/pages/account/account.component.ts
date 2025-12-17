@@ -6,6 +6,8 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { API_ENDPOINTS } from '../../constants/api';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { AREA_LABELS } from '../../constants/areas';
+import { TopicsService } from '../../services/topics.service';
 
 type SavedTopic = { id: string; topic: string; label?: string; createdAt?: string };
 type Submission = {
@@ -30,7 +32,54 @@ export class AccountComponent implements OnInit {
   loading = true;
   error = '';
 
-  constructor(private readonly http: HttpClient, private readonly router: Router, public readonly auth: AuthService) {}
+  deleting: Record<string, boolean> = {};
+
+  isUuid(value: string): boolean {
+    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value ?? '');
+  }
+
+  displayTitle(t: SavedTopic): string {
+    if (t.label && !this.isAreaCode(t.label)) {
+      return t.label;
+    }
+    return t.topic;
+  }
+
+  displayArea(t: SavedTopic): string | null {
+    if (t.label && this.isAreaCode(t.label)) {
+      return AREA_LABELS[t.label] || t.label;
+    }
+    return null;
+  }
+
+  private isAreaCode(value?: string): boolean {
+    return Boolean(value && AREA_LABELS[value]);
+  }
+
+  openTopic(topic: SavedTopic): void {
+    const topicId = topic?.topic;
+    if (!topicId) return;
+    if (this.isUuid(topicId)) {
+      this.router.navigate(['/topics', topicId]);
+      return;
+    }
+    this.topicsService.search(topicId).subscribe({
+      next: (rows) => {
+        const match = rows.find((r) => r.title.toLowerCase() === topicId.toLowerCase()) || rows[0];
+        if (match?.id) {
+          this.router.navigate(['/topics', match.id]);
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly topicsService: TopicsService,
+    public readonly auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     if (!this.auth.isAuthed()) {
@@ -54,6 +103,20 @@ export class AccountComponent implements OnInit {
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  removeSaved(id: string): void {
+    if (!id) return;
+    this.deleting[id] = true;
+    this.http.delete<{ ok: boolean }>(`${API_ENDPOINTS.savedTopics}/${id}`, { headers: this.authHeaders }).subscribe({
+      next: () => {
+        this.savedTopics = this.savedTopics.filter((t) => t.id !== id);
+        delete this.deleting[id];
+      },
+      error: () => {
+        delete this.deleting[id];
+      }
+    });
   }
 
   private async fetchTopics(): Promise<void> {

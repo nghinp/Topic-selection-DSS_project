@@ -13,7 +13,14 @@
             <h1>{{ topic.title }}</h1>
             <div class="pill">{{ areaLabel(topic.area) }}</div>
           </div>
-          <button class="btn ghost" type="button" (click)="back()">Back to explore</button>
+          <div class="actions">
+            <button class="btn ghost" type="button" (click)="saveTopic()" [disabled]="saving">Save topic</button>
+            <button class="btn ghost" type="button" (click)="back()">Back to explore</button>
+          </div>
+        </div>
+        <div class="status">
+          <span class="success" *ngIf="saveSuccess">{{ saveSuccess }}</span>
+          <span class="alert" *ngIf="saveError">{{ saveError }}</span>
         </div>
 
         <div class="body">
@@ -32,5 +39,17 @@
         </div>
       </ng-container>
     </section>
+
+    <div class="modal-backdrop" *ngIf="showLoginPrompt">
+      <div class="modal">
+        <h3>Login required</h3>
+        <p>Please login or register to save topics.</p>
+        <div class="modal__actions">
+          <button class="btn primary" routerLink="/login">Login</button>
+          <button class="btn ghost" routerLink="/register">Register</button>
+          <button class="btn text" type="button" (click)="closeLoginPrompt()">Cancel</button>
+        </div>
+      </div>
+    </div>
   </main>
 </div>

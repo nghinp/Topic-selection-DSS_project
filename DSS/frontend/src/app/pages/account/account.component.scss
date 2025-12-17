@@ -53,3 +53,23 @@
 .muted {
   color: var(--muted);
 }
+
+.saved-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.saved-row .btn {
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.saved-row.clickable {
+  cursor: pointer;
+}
+
+h3 {
+  color: #ff2d62;
+}

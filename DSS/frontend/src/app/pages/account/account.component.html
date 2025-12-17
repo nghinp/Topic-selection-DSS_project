@@ -26,10 +26,25 @@
         <div *ngIf="!savedTopics.length" class="muted">No topics saved.</div>
         <ul class="list" *ngIf="savedTopics.length">
           <li *ngFor="let t of savedTopics">
-            <div>
-              <strong>{{ t.topic }}</strong>
-              <span class="muted" *ngIf="t.label"> · {{ t.label }}</span>
+            <div
+              class="saved-row"
+              [class.clickable]="true"
+              (click)="openTopic(t)"
+            >
+              <ng-container *ngIf="isUuid(t.topic); else noLink">
+                <a class="link" [routerLink]="['/topics', t.topic]"><strong>{{ displayTitle(t) }}</strong></a>
+              </ng-container>
+              <ng-template #noLink><strong>{{ displayTitle(t) }}</strong></ng-template>
+              <span class="muted" *ngIf="displayArea(t)"> · {{ displayArea(t) }}</span>
               <span class="muted" *ngIf="t.createdAt"> · {{ t.createdAt | date:'short' }}</span>
+              <button
+                class="btn ghost small"
+                type="button"
+                (click)="removeSaved(t.id); $event.stopPropagation()"
+                [disabled]="deleting[t.id]"
+              >
+                {{ deleting[t.id] ? 'Deleting...' : 'Delete' }}
+              </button>
             </div>
           </li>
         </ul>

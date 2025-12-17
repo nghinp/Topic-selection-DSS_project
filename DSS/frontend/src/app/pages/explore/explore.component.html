@@ -35,7 +35,14 @@
           <h3>
             <a [routerLink]="['/topics', topic.id]">{{ topic.title }}</a>
           </h3>
-          <button class="btn ghost small" type="button" (click)="save(topic)">Save</button>
+          <button
+            class="btn ghost small"
+            type="button"
+            (click)="save(topic)"
+            [disabled]="isSaved(topic)"
+          >
+            {{ isSaved(topic) ? 'Saved' : 'Save' }}
+          </button>
         </article>
       </div>
       <p class="muted" *ngIf="saveMessage">{{ saveMessage }}</p>
@@ -44,7 +51,7 @@
 
   <div class="modal-backdrop" *ngIf="showAuthModal">
     <div class="modal">
-      <h3>Please log in to save topics</h3>
+      <h3>Please log in to save your results</h3>
       <div class="modal-actions">
         <button class="btn primary" type="button" (click)="goToLogin()">Sign In</button>
         <button class="btn ghost" type="button" (click)="goToRegister()">Sign Up</button>

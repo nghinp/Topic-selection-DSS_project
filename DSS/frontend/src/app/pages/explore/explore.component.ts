@@ -43,7 +43,7 @@ export class ExploreComponent implements OnInit {
   }
 
   protected save(topic: TopicRecord): void {
-    const key = `${topic.area}:${topic.title}`.toLowerCase();
+    const key = this.keyFor(topic);
     if (this.savedTopics.includes(key)) {
       this.saveMessage = 'Topic already saved.';
       return;
@@ -55,7 +55,7 @@ export class ExploreComponent implements OnInit {
     this.http
       .post<{ id: string }>(
         API_ENDPOINTS.savedTopics,
-        { topic: topic.title, label: topic.area },
+        { topic: topic.id || topic.title, label: topic.title },
         { headers: this.authHeaders }
       )
       .subscribe({
@@ -109,15 +109,18 @@ export class ExploreComponent implements OnInit {
     this.selectedArea = area;
   }
 
+  protected isSaved(topic: TopicRecord): boolean {
+    return this.savedTopics.includes(this.keyFor(topic));
+  }
+
   private loadSavedTopics(): void {
     if (!this.auth.isAuthed()) return;
     this.http
       .get<Array<{ topic: string; label?: string }>>(API_ENDPOINTS.savedTopics, { headers: this.authHeaders })
       .subscribe({
         next: (rows) => {
-          this.savedTopics = rows.map(
-            (t) => `${(t.label || '').toUpperCase()}:${t.topic}`.toLowerCase()
-          );
+          const keys = rows.map((t) => this.normalizeKey(t.topic));
+          this.savedTopics = Array.from(new Set(keys));
         },
       });
   }
@@ -131,5 +134,13 @@ export class ExploreComponent implements OnInit {
     const set = new Set<string>();
     rows.forEach((r) => set.add(r.area));
     this.areaOptions = ['ALL', ...Array.from(set).sort()];
+  }
+
+  private keyFor(topic: TopicRecord): string {
+    return this.normalizeKey(topic.id || topic.title);
+  }
+
+  private normalizeKey(value: string): string {
+    return (value || '').trim().toLowerCase();
   }
 }
