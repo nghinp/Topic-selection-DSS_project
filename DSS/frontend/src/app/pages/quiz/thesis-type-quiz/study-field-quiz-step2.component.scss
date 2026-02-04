@@ -1,0 +1,71 @@
+:host {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #121212;
+  --muted: #616374;
+  --accent: #ff2d62;
+  --border: #e4e6ed;
+  display: block;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.page {
+  margin: 0 auto;
+  padding: 20px 18px 40px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 10px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+}
+
+.card h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 4px 0;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.footer__links {
+  display: flex;
+  gap: 14px;
+}
+
+.footer__links a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer__links a:hover {
+  color: var(--accent);
+}
+
+.brand {
+  font-weight: 800;
+  color: var(--text);
+}

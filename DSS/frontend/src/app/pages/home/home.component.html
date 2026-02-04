@@ -11,7 +11,7 @@
         </p>
 
         <div class="hero__actions">
-          <button class="btn primary" routerLink="/quiz">Start assessment</button>
+          <button class="btn primary" routerLink="/quiz">Explore now</button>
         </div>
       </div>
     </section>
@@ -31,44 +31,9 @@
       </div>
     </section>
 
-    <section class="card search">
-      <div class="search__header">
-        <div>
-          <h2>Search topics by keyword</h2>
-          <p class="muted">Find topics added by admins across all areas. Try words like "dashboard", "cloud", or "security".</p>
-        </div>
-        <form class="search__form" (ngSubmit)="search()" novalidate>
-          <input
-            type="text"
-            name="keyword"
-            [(ngModel)]="keyword"
-            placeholder="Enter a keyword to search"
-            [disabled]="searching"
-          />
-          <button type="submit" class="btn primary" [disabled]="searching">Search</button>
-        </form>
-        <div class="error" *ngIf="searchError">{{ searchError }}</div>
-      </div>
-
-      <div class="search__results" *ngIf="hasSearched">
-        <div class="muted" *ngIf="searching">Searching topics...</div>
-        <div class="muted" *ngIf="!searching && !results.length">No topics found for "{{ keyword }}".</div>
-        <ul class="result-list" *ngIf="!searching && results.length">
-          <li *ngFor="let topic of results">
-            <div class="pill">{{ topic.area }}</div>
-            <div class="result__body">
-              <div class="title">{{ topic.title }}</div>
-              <p class="muted" *ngIf="topic.description">{{ topic.description }}</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </section>
-
     <section class="card featured">
       <div class="section__header">
         <h2>Recent topics</h2>
-        <p class="muted">Fresh entries from the library you can explore and save.</p>
       </div>
       <div class="muted" *ngIf="loadingFeatured">Loading topics...</div>
       <div class="topics-grid" *ngIf="!loadingFeatured && featured.length">

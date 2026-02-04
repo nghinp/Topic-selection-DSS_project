@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
-import { QuizComponent } from './pages/quiz/quiz.component';
 import { ResultComponent } from './pages/result/result.component';
 import { LoginComponent } from './pages/login/login.component';
 import { AccountComponent } from './pages/account/account.component';
@@ -10,10 +9,20 @@ import { AboutComponent } from './pages/about/about.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { SearchComponent } from './pages/search/search.component';
 import { TopicDetailComponent } from './pages/topic-detail/topic-detail.component';
+import { StudyFieldQuizComponent } from './pages/quiz/study-field-quiz/study-field-quiz.component';
+import { ThesisTypeAddtionComponent } from './pages/quiz/thesis-type-addtion/thesis-type-addtion.component';
+import { CareerInterestsComponent } from './pages/quiz/career-interests/career-interests.component';
+import { InitialIdeasComponent } from './pages/quiz/initial-ideas/initial-ideas.component';
+import { SubmitComponent } from './pages/quiz/submit/submit.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'quiz', component: QuizComponent },
+  { path: 'study-field-quiz', component: StudyFieldQuizComponent },
+  { path: 'study-field-quiz/thesis-type-addtion', component: ThesisTypeAddtionComponent },
+  { path: 'study-field-quiz/career-interests', component: CareerInterestsComponent },
+  { path: 'study-field-quiz/step-2', component: InitialIdeasComponent },
+  { path: 'study-field-quiz/initial-ideas', redirectTo: 'study-field-quiz/step-2', pathMatch: 'full' },
+  { path: 'study-field-quiz/submit', component: SubmitComponent },
   { path: 'result/:id', component: ResultComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },

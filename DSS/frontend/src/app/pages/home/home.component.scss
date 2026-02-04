@@ -5,16 +5,9 @@
   --muted: #616374;
   --accent: #ff2d62;
   --border: #e4e6ed;
-  display: block;
   font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
-  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-}
-
-.page {
-  margin: 0 auto;
-  padding: 20px 18px 32px;
 }
 
 .content {
@@ -31,13 +24,6 @@
   padding: 14px;
 }
 
-.metric {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: #f9f9fd;
-}
-
 .metric__value {
   font-size: 22px;
   font-weight: 800;
@@ -49,36 +35,34 @@
   font-size: 13px;
 }
 
-.card {
-  background: var(--surface);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-}
-
 .hero {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
-  padding: 24px;
+  place-items: center;
+  gap: 18px;
+  padding: 36px 28px;
+  text-align: center;
+}
+
+.hero__copy {
+  max-width: 760px;
 }
 
 .hero__copy h1 {
-  font-size: 34px;
+  font-size: 36px;
   line-height: 1.2;
-  margin: 6px 0 8px;
+  margin: 8px 0 10px;
 }
 
 .lede {
   color: var(--muted);
   font-size: 16px;
-  line-height: 1.5;
-  margin-bottom: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
 }
 
 .eyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.16em;
   font-weight: 700;
   color: var(--accent);
   font-size: 12px;
@@ -87,9 +71,10 @@
 
 .hero__actions {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 12px 0;
+  margin: 12px 0 4px;
 }
 
 .btn {
@@ -270,6 +255,8 @@ h2 {
 .section__header h2 {
   margin: 0;
   font-size: 24px;
+  justify-content: center;
+  align-items: center;
 }
 
 .section__header p {
@@ -285,9 +272,10 @@ h2 {
 }
 
 .search__header {
-  display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
+
 }
 
 .search__form {
@@ -474,7 +462,7 @@ h2 {
 
 @media (max-width: 720px) {
   .hero {
-    padding: 18px;
+    padding: 22px 18px;
   }
 
   .hero__copy h1 {
