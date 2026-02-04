@@ -1,0 +1,46 @@
+<div class="page">
+  <app-navbar></app-navbar>
+
+  <main class="content">
+    <section class="card flow">
+      <header class="flow__header">
+        <h1>Generate a Free Thesis Topic</h1>
+        <div class="stepper" aria-label="Progress">
+          <span class="stepper__circle stepper__circle--active">1</span>
+          <span class="stepper__line stepper__line--active"></span>
+          <span class="stepper__circle stepper__circle--active">2</span>
+          <span class="stepper__line stepper__line--active"></span>
+          <span class="stepper__circle stepper__circle--active">3</span>
+          <span class="stepper__line stepper__line--active"></span>
+          <span class="stepper__circle stepper__circle--current" aria-current="step">4</span>
+        </div>
+      </header>
+
+      <section class="flow__section">
+        <h2>Submit</h2>
+        <p class="flow__subtitle">
+          Review your answers and submit to generate your thesis topic recommendations.
+        </p>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" (click)="onBack()">Back</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn primary">Submit</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__left">
+      <span class="brand">TopicInsights</span>
+      <p class="muted">A smart decision support system for thesis topic selection.</p>
+    </div>
+
+    <div class="footer__links">
+      <a href="/about">About</a>
+      <a href="#">Guides</a>
+      <a href="#">Privacy</a>
+    </div>
+  </footer>
+</div>

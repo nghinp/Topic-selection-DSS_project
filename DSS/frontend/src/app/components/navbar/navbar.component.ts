@@ -22,7 +22,7 @@ interface NavItem {
 export class NavbarComponent {
   navItems: NavItem[] = [
     { label: 'Home', path: '/' },
-    { label: 'Quiz', path: '/quiz', requiresNonAdmin: true },
+    { label: 'Quiz', path: '/study-field-quiz', requiresNonAdmin: true },
     { label: 'Result', path: '/result/local', requiresNonAdmin: true },
     { label: 'Explore', path: '/explore' },
     { label: 'About', path: '/about' },

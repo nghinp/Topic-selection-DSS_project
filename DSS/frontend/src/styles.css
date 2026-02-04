@@ -1,6 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Global baseline to match home page look across all routes */
 :root {
-  --bg: #f6f7fb;
   --surface: #ffffff;
   --text: #121212;
   --muted: #616374;
@@ -24,25 +27,11 @@ a:hover {
   text-decoration: underline;
 }
 
-.page {
-  width: 90%;
-  max-width: none;
-  margin: 0 auto;
-  padding: 20px 18px 32px;
-}
-
 .content {
   display: flex;
   flex-direction: column;
   gap: 22px;
   margin-top: 10px;
-}
-
-.card {
-  background: var(--surface);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
 .eyebrow {
