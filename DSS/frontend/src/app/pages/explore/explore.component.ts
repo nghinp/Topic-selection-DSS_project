@@ -25,6 +25,34 @@ export class ExploreComponent implements OnInit {
   protected loadError = '';
   protected selectedArea = 'ALL';
   protected areaOptions: string[] = [];
+  protected searchTerm = '';
+  protected interestOptions: string[] = [
+    'Art & Literature',
+    'Astronomy',
+    'Biology',
+    'Business & Economics',
+    'Chemistry',
+    'Education & Learning',
+    'Engineering & Technology',
+    'Entrepreneurship & Innovation',
+    'Finance & Accounting',
+    'History',
+    'IT & Computer Science',
+    'Law',
+    'Management & Leadership',
+    'Marketing, Communication & Media',
+    'Mathematics & Statistics',
+    'Medicine & Health',
+    'Philosophy & Ethics',
+    'Political Science',
+    'Psychology',
+    'Religion & Theology',
+    'Sociology',
+    'Sustainability & Environment',
+    'Tax',
+    'Tourism & Hospitality'
+  ];
+  protected selectedInterests = new Set<string>();
 
   protected labelFor(area: string): string {
     return AREA_LABELS[area] || area;
@@ -101,12 +129,42 @@ export class ExploreComponent implements OnInit {
 
   protected filteredTopics(): TopicRecord[] {
     if (!this.topics.length) return [];
-    if (this.selectedArea === 'ALL') return this.topics;
-    return this.topics.filter((t) => t.area === this.selectedArea);
+    let list = this.topics;
+    if (this.selectedArea !== 'ALL') {
+      list = list.filter((t) => t.area === this.selectedArea);
+    }
+    const term = this.searchTerm.trim().toLowerCase();
+    if (term) {
+      list = list.filter((t) => {
+        const title = (t.title || '').toLowerCase();
+        const desc = (t.description || '').toLowerCase();
+        return title.includes(term) || desc.includes(term);
+      });
+    }
+    if (this.selectedInterests.size) {
+      const needles = Array.from(this.selectedInterests).map((s) => s.toLowerCase());
+      list = list.filter((t) => {
+        const hay = `${t.title || ''} ${t.description || ''} ${this.labelFor(t.area)}`.toLowerCase();
+        return needles.some((n) => hay.includes(n));
+      });
+    }
+    return list;
   }
 
   protected selectArea(area: string): void {
     this.selectedArea = area;
+  }
+
+  protected toggleInterest(value: string, checked: boolean): void {
+    if (checked) {
+      this.selectedInterests.add(value);
+    } else {
+      this.selectedInterests.delete(value);
+    }
+  }
+
+  protected isInterestSelected(value: string): boolean {
+    return this.selectedInterests.has(value);
   }
 
   protected isSaved(topic: TopicRecord): boolean {
@@ -134,6 +192,9 @@ export class ExploreComponent implements OnInit {
     const set = new Set<string>();
     rows.forEach((r) => set.add(r.area));
     this.areaOptions = ['ALL', ...Array.from(set).sort()];
+    if (!this.areaOptions.includes(this.selectedArea)) {
+      this.selectedArea = 'ALL';
+    }
   }
 
   private keyFor(topic: TopicRecord): string {
@@ -142,5 +203,14 @@ export class ExploreComponent implements OnInit {
 
   private normalizeKey(value: string): string {
     return (value || '').trim().toLowerCase();
+  }
+
+  protected cleanDescription(value?: string | null): string {
+    if (!value) return '';
+    return value
+      .replace(/!\[[^\]]*]\([^)]*\)/g, '')
+      .replace(/data:image\/[^)\s]+/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 }

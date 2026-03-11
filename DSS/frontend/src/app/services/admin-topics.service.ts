@@ -7,6 +7,7 @@ export interface AdminTopic {
   area: string;
   title: string;
   description?: string | null;
+  thesisType?: 'Research' | 'Practical' | null;
   imageUrl?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -20,11 +21,11 @@ export class AdminTopicsService {
     return this.http.get<AdminTopic[]>(API_ENDPOINTS.adminTopics);
   }
 
-  create(topic: Pick<AdminTopic, 'area' | 'title' | 'description' | 'imageUrl'>) {
+  create(topic: Pick<AdminTopic, 'area' | 'title' | 'description' | 'imageUrl' | 'thesisType'>) {
     return this.http.post<AdminTopic>(API_ENDPOINTS.adminTopics, topic);
   }
 
-  update(id: string, topic: Pick<AdminTopic, 'area' | 'title' | 'description' | 'imageUrl'>) {
+  update(id: string, topic: Pick<AdminTopic, 'area' | 'title' | 'description' | 'imageUrl' | 'thesisType'>) {
     return this.http.put<AdminTopic>(`${API_ENDPOINTS.adminTopics}/${id}`, topic);
   }
 

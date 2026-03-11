@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
 import { API_ENDPOINTS } from '../constants/api';
 import { TokenService } from './token.service';
 
@@ -63,8 +64,7 @@ export class AuthService {
   }
 
   claimSession(sessionId: string) {
-    const base = new HttpHeaders().set('X-Session-Id', sessionId);
-    const headers = this.token ? base.set('Authorization', `Bearer ${this.token}`) : base;
-    return this.http.post<{ ok: boolean; claimed?: number }>(API_ENDPOINTS.claimSubmissions, {}, { headers });
+    void sessionId;
+    return of({ ok: true, claimed: 0 });
   }
 }

@@ -3,8 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual } from 'crypto';
-import { questions } from './data/questions.js';
-import { choices } from './data/choices.js';
+import { HYBRID_RECOMMENDATION_CONFIG } from './config/hybridRecommendationConfig.js';
 
 dotenv.config();
 const app = express();
@@ -17,9 +16,162 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .split(',')
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
+const ALLOWED_MAJORS = new Set(['IT', 'CS', 'DS']);
+const ALLOWED_PREFERENCES = new Set(['Research', 'Practical', 'Not defined']);
+const ALLOWED_TOPIC_THESIS_TYPES = new Set(['Research', 'Practical']);
+const ALLOWED_TOPIC_AREAS = new Set([
+  'AI & Machine Learning',
+  'Data Science & Mining',
+  'Computer Vision & Multimedia',
+  'Web & Software Systems',
+  'Cybersecurity & Networks',
+  'IoT & Embedded Systems',
+  'Graphics, Games & HCI'
+]);
+const INSERT_USER_INTENT_SQL = `
+  INSERT INTO user_intents (
+    user_id, major, thesis_preference, include_keywords, exclude_keywords, career_aim, interests
+  ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+  RETURNING intent_id
+`;
+const INSERT_TOPIC_RECOMMENDATION_SQL = `
+  INSERT INTO topic_recommendations (rec_id, user_id, intent_id, topic_id, final_score, breakdown)
+  VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+`;
+const HYBRID_RECOMMENDATION_SQL = `
+WITH input AS (
+  SELECT
+    $1::text[] AS major_allowlist,
+    NULLIF(BTRIM($2::text), '') AS thesis_preference,
+    NULLIF(BTRIM($3::text), '') AS user_query,
+    NULLIF(BTRIM($4::text), '') AS exclude_query,
+    COALESCE($5::text[], ARRAY[]::text[]) AS extracted_tokens,
+    $6::numeric AS coverage_threshold,
+    COALESCE($7::text[], ARRAY[]::text[]) AS research_cues,
+    COALESCE($8::text[], ARRAY[]::text[]) AS practical_cues
+),
+ts_input AS (
+  SELECT
+    i.*,
+    CASE
+      WHEN i.user_query IS NULL THEN NULL
+      ELSE websearch_to_tsquery('english', i.user_query)
+    END AS include_tsq,
+    CASE
+      WHEN i.exclude_query IS NULL THEN NULL
+      ELSE websearch_to_tsquery('english', i.exclude_query)
+    END AS exclude_tsq
+  FROM input i
+),
+candidates AS (
+  SELECT
+    tt.topic_id,
+    tt.title,
+    tt.description,
+    tt.area,
+    tt.thesis_type,
+    tt.created_at,
+    tt.search_vec,
+    LOWER(CONCAT_WS(' ', tt.title, COALESCE(tt.description, ''), tt.area)) AS search_text,
+    ti.thesis_preference,
+    ti.include_tsq,
+    ti.extracted_tokens,
+    ti.coverage_threshold,
+    ti.research_cues,
+    ti.practical_cues
+  FROM thesis_topics tt
+  CROSS JOIN ts_input ti
+  WHERE tt.area = ANY(ti.major_allowlist)
+    AND (ti.exclude_tsq IS NULL OR NOT (tt.search_vec @@ ti.exclude_tsq))
+    AND (
+      ti.thesis_preference IS NULL
+      OR ti.thesis_preference = 'Not defined'
+      OR tt.thesis_type IS NULL
+      OR tt.thesis_type = ti.thesis_preference
+    )
+),
+validated AS (
+  SELECT
+    c.topic_id,
+    c.title,
+    c.description,
+    c.area,
+    c.thesis_type,
+    c.created_at,
+    c.thesis_preference,
+    CASE
+      WHEN c.include_tsq IS NULL THEN 0::real
+      ELSE ts_rank(c.search_vec, c.include_tsq)
+    END AS topic_rank,
+    CASE
+      WHEN cardinality(c.extracted_tokens) = 0 THEN NULL::numeric
+      ELSE (
+        SELECT COUNT(*) FILTER (WHERE POSITION(token IN c.search_text) > 0)::numeric
+        FROM unnest(c.extracted_tokens) AS token
+      ) / cardinality(c.extracted_tokens)
+    END AS coverage,
+    (
+      SELECT COUNT(*)
+      FROM unnest(c.research_cues) AS cue
+      WHERE POSITION(cue IN c.search_text) > 0
+    ) AS research_cue_hits,
+    (
+      SELECT COUNT(*)
+      FROM unnest(c.practical_cues) AS cue
+      WHERE POSITION(cue IN c.search_text) > 0
+    ) AS practical_cue_hits,
+    c.coverage_threshold
+  FROM candidates c
+),
+coverage_pass AS (
+  SELECT
+    v.*,
+    CASE
+      WHEN v.thesis_preference IS NULL OR v.thesis_preference = 'Not defined' OR v.thesis_type IS NOT NULL THEN NULL
+      WHEN v.research_cue_hits > v.practical_cue_hits THEN 'Research'
+      WHEN v.practical_cue_hits > v.research_cue_hits THEN 'Practical'
+      ELSE 'Unknown'
+    END AS inferred_type
+  FROM validated v
+  WHERE v.coverage IS NULL OR v.coverage >= v.coverage_threshold
+),
+ranked AS (
+  SELECT
+    cp.*,
+    COALESCE(MAX(cp.topic_rank) OVER (), 0::real) AS max_rank
+  FROM coverage_pass cp
+),
+scored AS (
+  SELECT
+    r.*,
+    CASE
+      WHEN r.max_rank > 0 THEN r.topic_rank / r.max_rank
+      ELSE 0::real
+    END AS topic_rank_norm,
+    (0.8 * CASE WHEN r.max_rank > 0 THEN r.topic_rank / r.max_rank ELSE 0::real END) +
+    (0.2 * COALESCE(r.coverage, 0::numeric)) AS final_score
+  FROM ranked r
+)
+SELECT
+  topic_id,
+  title,
+  description,
+  area,
+  thesis_type,
+  created_at,
+  topic_rank,
+  topic_rank_norm,
+  coverage,
+  final_score,
+  inferred_type,
+  research_cue_hits,
+  practical_cue_hits
+FROM scored
+ORDER BY final_score DESC, topic_rank DESC, created_at DESC NULLS LAST
+LIMIT 1
+`;
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
-app.get('/api/questions', (_, res) => res.json({ questions, choices }));
 
 // Auth
 app.post('/api/auth/register', async (req, res) => {
@@ -43,7 +195,7 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body || {};
-  if (!email || !password) return res.status(400).json({ message: 'email and password are required' });
+  if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
   try {
     const result = await pool.query('SELECT id, password_hash, name FROM users WHERE email = $1', [email]);
     if (!result.rowCount) return res.status(401).json({ message: 'Invalid credentials' });
@@ -58,100 +210,136 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Protected routes
-app.get('/api/submissions', requireAuth, async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT id, thesis_type AS "thesisType", scores, top_areas AS "topAreas", duration_ms AS "durationMs", created_at AS "createdAt"
-         FROM quiz_submissions
-        WHERE user_id = $1
-        ORDER BY created_at DESC
-        LIMIT 50`,
-      [req.userId]
-    );
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'DB fetch failed' });
+app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => {
+  const body = req.body || {};
+  const baseInput = parseRecommendationInput({
+    body,
+    reqUserId: req.userId,
+    normalizeLongText: normalizeWhitespace
+  });
+  if (baseInput.error) {
+    return res.status(baseInput.error.status).json({ message: baseInput.error.message });
   }
-});
+  const { major, thesisPreference, includeKeywords, excludeKeywords, careerAim, interests, effectiveUserId } = baseInput;
 
-app.post('/api/submissions', requireAuthOptional, async (req, res) => {
-  const { answers = {}, durationMs = 0 } = req.body || {};
-  const sessionToken = getSessionToken(req);
-  if (!req.userId && !sessionToken) {
-    return res.status(400).json({ message: 'missing session token' });
+  const includeTokens = tokenizeKeywords(includeKeywords);
+  const excludeTokens = tokenizeKeywords(excludeKeywords);
+  const conflictingTokens = [...includeTokens].filter((token) => excludeTokens.has(token)).sort();
+  if (conflictingTokens.length) {
+    return res.status(400).json({
+      message: 'Conflicting constraints: keywords appear in both include and exclude.',
+      conflictingTokens
+    });
   }
 
-  const recommendation = computeRecommendation(answers);
-  const id = randomUUID();
+  const extractedTokens = extractUserTokens({
+    major,
+    includeKeywords,
+    careerAim,
+    interests
+  });
+  const userQuery = buildUserQuery({ major, includeKeywords, careerAim, interests });
+  const majorAllowlist = HYBRID_RECOMMENDATION_CONFIG.majorAreaAllowlist[major];
+
+  const client = await pool.connect();
   try {
-    await pool.query(
-      `INSERT INTO quiz_submissions (id, user_id, answers, scores, top_areas, thesis_type, duration_ms, session_token)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [
-        id,
-        req.userId ?? null,
-        answers,
-        recommendation.scores,
-        recommendation.topAreas,
-        recommendation.thesisType,
-        durationMs,
-        req.userId ? null : sessionToken
-      ]
-    );
-    res.json({
-      id,
-      ...recommendation,
-      answered: Object.keys(answers).length,
-      total: questions.length,
-      durationMs
+    await client.query('BEGIN');
+
+    const intentId = await createUserIntent(client, {
+      userId: effectiveUserId,
+      major,
+      thesisPreference,
+      includeKeywords,
+      excludeKeywords,
+      careerAim,
+      interests
+    });
+
+    const recommendationResult = await client.query(HYBRID_RECOMMENDATION_SQL, [
+      majorAllowlist,
+      thesisPreference,
+      userQuery,
+      excludeKeywords,
+      extractedTokens,
+      HYBRID_RECOMMENDATION_CONFIG.coverageThreshold,
+      HYBRID_RECOMMENDATION_CONFIG.researchCues,
+      HYBRID_RECOMMENDATION_CONFIG.practicalCues
+    ]);
+
+    if (!recommendationResult.rowCount) {
+      await client.query('COMMIT');
+      return res.status(404).json({
+        message: 'No thesis topic matched your filters.',
+        intentId
+      });
+    }
+
+    const best = recommendationResult.rows[0];
+    const topicRank = Number(best.topic_rank || 0);
+    const topicRankNorm = Number(best.topic_rank_norm || 0);
+    const coverage = best.coverage === null ? null : Number(best.coverage);
+    const finalScore = Number(best.final_score || 0);
+    const breakdown = {
+      scores: {
+        finalScore,
+        topicRank,
+        topicRankNorm,
+        coverage
+      },
+      filters: {
+        majorAllowlist,
+        thesisPreferenceApplied: thesisPreference !== 'Not defined',
+        excludeApplied: Boolean(excludeKeywords),
+        coverageThreshold: HYBRID_RECOMMENDATION_CONFIG.coverageThreshold
+      },
+      tokens: extractedTokens,
+      validation: {
+        inferredType: best.inferred_type,
+        researchCueHits: Number(best.research_cue_hits || 0),
+        practicalCueHits: Number(best.practical_cue_hits || 0)
+      }
+    };
+    const recommendationId = randomUUID();
+
+    await insertTopicRecommendation(client, {
+      recommendationId,
+      userId: effectiveUserId,
+      intentId,
+      topicId: best.topic_id,
+      finalScore,
+      breakdown
+    });
+
+    await client.query('COMMIT');
+    return res.status(201).json({
+      bestTopic: {
+        topic_id: best.topic_id,
+        title: best.title,
+        description: best.description,
+        area: best.area,
+        thesis_type: best.thesis_type,
+        created_at: best.created_at
+      },
+      scores: breakdown.scores,
+      filters: breakdown.filters,
+      explain: buildHybridExplanation({
+        topicTitle: best.title,
+        area: best.area,
+        thesisType: best.thesis_type,
+        thesisPreference,
+        coverage,
+        topicRankNorm,
+        inferredType: best.inferred_type
+      }),
+      recommendationId,
+      intentId
     });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err);
-    res.status(500).json({ message: 'DB insert failed' });
-  }
-});
-
-app.post('/api/submissions/claim', requireAuth, async (req, res) => {
-  const sessionToken = getSessionToken(req);
-  if (!sessionToken) {
-    return res.status(400).json({ message: 'missing session token' });
-  }
-  try {
-    const result = await pool.query(
-      `UPDATE quiz_submissions
-          SET user_id = $1,
-              session_token = NULL
-        WHERE session_token = $2`,
-      [req.userId, sessionToken]
-    );
-    res.json({ ok: true, claimed: result.rowCount });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'DB claim failed' });
-  }
-});
-
-app.get('/api/submissions/:id', requireAuthOptional, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM quiz_submissions WHERE id = $1', [req.params.id]);
-    if (!result.rowCount) return res.status(404).json({ message: 'Not found' });
-    const row = result.rows[0];
-    if (row.user_id && req.userId && row.user_id !== req.userId) return res.status(404).json({ message: 'Not found' });
-    res.json({
-      id: row.id,
-      thesisType: row.thesis_type,
-      scores: row.scores,
-      topAreas: row.top_areas,
-      answered: Object.keys(row.answers || {}).length,
-      total: questions.length,
-      durationMs: row.duration_ms,
-      createdAt: row.created_at
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'DB fetch failed' });
+    return res.status(500).json({ message: 'Hybrid recommendation failed' });
+  } finally {
+    client.release();
   }
 });
 
@@ -205,8 +393,8 @@ app.delete('/api/saved-topics/:id', requireAuth, async (req, res) => {
 app.get('/api/topics', async (_req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, area, title, description, image_url AS "imageUrl", created_at AS "createdAt"
-         FROM topics
+      `SELECT topic_id AS id, area, title, description, NULL::text AS "imageUrl", created_at AS "createdAt"
+         FROM thesis_topics
         ORDER BY created_at DESC
         LIMIT 500`
     );
@@ -224,8 +412,8 @@ app.get('/api/topics/search', async (req, res) => {
   try {
     const term = `%${q}%`;
     const { rows } = await pool.query(
-      `SELECT id, area, title, description, image_url AS "imageUrl"
-         FROM topics
+      `SELECT topic_id AS id, area, title, description, NULL::text AS "imageUrl"
+         FROM thesis_topics
         WHERE title ILIKE $1
            OR description ILIKE $1
            OR area ILIKE $2
@@ -243,9 +431,9 @@ app.get('/api/topics/search', async (req, res) => {
 app.get('/api/topics/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, area, title, description, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"
-         FROM topics
-        WHERE id = $1`,
+      `SELECT topic_id AS id, area, title, description, NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"
+         FROM thesis_topics
+        WHERE topic_id = $1`,
       [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ message: 'Not found' });
@@ -260,8 +448,8 @@ app.get('/api/topics/:id', async (req, res) => {
 app.get('/api/admin/topics', requireAdmin, async (_req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, area, title, description, created_at AS "createdAt", updated_at AS "updatedAt"
-         FROM topics
+      `SELECT topic_id AS id, area, title, description, thesis_type AS "thesisType", NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"
+         FROM thesis_topics
         ORDER BY created_at DESC`
     );
     res.json(rows);
@@ -272,16 +460,24 @@ app.get('/api/admin/topics', requireAdmin, async (_req, res) => {
 });
 
 app.post('/api/admin/topics', requireAdmin, async (req, res) => {
-  const { area, title, description = null, imageUrl = null } = req.body || {};
-  if (!area || !title) return res.status(400).json({ message: 'area and title are required' });
+  const { area, title, description = null, thesisType = null } = req.body || {};
+  if (!area || !title || !thesisType) {
+    return res.status(400).json({ message: 'area, title, thesisType are required' });
+  }
+  if (!ALLOWED_TOPIC_AREAS.has(area)) {
+    return res.status(400).json({ message: 'area is invalid for Phase 2 taxonomy' });
+  }
+  if (!ALLOWED_TOPIC_THESIS_TYPES.has(thesisType)) {
+    return res.status(400).json({ message: 'thesisType must be Research or Practical' });
+  }
   const id = randomUUID();
   try {
     await pool.query(
-      `INSERT INTO topics (id, area, title, description, image_url)
+      `INSERT INTO thesis_topics (topic_id, area, title, description, thesis_type)
        VALUES ($1, $2, $3, $4, $5)`,
-      [id, area, title, description, imageUrl]
+      [id, area, title, description, thesisType]
     );
-    res.status(201).json({ id, area, title, description, imageUrl });
+    res.status(201).json({ id, area, title, description, thesisType, imageUrl: null });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'DB insert failed' });
@@ -289,19 +485,27 @@ app.post('/api/admin/topics', requireAdmin, async (req, res) => {
 });
 
 app.put('/api/admin/topics/:id', requireAdmin, async (req, res) => {
-  const { area, title, description = null, imageUrl = null } = req.body || {};
-  if (!area || !title) return res.status(400).json({ message: 'area and title are required' });
+  const { area, title, description = null, thesisType = null } = req.body || {};
+  if (!area || !title || !thesisType) {
+    return res.status(400).json({ message: 'area, title, thesisType are required' });
+  }
+  if (!ALLOWED_TOPIC_AREAS.has(area)) {
+    return res.status(400).json({ message: 'area is invalid for Phase 2 taxonomy' });
+  }
+  if (!ALLOWED_TOPIC_THESIS_TYPES.has(thesisType)) {
+    return res.status(400).json({ message: 'thesisType must be Research or Practical' });
+  }
   try {
     const result = await pool.query(
-      `UPDATE topics
+      `UPDATE thesis_topics
           SET area = $1,
               title = $2,
               description = $3,
-              image_url = $4,
+              thesis_type = $4,
               updated_at = NOW()
-        WHERE id = $5
-      RETURNING id, area, title, description, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`,
-      [area, title, description, imageUrl, req.params.id]
+        WHERE topic_id = $5
+      RETURNING topic_id AS id, area, title, description, thesis_type AS "thesisType", NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`,
+      [area, title, description, thesisType, req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ message: 'Not found' });
     res.json(result.rows[0]);
@@ -313,7 +517,7 @@ app.put('/api/admin/topics/:id', requireAdmin, async (req, res) => {
 
 app.delete('/api/admin/topics/:id', requireAdmin, async (req, res) => {
   try {
-    const result = await pool.query('DELETE FROM topics WHERE id = $1', [req.params.id]);
+    const result = await pool.query('DELETE FROM thesis_topics WHERE topic_id = $1', [req.params.id]);
     if (!result.rowCount) return res.status(404).json({ message: 'Not found' });
     res.json({ ok: true });
   } catch (err) {
@@ -391,12 +595,6 @@ function getBearerToken(req) {
   return null;
 }
 
-function getSessionToken(req) {
-  const header = req.header('x-session-id') || req.header('X-Session-Id');
-  if (!header) return null;
-  return isUuid(header) ? header : null;
-}
-
 function hashPassword(password) {
   const salt = randomBytes(16);
   const hash = scryptSync(password, salt, 64);
@@ -412,82 +610,137 @@ function verifyPassword(password, stored) {
   return timingSafeEqual(hash, testHash);
 }
 
+function normalizeUserId(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return isUuid(trimmed) ? trimmed : null;
+}
+
+function parseRecommendationInput({
+  body,
+  reqUserId,
+  normalizeLongText
+}) {
+  const major = normalizeText(body.major).toUpperCase();
+  const thesisPreference = normalizePreference(body.thesisPreference);
+  const includeKeywords = normalizeLongText(body.includeKeywords);
+  const excludeKeywords = normalizeLongText(body.excludeKeywords);
+  const careerAim = normalizeLongText(body.careerAim);
+  const interests = normalizeLongText(body.interests);
+
+  if (!ALLOWED_MAJORS.has(major)) {
+    return { error: { status: 400, message: 'major must be one of IT, CS, DS' } };
+  }
+  if (!ALLOWED_PREFERENCES.has(thesisPreference)) {
+    return { error: { status: 400, message: 'thesisPreference must be Research, Practical, or Not defined' } };
+  }
+
+  const requestedUserId = normalizeUserId(body.userId);
+
+  if (reqUserId && requestedUserId && reqUserId !== requestedUserId) {
+    return { error: { status: 403, message: 'Cannot create recommendation for another user' } };
+  }
+
+  return {
+    major,
+    thesisPreference,
+    includeKeywords,
+    excludeKeywords,
+    careerAim,
+    interests,
+    effectiveUserId: reqUserId || requestedUserId || null
+  };
+}
+
+async function createUserIntent(client, { userId, major, thesisPreference, includeKeywords, excludeKeywords, careerAim, interests }) {
+  const result = await client.query(INSERT_USER_INTENT_SQL, [
+    userId,
+    major,
+    thesisPreference,
+    includeKeywords,
+    excludeKeywords,
+    careerAim,
+    interests
+  ]);
+  return result.rows[0].intent_id;
+}
+
+async function insertTopicRecommendation(client, { recommendationId, userId, intentId, topicId, finalScore, breakdown }) {
+  await client.query(INSERT_TOPIC_RECOMMENDATION_SQL, [
+    recommendationId,
+    userId,
+    intentId,
+    topicId,
+    finalScore,
+    JSON.stringify(breakdown)
+  ]);
+}
+
 function isUuid(value) {
   if (!value || typeof value !== 'string') return false;
   return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value);
 }
 
-function computeRecommendation(answers) {
-  const get = (id) => answers[id] ?? 0;
+function normalizeText(value) {
+  if (typeof value !== 'string') return '';
+  return value.trim();
+}
 
-  // Section A — thesis type
-  const researchScore = (get('q01') + get('q02') + get('q05')) / 3;
-  const appScore = (get('q03') + get('q04') + get('q06')) / 3;
-  const thesisType = researchScore >= appScore ? 'Research' : 'Practical Application';
+function normalizeWhitespace(value) {
+  return normalizeText(value).replace(/\s+/g, ' ');
+}
 
-  // Section B — working style
-  const independent = get('q07') + get('q12');
-  const teamwork = get('q08');
-  const structured = get('q09') + get('q14');
-  const flexible = get('q10') + get('q13');
+function normalizePreference(value) {
+  const raw = normalizeText(value);
+  if (!raw) return '';
+  if (raw.toLowerCase() === 'research') return 'Research';
+  if (raw.toLowerCase() === 'practical') return 'Practical';
+  if (raw.toLowerCase() === 'not defined') return 'Not defined';
+  return raw;
+}
 
-  const workingFit = {
-    AI: (independent + flexible / 2) / 10,
-    DATA: (independent + flexible / 2) / 10,
-    SEC: (independent + structured) / 10,
-    CLOUD: (structured + teamwork / 2) / 10,
-    NET: (structured + teamwork / 2) / 10,
-    WEB: (teamwork + flexible) / 10,
-    MOBILE: (teamwork + flexible) / 10,
-    UX: (teamwork + flexible) / 10,
-    WEB3: (flexible + independent / 2) / 10,
-    IOT: (structured + independent) / 10,
-    PM: (structured + teamwork) / 10
-  };
+function tokenizeKeywords(value) {
+  const normalized = normalizeWhitespace(value)
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]+/gu, ' ');
 
-  // Section C — interests
-  const base = {
-    AI: get('q15'),
-    DATA: get('q16'),
-    SEC: get('q17'),
-    WEB: get('q18'),
-    MOBILE: get('q19'),
-    CLOUD: get('q20'),
-    NET: get('q21'),
-    IOT: get('q22'),
-    WEB3: get('q23'),
-    UX: get('q24'),
-    PM: get('q25')
-  };
+  const tokens = normalized
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .filter((token) => !HYBRID_RECOMMENDATION_CONFIG.stopwords.includes(token));
 
-  // Section D — skills
-  const ability = {
-    AI: (get('q26') + get('q12')) / 10,
-    DATA: (get('q26') + get('q12')) / 10,
-    SEC: get('q29') / 5,
-    CLOUD: get('q27') / 5,
-    NET: get('q29') / 5,
-    WEB: (get('q27') + get('q28')) / 10,
-    MOBILE: (get('q27') + get('q28')) / 10,
-    UX: get('q30') / 5,
-    WEB3: get('q28') / 5,
-    IOT: (get('q27') + get('q29')) / 10,
-    PM: get('q30') / 5
-  };
+  return new Set(tokens);
+}
 
-  const scores = {};
-  Object.keys(base).forEach((area) => {
-    const interest = base[area] / 5;
-    const work = workingFit[area];
-    const boost = ability[area];
-    const adjustedInterest = interest * (1 + boost * 0.5);
-    scores[area] = Math.round((adjustedInterest * 0.7 + work * 0.2 + boost * 0.1) * 100);
-  });
+function extractUserTokens({ major, includeKeywords, careerAim, interests }) {
+  const combined = [includeKeywords, careerAim, interests, major].filter(Boolean).join(' ');
+  return [...tokenizeKeywords(combined)];
+}
 
-  const topAreas = Object.entries(scores)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([area]) => area);
+function buildUserQuery({ major, includeKeywords, careerAim, interests }) {
+  return normalizeWhitespace([includeKeywords, careerAim, interests, major].filter(Boolean).join(' '));
+}
 
-  return { thesisType, scores, topAreas };
+function buildHybridExplanation({
+  topicTitle,
+  area,
+  thesisType,
+  thesisPreference,
+  coverage,
+  topicRankNorm,
+  inferredType
+}) {
+  const coverageText = coverage === null ? 'keyword coverage was skipped because no extracted tokens remained after normalization' : `coverage reached ${(coverage * 100).toFixed(0)}%`;
+  const preferenceText =
+    thesisPreference === 'Not defined'
+      ? 'No thesis-type gate was applied.'
+      : thesisType
+        ? `The thesis type matched the requested ${thesisPreference.toLowerCase()} preference.`
+        : inferredType && inferredType !== 'Unknown'
+          ? `The topic has no stored thesis type, but cue validation leaned ${inferredType.toLowerCase()}.`
+          : 'The topic has no stored thesis type, so preference validation stayed low-confidence.';
+
+  return `${topicTitle} was selected because it survived the ${area} major filter, ${coverageText}, and ranked highest on full-text relevance (${(topicRankNorm * 100).toFixed(0)}% normalized). ${preferenceText}`;
 }

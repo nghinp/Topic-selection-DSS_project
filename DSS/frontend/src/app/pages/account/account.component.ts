@@ -10,14 +10,6 @@ import { AREA_LABELS } from '../../constants/areas';
 import { TopicsService } from '../../services/topics.service';
 
 type SavedTopic = { id: string; topic: string; label?: string; createdAt?: string };
-type Submission = {
-  id: string;
-  thesisType: string;
-  scores: Record<string, number>;
-  topAreas: string[];
-  durationMs?: number;
-  createdAt?: string;
-};
 
 @Component({
   selector: 'app-account',
@@ -28,7 +20,6 @@ type Submission = {
 })
 export class AccountComponent implements OnInit {
   savedTopics: SavedTopic[] = [];
-  submissions: Submission[] = [];
   loading = true;
   error = '';
 
@@ -92,7 +83,7 @@ export class AccountComponent implements OnInit {
   loadData(): void {
     this.loading = true;
     this.error = '';
-    Promise.all([this.fetchTopics(), this.fetchSubmissions()])
+    Promise.all([this.fetchTopics()])
       .then(() => (this.loading = false))
       .catch(() => {
         this.error = 'Could not load account data.';
@@ -124,18 +115,6 @@ export class AccountComponent implements OnInit {
       this.http.get<SavedTopic[]>(API_ENDPOINTS.savedTopics, { headers: this.authHeaders }).subscribe({
         next: (rows) => {
           this.savedTopics = rows;
-          resolve();
-        },
-        error: reject
-      });
-    });
-  }
-
-  private async fetchSubmissions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.http.get<Submission[]>(API_ENDPOINTS.submissions, { headers: this.authHeaders }).subscribe({
-        next: (rows) => {
-          this.submissions = rows;
           resolve();
         },
         error: reject

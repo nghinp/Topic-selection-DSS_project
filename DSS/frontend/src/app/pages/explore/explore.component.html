@@ -3,49 +3,85 @@
 
   <main class="content">
     <section class="card explore">
-      <header class="section__header">
-        <p class="eyebrow">Explore</p>
+      <header class="hero">
+        <p class="eyebrow">Thesis Inspiration</p>
+        <h1>Find thesis topics for master and bachelor</h1>
+        <p class="hero__subtitle">
+          The go-to thesis inspiration platform to find thesis topic ideas and examples for students.
+          Explore a growing library of Bachelor and Master thesis topic examples.
+        </p>
+        <div class="hero__count">{{ filteredTopics().length }} thesis topics</div>
       </header>
 
-      <div class="filter-bar">
-        <div class="filter-select">
-          <label for="area-select">Area</label>
-          <select id="area-select" [(ngModel)]="selectedArea">
-            <option *ngFor="let a of areaOptions" [value]="a">{{ a === 'ALL' ? 'All areas' : labelFor(a) }}</option>
-          </select>
-        </div>
-        <div class="filter-pills">
-          <button
-            class="pill-btn"
-            *ngFor="let a of areaOptions"
-            type="button"
-            [class.active]="selectedArea === a"
-            (click)="selectArea(a)"
-          >
-            {{ a === 'ALL' ? 'All' : labelFor(a) }}
-          </button>
-        </div>
-      </div>
+      <div class="explore__layout">
+        <aside class="filters">
+          <section class="filter-group">
+            <h3>Areas</h3>
+            <div class="filter-list">
+              <label class="check-row" *ngFor="let a of areaOptions">
+                <input
+                  type="radio"
+                  name="areaFilter"
+                  [value]="a"
+                  [checked]="selectedArea === a"
+                  (change)="selectArea(a)"
+                />
+                <span>{{ a === 'ALL' ? 'All areas' : labelFor(a) }}</span>
+              </label>
+            </div>
+          </section>
 
-      <div class="muted" *ngIf="loading">Loading topics...</div>
-      <div class="muted" *ngIf="loadError && !loading">{{ loadError }}</div>
-      <div class="topics-grid" *ngIf="!loading && !loadError">
-        <article class="topic-card" *ngFor="let topic of filteredTopics()">
-          <div class="pill">{{ labelFor(topic.area) }}</div>
-          <h3>
-            <a [routerLink]="['/topics', topic.id]">{{ topic.title }}</a>
-          </h3>
-          <button
-            class="btn ghost small"
-            type="button"
-            (click)="save(topic)"
-            [disabled]="isSaved(topic)"
-          >
-            {{ isSaved(topic) ? 'Saved' : 'Save' }}
-          </button>
-        </article>
+          <section class="filter-group">
+            <h3>Interests</h3>
+            <div class="filter-list">
+              <label class="check-row" *ngFor="let interest of interestOptions">
+                <input
+                  type="checkbox"
+                  [checked]="isInterestSelected(interest)"
+                  (change)="toggleInterest(interest, $event.target.checked)"
+                />
+                <span>{{ interest }}</span>
+              </label>
+            </div>
+          </section>
+        </aside>
+
+        <div class="results">
+          <div class="search-row">
+            <div class="search-field">
+              <input
+                type="text"
+                placeholder="Enter topic or keyword..."
+                [(ngModel)]="searchTerm"
+              />
+            </div>
+            <button class="btn primary" type="button">Search</button>
+          </div>
+
+          <div class="muted" *ngIf="loading">Loading topics...</div>
+          <div class="muted" *ngIf="loadError && !loading">{{ loadError }}</div>
+
+          <div class="topics-grid" *ngIf="!loading && !loadError">
+            <article class="topic-card" *ngFor="let topic of filteredTopics()">
+              <h3>
+                <a [routerLink]="['/topics', topic.id]">{{ topic.title }}</a>
+              </h3>
+              <div class="topic-sub">{{ labelFor(topic.area) }}</div>
+              <p class="topic-desc" *ngIf="cleanDescription(topic.description)">
+                {{ cleanDescription(topic.description) }}
+              </p>
+              <div class="topic-tags">
+              </div>
+              <a class="topic-link" [routerLink]="['/topics', topic.id]">Read more 
+                <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"></path>
+</svg>
+              </a>
+            </article>
+          </div>
+          <p class="muted" *ngIf="saveMessage">{{ saveMessage }}</p>
+        </div>
       </div>
-      <p class="muted" *ngIf="saveMessage">{{ saveMessage }}</p>
     </section>
   </main>
 

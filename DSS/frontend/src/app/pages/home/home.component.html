@@ -11,7 +11,7 @@
         </p>
 
         <div class="hero__actions">
-          <button class="btn primary" routerLink="/quiz">Explore now</button>
+          <button class="btn primary" routerLink="/study-field-quiz">Explore now</button>
         </div>
       </div>
     </section>
@@ -20,10 +20,6 @@
       <div class="metric">
         <div class="metric__value">{{ stats.topics }}</div>
         <div class="metric__label">Total topics</div>
-      </div>
-      <div class="metric">
-        <div class="metric__value">{{ stats.areas }}</div>
-        <div class="metric__label">Areas covered</div>
       </div>
       <div class="metric" *ngIf="auth.isAuthed()">
         <div class="metric__value">{{ stats.saved }}</div>
@@ -122,7 +118,7 @@
           Fast, simple, and customized for students. Your recommended topic list will be ready in minutes.
         </p>
       </div>
-      <button class="btn primary" routerLink="/quiz">Start now</button>
+      <button class="btn primary" routerLink="/study-field-quiz">Start now</button>
     </section>
   </main>
 
