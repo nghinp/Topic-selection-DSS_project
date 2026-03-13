@@ -16,6 +16,14 @@
           </select>
         </label>
         <label>
+          <span>Thesis Type</span>
+          <select [(ngModel)]="draft.thesisType">
+            <option value="">Select type</option>
+            <option value="Research">Research</option>
+            <option value="Practical">Practical</option>
+          </select>
+        </label>
+        <label>
           <span>Title</span>
           <input type="text" [(ngModel)]="draft.title" placeholder="e.g., AI thesis idea" />
         </label>
@@ -48,6 +56,7 @@
         <thead>
           <tr>
             <th>Area</th>
+            <th>Type</th>
             <th>Title</th>
             <th>Image</th>
             <th></th>
@@ -56,6 +65,7 @@
         <tbody>
           <tr *ngFor="let t of topics; trackBy: trackById">
             <td class="mono">{{ t.area }}</td>
+            <td>{{ t.thesisType || '-' }}</td>
             <td>{{ t.title }}</td>
             <td class="row-actions">
               <button class="btn ghost small" type="button" (click)="edit(t)" [disabled]="saving">Edit</button>

@@ -4,7 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AdminTopic, AdminTopicsService } from '../../services/admin-topics.service';
 
-type DraftTopic = { id?: string; area: string; title: string; description: string; imageUrl?: string | null };
+type DraftTopic = {
+  id?: string;
+  area: string;
+  title: string;
+  description: string;
+  thesisType: 'Research' | 'Practical' | '';
+  imageUrl?: string | null;
+};
 
 @Component({
   selector: 'app-admin',
@@ -23,10 +30,19 @@ export class AdminComponent implements OnInit {
   protected draft: DraftTopic = {
     area: '',
     title: '',
-    description: ''
+    description: '',
+    thesisType: ''
   };
   protected editingId: string | null = null;
-  protected areaOptions = ['AI', 'DATA', 'SEC', 'WEB', 'MOBILE', 'CLOUD', 'NET', 'IOT', 'WEB3', 'UX', 'PM'];
+  protected areaOptions = [
+    'AI & Machine Learning',
+    'Data Science & Mining',
+    'Computer Vision & Multimedia',
+    'Web & Software Systems',
+    'Cybersecurity & Networks',
+    'IoT & Embedded Systems',
+    'Graphics, Games & HCI'
+  ];
 
   constructor(private readonly adminTopics: AdminTopicsService) {}
 
@@ -50,14 +66,15 @@ export class AdminComponent implements OnInit {
   }
 
   protected submit(): void {
-    if (!this.draft.area || !this.draft.title) {
-      this.error = 'Area and title are required';
+    if (!this.draft.area || !this.draft.title || !this.draft.thesisType) {
+      this.error = 'Area, title and thesis type are required';
       return;
     }
     const payload = {
       area: this.draft.area,
       title: this.draft.title.trim(),
       description: this.draft.description?.trim() || null,
+      thesisType: this.draft.thesisType,
       imageUrl: null
     };
     this.saving = true;
@@ -92,7 +109,8 @@ export class AdminComponent implements OnInit {
       id: topic.id,
       area: topic.area,
       title: topic.title,
-      description: topic.description ?? ''
+      description: topic.description ?? '',
+      thesisType: topic.thesisType || ''
     };
     this.success = '';
     this.error = '';
@@ -119,7 +137,7 @@ export class AdminComponent implements OnInit {
 
   protected resetForm(): void {
     this.editingId = null;
-    this.draft = { area: '', title: '', description: '' };
+    this.draft = { area: '', title: '', description: '', thesisType: '' };
     this.saving = false;
   }
 

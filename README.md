@@ -1,6 +1,6 @@
 # Thesis Topic Decision Support System (DSS)
 
-SPA (Angular) + REST API (Express) + PostgreSQL. Users take a quiz, get recommendations, browse/save topics; admins manage topics.
+SPA (Angular) + REST API (Express) + PostgreSQL. Phase 2 uses Postgres Full-Text Search to recommend one best thesis topic with Filter -> Score -> Select.
 
 ## Prerequisites
 - Node.js 18+ and npm
@@ -31,7 +31,7 @@ npm install
 ```
 
 ## Database
-Run in psql on DB `dss`:
+Run the base schema in psql on DB `dss`:
 ```sql
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -77,6 +77,30 @@ CREATE TABLE IF NOT EXISTS saved_topics (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
+
+Run Phase 2 migration:
+```bash
+psql "$DATABASE_URL" -f DSS/backend/sql/20260227_phase2_fts_recommendation.sql
+```
+
+Run the hybrid recommendation schema migration:
+```bash
+psql "$DATABASE_URL" -f DSS/backend/sql/20260307_phase_hybrid_recommendation.sql
+```
+
+Optional cleanup to keep a single topic source (`thesis_topics`) and remove duplicate rows:
+```bash
+psql "$DATABASE_URL" -f DSS/backend/sql/20260227_cleanup_single_topic_source.sql
+```
+This cleanup also backs up and drops legacy `topics` and `quiz_submissions`.
+
+Hybrid flow:
+- Extract keywords from `includeKeywords + careerAim + interests + major`
+- Hard filter with `excludeKeywords`
+- Gate candidates by major allowlist and thesis preference
+- Validate with keyword coverage threshold and thesis-type cues for NULL topic types
+- Light-rank with `FinalScore = 0.8*topicRankNorm + 0.2*coverage`
+- Select exactly 1 topic by `ORDER BY final_score DESC, topic_rank DESC, created_at DESC`
 
 Seed topics (run once):
 ```sql
@@ -126,6 +150,8 @@ npm start
 
 ## Key API endpoints
 - Auth: `POST /api/auth/register`, `POST /api/auth/login`
+- Recommendation (Phase 2): `POST /api/recommendation`
+- Recommendation (Hybrid): `POST /api/recommendation/hybrid`
 - Quiz: `GET /api/questions`, `POST /api/submissions`, `GET /api/submissions`, `GET /api/submissions/:id`
 - Topics: `GET /api/topics`, `GET /api/topics/search?q=...`, `GET /api/topics/:id`
 - Saved topics: `GET/POST/DELETE /api/saved-topics`
@@ -146,3 +172,52 @@ npm start
 - Image upload currently embeds data URL inside description (no server file storage).
 - If `topics` table is empty, seed via SQL above or restart backend to auto-seed when empty.
 - Update `DATABASE_URL` to match your Postgres credentials.
+- `POST /api/submissions` is deprecated for scoring. Use `POST /api/recommendation` for Phase 2.
+- The current repo uses UUID `users.id`, so `POST /api/recommendation/hybrid` expects `userId` in UUID format when you provide it.
+
+## Hybrid API example
+```bash
+curl -X POST http://localhost:3000/api/recommendation/hybrid \
+  -H "Content-Type: application/json" \
+  -d '{
+    "major": "DS",
+    "thesisPreference": "Research",
+    "includeKeywords": "nlp education analytics",
+    "excludeKeywords": "iot blockchain",
+    "careerAim": "become a machine learning engineer",
+    "interests": "language models and student performance"
+  }'
+```
+
+Example response:
+```json
+{
+  "bestTopic": {
+    "topic_id": "7a1f0f0c-c8f8-46fc-95b0-4b0d9a3ab18b",
+    "title": "Student Performance Prediction using NLP Signals",
+    "description": "Analyze language-based engagement data to model academic outcomes.",
+    "area": "Data Science & Mining",
+    "thesis_type": "Research",
+    "created_at": "2026-03-07T12:00:00.000Z"
+  },
+  "scores": {
+    "finalScore": 0.86,
+    "topicRank": 0.42,
+    "topicRankNorm": 1,
+    "coverage": 0.3
+  },
+  "filters": {
+    "majorAllowlist": [
+      "AI & Machine Learning",
+      "Data Science & Mining",
+      "Computer Vision & Multimedia"
+    ],
+    "thesisPreferenceApplied": true,
+    "excludeApplied": true,
+    "coverageThreshold": 0.3
+  },
+  "explain": "Student Performance Prediction using NLP Signals was selected because it survived the Data Science & Mining major filter, coverage reached 30%, and ranked highest on full-text relevance (100% normalized). The thesis type matched the requested research preference.",
+  "recommendationId": "b5ddff42-93ea-4e1a-93b5-0a263b6114d5",
+  "intentId": "6e5d9f18-2d2f-45b3-a452-54633d7644f8"
+}
+```

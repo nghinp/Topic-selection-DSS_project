@@ -7,21 +7,6 @@
 
     <section *ngIf="!loading" class="account-grid">
       <article class="card-section">
-        <header><h3>Saved results</h3></header>
-        <div *ngIf="!submissions.length" class="muted">No results yet.</div>
-        <ul class="list" *ngIf="submissions.length">
-          <li *ngFor="let s of submissions">
-            <div>
-              <strong>{{ s.thesisType }}</strong>
-              <span class="muted" *ngIf="s.createdAt"> · {{ s.createdAt | date:'short' }}</span>
-            </div>
-            <div class="pill">Top: {{ s.topAreas?.join(', ') || 'N/A' }}</div>
-            <a class="btn ghost small" [routerLink]="['/result', s.id]">View</a>
-          </li>
-        </ul>
-      </article>
-
-      <article class="card-section">
         <header><h3>Saved topics</h3></header>
         <div *ngIf="!savedTopics.length" class="muted">No topics saved.</div>
         <ul class="list" *ngIf="savedTopics.length">

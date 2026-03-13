@@ -19,13 +19,32 @@
       <section class="flow__section">
         <h2>Submit</h2>
         <p class="flow__subtitle">
-          Review your answers and submit to generate your thesis topic recommendations.
+          Review your answers and submit to generate one best thesis topic recommendation.
         </p>
+
+        <div class="result-card" *ngIf="result">
+          <p class="muted tiny">Recommendation ID: {{ result.recommendationId }}</p>
+          <h3>{{ result.bestTopic.title }}</h3>
+          <p class="muted">Area: {{ result.bestTopic.area }} | Thesis type: {{ result.bestTopic.thesis_type || 'Not specified' }}</p>
+          <p *ngIf="result.bestTopic.description">{{ result.bestTopic.description }}</p>
+          <a class="btn ghost small" [routerLink]="['/topics', result.bestTopic.topic_id]">View topic detail</a>
+
+          <!-- <div class="scores">
+            <div><span>TopicRank</span><strong>{{ result.scores.topicRank | number: '1.2-4' }}</strong></div>
+            <div><span>RankNorm</span><strong>{{ result.scores.topicRankNorm | number: '1.2-4' }}</strong></div>
+            <div><span>Coverage</span><strong>{{ result.scores.coverage === null ? 'N/A' : (result.scores.coverage | number: '1.2-2') }}</strong></div>
+            <div><span>FinalScore</span><strong>{{ result.scores.finalScore | number: '1.2-4' }}</strong></div>
+          </div> -->
+        </div>
+
+        <p class="muted" *ngIf="loading">Computing recommendation...</p>
+        <p class="form-error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
         <div class="actions">
           <button type="button" class="btn ghost" (click)="onBack()">Back</button>
           <span class="spacer"></span>
-          <button type="button" class="btn primary">Submit</button>
+          <button type="button" class="btn primary" [disabled]="loading" (click)="onSubmit()" *ngIf="!result">Submit</button>
+          <a class="btn primary" routerLink="/study-field-quiz" *ngIf="result">Take the quiz again</a>
         </div>
       </section>
     </section>
