@@ -29,12 +29,12 @@
           <p *ngIf="result.bestTopic.description">{{ result.bestTopic.description }}</p>
           <a class="btn ghost small" [routerLink]="['/topics', result.bestTopic.topic_id]">View topic detail</a>
 
-          <div class="scores">
+          <!-- <div class="scores">
             <div><span>TopicRank</span><strong>{{ result.scores.topicRank | number: '1.2-4' }}</strong></div>
             <div><span>RankNorm</span><strong>{{ result.scores.topicRankNorm | number: '1.2-4' }}</strong></div>
             <div><span>Coverage</span><strong>{{ result.scores.coverage === null ? 'N/A' : (result.scores.coverage | number: '1.2-2') }}</strong></div>
             <div><span>FinalScore</span><strong>{{ result.scores.finalScore | number: '1.2-4' }}</strong></div>
-          </div>
+          </div> -->
         </div>
 
         <p class="muted" *ngIf="loading">Computing recommendation...</p>

@@ -85,7 +85,6 @@ candidates AS (
     AND (ti.exclude_tsq IS NULL OR NOT (tt.search_vec @@ ti.exclude_tsq))
     AND (
       ti.thesis_preference IS NULL
-      OR ti.thesis_preference = 'Not defined'
       OR tt.thesis_type IS NULL
       OR tt.thesis_type = ti.thesis_preference
     )
