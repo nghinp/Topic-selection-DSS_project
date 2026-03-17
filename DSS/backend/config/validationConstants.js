@@ -1,5 +1,5 @@
 export const ALLOWED_MAJORS = ['IT', 'CS', 'DS'];
-export const ALLOWED_PREFERENCES = ['Research', 'Practical', 'Not defined'];
+export const ALLOWED_PREFERENCES = ['Research', 'Practical'];
 export const ALLOWED_TOPIC_THESIS_TYPES = ['Research', 'Practical'];
 export const ALLOWED_TOPIC_AREAS = [
   'AI & Machine Learning',

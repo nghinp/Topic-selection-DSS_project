@@ -80,17 +80,6 @@
                       />
                       <span>Practical application</span>
                     </label>
-                    <label class="radio-option">
-                      <input
-                        type="radio"
-                        name="direction"
-                        value="not_defined"
-                        [(ngModel)]="wizard.direction"
-                        required
-                        (change)="onFieldChange()"
-                      />
-                      <span>Not defined</span>
-                    </label>
                   </div>
                   <p class="form-error" *ngIf="showErrors && !wizard.direction">Preference is required.</p>
                 </fieldset>

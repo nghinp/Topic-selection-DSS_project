@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { InterestOption } from '../constants/interests';
 
 export type WizardMajor = 'IT' | 'CS' | 'DS';
-export type WizardDirection = 'research' | 'practical' | 'not_defined';
+export type WizardDirection = 'research' | 'practical';
 const QUIZ_RESULT_STORAGE_KEY = 'thesisQuiz:lastRecommendation';
 
 export type WizardState = {
@@ -15,6 +15,7 @@ export type WizardState = {
 };
 
 export type RecommendationResult = {
+  mode: 'recommendation';
   recommendationId: string;
   intentId: string;
   explain?: string;
@@ -77,7 +78,12 @@ export class ThesisWizardService {
     const raw = localStorage.getItem(QUIZ_RESULT_STORAGE_KEY);
     if (!raw) return null;
     try {
-      return JSON.parse(raw) as RecommendationResult;
+      const parsed = JSON.parse(raw) as Partial<RecommendationResult> | null;
+      if (!parsed || parsed.mode !== 'recommendation' || !parsed.bestTopic || !parsed.scores) {
+        localStorage.removeItem(QUIZ_RESULT_STORAGE_KEY);
+        return null;
+      }
+      return parsed as RecommendationResult;
     } catch {
       localStorage.removeItem(QUIZ_RESULT_STORAGE_KEY);
       return null;

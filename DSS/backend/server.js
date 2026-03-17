@@ -91,11 +91,7 @@ candidates AS (
   CROSS JOIN ts_input ti
   WHERE tt.area = ANY(ti.major_allowlist)
     AND (ti.exclude_tsq IS NULL OR NOT (tt.search_vec @@ ti.exclude_tsq))
-    AND (
-      ti.thesis_preference IS NULL
-      OR tt.thesis_type IS NULL
-      OR tt.thesis_type = ti.thesis_preference
-    )
+    AND tt.thesis_type = ti.thesis_preference
 ),
 validated AS (
   SELECT
@@ -154,12 +150,7 @@ validated AS (
 coverage_pass AS (
   SELECT
     v.*,
-    CASE
-      WHEN v.thesis_preference IS NULL OR v.thesis_preference = 'Not defined' OR v.thesis_type IS NOT NULL THEN NULL
-      WHEN v.research_cue_hits > v.practical_cue_hits THEN 'Research'
-      WHEN v.practical_cue_hits > v.research_cue_hits THEN 'Practical'
-      ELSE 'Unknown'
-    END AS inferred_type
+    NULL::text AS inferred_type
   FROM validated v
   WHERE v.coverage IS NULL OR v.coverage >= v.coverage_threshold
 ),
@@ -263,6 +254,10 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
     return res.status(baseInput.error.status).json({ message: baseInput.error.message });
   }
   const { major, thesisPreference, includeKeywords, excludeKeywords, careerAim, selectedInterests, effectiveUserId } = baseInput;
+  const hasIncludeKeywords = normalizeWhitespace(includeKeywords).length > 0;
+  const hasCareerAim = normalizeWhitespace(careerAim).length > 0;
+  const hasInterests = Array.isArray(selectedInterests) && selectedInterests.length > 0;
+  const recommendationMode = hasIncludeKeywords || hasCareerAim || hasInterests;
 
   const includeTokens = tokenizeKeywords(includeKeywords);
   const excludeTokens = tokenizeKeywords(excludeKeywords);
@@ -295,6 +290,16 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
       careerAim,
       interests: selectedInterests
     });
+
+    // Low-signal requests should not pretend to be personalized recommendations.
+    // Require at least one personalization signal before running hybrid scoring.
+    if (!recommendationMode) {
+      await client.query('COMMIT');
+      return res.status(400).json({
+        message: 'Please add interests, keywords, or a career goal before requesting a personalized recommendation.',
+        intentId
+      });
+    }
 
     const recommendationResult = await client.query(HYBRID_RECOMMENDATION_SQL, [
       majorAllowlist,
@@ -332,7 +337,7 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
       },
       filters: {
         majorAllowlist,
-        thesisPreferenceApplied: thesisPreference !== 'Not defined',
+        thesisPreferenceApplied: true,
         excludeApplied: Boolean(excludeKeywords),
         selectedInterests,
         coverageThreshold: HYBRID_RECOMMENDATION_CONFIG.coverageThreshold
@@ -357,6 +362,7 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
 
     await client.query('COMMIT');
     return res.status(201).json({
+      mode: 'recommendation',
       bestTopic: {
         topic_id: best.topic_id,
         title: best.title,
@@ -730,7 +736,7 @@ function parseRecommendationInput({
     return { error: { status: 400, message: 'major must be one of IT, CS, DS' } };
   }
   if (!ALLOWED_PREFERENCES_SET.has(thesisPreference)) {
-    return { error: { status: 400, message: 'thesisPreference must be Research, Practical, or Not defined' } };
+    return { error: { status: 400, message: 'thesisPreference must be Research or Practical' } };
   }
   const selectedInterests = normalizeInterestArray(body.selectedInterests);
   if (selectedInterests.error) {
@@ -797,7 +803,6 @@ function normalizePreference(value) {
   if (!raw) return '';
   if (raw.toLowerCase() === 'research') return 'Research';
   if (raw.toLowerCase() === 'practical') return 'Practical';
-  if (raw.toLowerCase() === 'not defined') return 'Not defined';
   return raw;
 }
 
@@ -931,13 +936,11 @@ function buildHybridExplanation({
           : 'No structured topic interests were stored, so interest matching contributed 0%.'
       : 'No structured interest filter was applied.';
   const preferenceText =
-    thesisPreference === 'Not defined'
-      ? 'No thesis-type gate was applied.'
-      : thesisType
-        ? `The thesis type matched the requested ${thesisPreference.toLowerCase()} preference.`
-        : inferredType && inferredType !== 'Unknown'
-          ? `The topic has no stored thesis type, but cue validation leaned ${inferredType.toLowerCase()}.`
-          : 'The topic has no stored thesis type, so preference validation stayed low-confidence.';
+    thesisType
+      ? `The thesis type matched the requested ${thesisPreference.toLowerCase()} preference.`
+      : inferredType && inferredType !== 'Unknown'
+        ? `The topic has no stored thesis type, but cue validation leaned ${inferredType.toLowerCase()}.`
+        : 'The topic passed the thesis-type filter.';
 
   return `${topicTitle} was selected because it survived the ${area} major filter, ${coverageText}, ranked highest on full-text relevance (${(topicRankNorm * 100).toFixed(0)}% normalized), and ${interestText} ${preferenceText}`;
 }

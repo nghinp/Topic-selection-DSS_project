@@ -11,7 +11,7 @@ import { InterestOption } from '../../../constants/interests';
 type RecommendationRequest = {
   userId: string | null;
   major: 'IT' | 'CS' | 'DS';
-  thesisPreference: 'Research' | 'Practical' | 'Not defined';
+  thesisPreference: 'Research' | 'Practical';
   includeKeywords: string;
   excludeKeywords: string;
   careerAim: string;
@@ -133,8 +133,7 @@ export class SubmitComponent implements OnInit {
 
   private toThesisPreference(): RecommendationRequest['thesisPreference'] {
     if (this.wizard.state.direction === 'research') return 'Research';
-    if (this.wizard.state.direction === 'practical') return 'Practical';
-    return 'Not defined';
+    return 'Practical';
   }
 
   private isUuid(value: string | null): boolean {
