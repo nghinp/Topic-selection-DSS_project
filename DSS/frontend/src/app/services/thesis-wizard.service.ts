@@ -2,12 +2,10 @@ import { Injectable } from '@angular/core';
 
 export type WizardMajor = 'IT' | 'CS' | 'DS';
 export type WizardDirection = 'research' | 'practical' | 'not_defined';
-export type WizardThesisHint = 'research' | 'practical';
 
 export type WizardState = {
   major: WizardMajor | null;
   direction: WizardDirection | null;
-  thesisHint: WizardThesisHint | null;
   careerGoal: string;
   interests: string;
   initialIdeas: string;
@@ -19,7 +17,6 @@ export class ThesisWizardService {
   state: WizardState = {
     major: null,
     direction: null,
-    thesisHint: null,
     careerGoal: '',
     interests: '',
     initialIdeas: '',
@@ -33,7 +30,6 @@ export class ThesisWizardService {
   reset() {
     this.state.major = null;
     this.state.direction = null;
-    this.state.thesisHint = null;
     this.state.careerGoal = '';
     this.state.interests = '';
     this.state.initialIdeas = '';
