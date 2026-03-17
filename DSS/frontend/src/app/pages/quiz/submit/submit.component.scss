@@ -119,6 +119,144 @@
   font-size: 20px;
 }
 
+.result-card > .btn {
+  margin-top: 6px;
+}
+
+.topic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fff1f5;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.why-card {
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid #ffd7e3;
+  background:
+    radial-gradient(circle at top right, rgba(255, 45, 98, 0.08), transparent 28%),
+    linear-gradient(180deg, #fff8fb 0%, #ffffff 100%);
+}
+
+.why-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.why-card h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1730;
+}
+
+.why-card__lead {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1730;
+}
+
+.why-card__score {
+  min-width: 110px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #ffe1eb;
+  text-align: right;
+}
+
+.why-card__score-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f6d7a;
+}
+
+.why-card__score strong {
+  font-size: 24px;
+  line-height: 1;
+  color: #1a1730;
+}
+
+.match-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.match-item {
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #f5dbe4;
+}
+
+.match-item__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.match-item__bar {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f1dfe6;
+}
+
+.match-item__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff2d62 0%, #ff7f6a 100%);
+}
+
+.match-item__text {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #7a6170;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 760px) {
+  .why-card__header {
+    flex-direction: column;
+  }
+
+  .why-card__score {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .match-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 .scores {
   margin-top: 12px;
   display: grid;

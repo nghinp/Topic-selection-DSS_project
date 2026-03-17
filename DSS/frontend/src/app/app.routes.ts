@@ -9,7 +9,6 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { SearchComponent } from './pages/search/search.component';
 import { TopicDetailComponent } from './pages/topic-detail/topic-detail.component';
 import { StudyFieldQuizComponent } from './pages/quiz/study-field-quiz/study-field-quiz.component';
-import { ThesisTypeAddtionComponent } from './pages/quiz/thesis-type-addtion/thesis-type-addtion.component';
 import { CareerInterestsComponent } from './pages/quiz/career-interests/career-interests.component';
 import { InitialIdeasComponent } from './pages/quiz/initial-ideas/initial-ideas.component';
 import { SubmitComponent } from './pages/quiz/submit/submit.component';
@@ -17,7 +16,7 @@ import { SubmitComponent } from './pages/quiz/submit/submit.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'study-field-quiz', component: StudyFieldQuizComponent },
-  { path: 'study-field-quiz/thesis-type-addtion', component: ThesisTypeAddtionComponent },
+  { path: 'study-field-quiz/thesis-type-addtion', redirectTo: 'study-field-quiz/step-2', pathMatch: 'full' },
   { path: 'study-field-quiz/career-interests', component: CareerInterestsComponent },
   { path: 'study-field-quiz/step-2', component: InitialIdeasComponent },
   { path: 'study-field-quiz/initial-ideas', redirectTo: 'study-field-quiz/step-2', pathMatch: 'full' },

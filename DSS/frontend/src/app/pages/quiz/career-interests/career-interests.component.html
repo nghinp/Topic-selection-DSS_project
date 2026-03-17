@@ -19,7 +19,7 @@
       <section class="flow__section">
         <h2>Your Interests</h2>
         <p class="flow__subtitle">
-          Finally, a few questions about your career plans, interests, and hobbies.
+          Finally, a few questions about your career plans and structured interests.
         </p>
 
         <form class="flow__form" novalidate>
@@ -36,17 +36,20 @@
                 />
               </div>
             </div>
+          </div>
 
-            <div class="question-card">
-              <div class="question-card__body">
-                <label for="interests">Do you have any relevant interests or hobbies?</label>
-                <input
-                  id="interests"
-                  name="interests"
-                  type="text"
-                  placeholder="Keywords separated by commas"
-                  [(ngModel)]="wizard.interests"
-                />
+          <div class="question-card question-card--full">
+            <div class="question-card__body">
+              <label>Choose structured interests</label>
+              <div class="interest-grid">
+                <label class="interest-option" *ngFor="let interest of interestOptions">
+                  <input
+                    type="checkbox"
+                    [checked]="isInterestSelected(interest)"
+                    (change)="toggleInterest(interest, $event.target.checked)"
+                  />
+                  <span>{{ interest }}</span>
+                </label>
               </div>
             </div>
           </div>

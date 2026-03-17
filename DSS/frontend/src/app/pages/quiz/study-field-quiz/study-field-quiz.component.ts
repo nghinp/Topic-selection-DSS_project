@@ -45,10 +45,6 @@ export class StudyFieldQuizComponent {
       return;
     }
     this.showErrors = false;
-    if (this.wizard.direction === 'not_defined') {
-      this.router.navigate(['/study-field-quiz/thesis-type-addtion']);
-      return;
-    }
     this.router.navigate(['/study-field-quiz/step-2']);
   }
 }

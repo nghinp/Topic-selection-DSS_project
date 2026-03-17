@@ -3,15 +3,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TopicRecord, TopicSearchResult, TopicsService } from '../../services/topics.service';
 import { AuthService } from '../../services/auth.service';
 import { API_ENDPOINTS } from '../../constants/api';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, NavbarComponent, RouterModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule, NavbarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -37,6 +37,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFeatured();
+
     if (this.auth.isAuthed()) {
       this.loadSavedTopics();
     }
@@ -45,10 +46,8 @@ export class HomeComponent implements OnInit {
   protected search(): void {
     this.searchError = '';
     const query = this.keyword.trim();
+
     if (!query) {
-      this.searchError = 'Enter a keyword to search topics.';
-      this.results = [];
-      this.hasSearched = false;
       return;
     }
 
@@ -63,6 +62,7 @@ export class HomeComponent implements OnInit {
 
   private loadFeatured(): void {
     this.loadingFeatured = true;
+
     this.topics.listAll().subscribe({
       next: (rows) => {
         this.stats.topics = rows.length;
@@ -80,8 +80,11 @@ export class HomeComponent implements OnInit {
   private loadSavedTopics(): void {
     this.savedLoading = true;
     this.savedError = '';
+
     this.http
-      .get<Array<{ id: string; topic: string; label?: string }>>(API_ENDPOINTS.savedTopics, { headers: this.authHeaders })
+      .get<Array<{ id: string; topic: string; label?: string }>>(API_ENDPOINTS.savedTopics, {
+        headers: this.authHeaders
+      })
       .subscribe({
         next: (rows) => {
           this.savedTopics = rows.slice(0, 5);

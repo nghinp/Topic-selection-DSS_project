@@ -27,7 +27,34 @@ export class NavbarComponent {
     { label: 'About', path: '/about' },
   ];
 
-  constructor(public readonly auth: AuthService, private readonly router: Router) {}
+  isDarkMode = false;
+
+  constructor(public readonly auth: AuthService, private readonly router: Router) {
+    // Check initial preferences if any
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      this.isDarkMode = savedTheme === 'dark';
+      this.applyTheme();
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      this.isDarkMode = true;
+      this.applyTheme();
+    }
+  }
+
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    if (this.isDarkMode) {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }
 
   submitSearch(term: string): void {
     const q = term.trim();

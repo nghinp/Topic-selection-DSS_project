@@ -67,10 +67,11 @@
                 <a [routerLink]="['/topics', topic.id]">{{ topic.title }}</a>
               </h3>
               <div class="topic-sub">{{ labelFor(topic.area) }}</div>
-              <p class="topic-desc" *ngIf="cleanDescription(topic.description)">
-                {{ cleanDescription(topic.description) }}
+              <p class="topic-desc" *ngIf="summaryText(topic)">
+                {{ summaryText(topic) }}
               </p>
-              <div class="topic-tags">
+              <div class="topic-tags" *ngIf="topicInterests(topic).length">
+                <span class="tag" *ngFor="let interest of topicInterests(topic)">{{ interest }}</span>
               </div>
               <a class="topic-link" [routerLink]="['/topics', topic.id]">Read more 
                 <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../components/navbar/navbar.component';
 import { ThesisWizardService, WizardState } from '../../../services/thesis-wizard.service';
+import { INTEREST_OPTIONS, InterestOption } from '../../../constants/interests';
 
 @Component({
   selector: 'app-career-interests',
@@ -14,6 +15,7 @@ import { ThesisWizardService, WizardState } from '../../../services/thesis-wizar
 })
 export class CareerInterestsComponent {
   wizard: WizardState;
+  interestOptions = INTEREST_OPTIONS;
 
   constructor(
     private readonly wizardService: ThesisWizardService,
@@ -29,5 +31,17 @@ export class CareerInterestsComponent {
 
   onNext() {
     this.router.navigate(['/study-field-quiz/submit']);
+  }
+
+  toggleInterest(value: InterestOption, checked: boolean) {
+    if (checked) {
+      this.wizard.selectedInterests = Array.from(new Set([...this.wizard.selectedInterests, value]));
+      return;
+    }
+    this.wizard.selectedInterests = this.wizard.selectedInterests.filter((interest) => interest !== value);
+  }
+
+  isInterestSelected(value: InterestOption) {
+    return this.wizard.selectedInterests.includes(value);
   }
 }
