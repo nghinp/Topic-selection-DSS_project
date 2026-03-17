@@ -150,10 +150,33 @@
   color: var(--text);
 }
 
+.question-card--full {
+  margin-top: 18px;
+}
+
 .question-card input:focus-visible {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(255, 45, 98, 0.12);
+}
+
+.interest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 14px;
+}
+
+.interest-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.interest-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
 }
 
 .actions {

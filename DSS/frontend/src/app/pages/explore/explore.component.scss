@@ -182,16 +182,21 @@
 }
 
 .topic-tags {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  color: var(--accent);
-  font-size: 12.5px;
-  font-weight: 600;
+  min-height: 24px;
 }
 
-.topic-tags .dot {
-  color: #ff9ab5;
+.topic-tags .tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fff1f5;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .topic-link {

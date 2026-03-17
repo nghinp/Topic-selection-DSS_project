@@ -11,13 +11,15 @@ export const HYBRID_RECOMMENDATION_CONFIG = {
       'Data Science & Mining',
       'Cybersecurity & Networks',
       'Web & Software Systems',
-      'Computer Vision & Multimedia'
+      'Computer Vision & Multimedia',
+      'Graphics, Games & HCI'
     ],
     IT: [
       'Web & Software Systems',
       'Cybersecurity & Networks',
       'IoT & Embedded Systems',
-      'Data Science & Mining'
+      'Data Science & Mining',
+      'Graphics, Games & HCI'
     ]
   },
   researchCues: ['evaluate', 'analyze', 'propose', 'framework', 'model', 'optimization'],

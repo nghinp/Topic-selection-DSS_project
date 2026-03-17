@@ -8,6 +8,12 @@ import { AuthService } from '../../services/auth.service';
 import { TopicsService, TopicRecord } from '../../services/topics.service';
 import { AREA_LABELS } from '../../constants/areas';
 import { FormsModule } from '@angular/forms';
+import { INTEREST_OPTIONS } from '../../constants/interests';
+
+type ExploreTopicRecord = TopicRecord & {
+  interests?: string[];
+  short_description?: string | null;
+};
 
 @Component({
   selector: 'app-explore',
@@ -17,7 +23,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './explore.component.scss'
 })
 export class ExploreComponent implements OnInit {
-  protected topics: TopicRecord[] = [];
+  protected topics: ExploreTopicRecord[] = [];
   protected savedTopics: string[] = [];
   protected saveMessage = '';
   protected showAuthModal = false;
@@ -26,32 +32,7 @@ export class ExploreComponent implements OnInit {
   protected selectedArea = 'ALL';
   protected areaOptions: string[] = [];
   protected searchTerm = '';
-  protected interestOptions: string[] = [
-    'Art & Literature',
-    'Astronomy',
-    'Biology',
-    'Business & Economics',
-    'Chemistry',
-    'Education & Learning',
-    'Engineering & Technology',
-    'Entrepreneurship & Innovation',
-    'Finance & Accounting',
-    'History',
-    'IT & Computer Science',
-    'Law',
-    'Management & Leadership',
-    'Marketing, Communication & Media',
-    'Mathematics & Statistics',
-    'Medicine & Health',
-    'Philosophy & Ethics',
-    'Political Science',
-    'Psychology',
-    'Religion & Theology',
-    'Sociology',
-    'Sustainability & Environment',
-    'Tax',
-    'Tourism & Hospitality'
-  ];
+  protected interestOptions = INTEREST_OPTIONS;
   protected selectedInterests = new Set<string>();
 
   protected labelFor(area: string): string {
@@ -70,7 +51,7 @@ export class ExploreComponent implements OnInit {
     this.loadSavedTopics();
   }
 
-  protected save(topic: TopicRecord): void {
+  protected save(topic: ExploreTopicRecord): void {
     const key = this.keyFor(topic);
     if (this.savedTopics.includes(key)) {
       this.saveMessage = 'Topic already saved.';
@@ -127,7 +108,7 @@ export class ExploreComponent implements OnInit {
     });
   }
 
-  protected filteredTopics(): TopicRecord[] {
+  protected filteredTopics(): ExploreTopicRecord[] {
     if (!this.topics.length) return [];
     let list = this.topics;
     if (this.selectedArea !== 'ALL') {
@@ -137,15 +118,16 @@ export class ExploreComponent implements OnInit {
     if (term) {
       list = list.filter((t) => {
         const title = (t.title || '').toLowerCase();
+        const shortDescription = (t.shortDescription || t.short_description || '').toLowerCase();
         const desc = (t.description || '').toLowerCase();
-        return title.includes(term) || desc.includes(term);
+        const interests = (t.interests || []).join(' ').toLowerCase();
+        return title.includes(term) || shortDescription.includes(term) || desc.includes(term) || interests.includes(term);
       });
     }
     if (this.selectedInterests.size) {
-      const needles = Array.from(this.selectedInterests).map((s) => s.toLowerCase());
       list = list.filter((t) => {
-        const hay = `${t.title || ''} ${t.description || ''} ${this.labelFor(t.area)}`.toLowerCase();
-        return needles.some((n) => hay.includes(n));
+        const topicInterests = t.interests ?? [];
+        return topicInterests.some((interest) => this.selectedInterests.has(interest));
       });
     }
     return list;
@@ -167,7 +149,7 @@ export class ExploreComponent implements OnInit {
     return this.selectedInterests.has(value);
   }
 
-  protected isSaved(topic: TopicRecord): boolean {
+  protected isSaved(topic: ExploreTopicRecord): boolean {
     return this.savedTopics.includes(this.keyFor(topic));
   }
 
@@ -188,7 +170,7 @@ export class ExploreComponent implements OnInit {
     return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
   }
 
-  private setAreaOptions(rows: TopicRecord[]): void {
+  private setAreaOptions(rows: ExploreTopicRecord[]): void {
     const set = new Set<string>();
     rows.forEach((r) => set.add(r.area));
     this.areaOptions = ['ALL', ...Array.from(set).sort()];
@@ -197,8 +179,12 @@ export class ExploreComponent implements OnInit {
     }
   }
 
-  private keyFor(topic: TopicRecord): string {
+  private keyFor(topic: ExploreTopicRecord): string {
     return this.normalizeKey(topic.id || topic.title);
+  }
+
+  protected topicInterests(topic: ExploreTopicRecord): string[] {
+    return topic.interests ?? [];
   }
 
   private normalizeKey(value: string): string {
@@ -212,5 +198,9 @@ export class ExploreComponent implements OnInit {
       .replace(/data:image\/[^)\s]+/gi, '')
       .replace(/\s+/g, ' ')
       .trim();
+  }
+
+  protected summaryText(topic: ExploreTopicRecord): string {
+    return this.cleanDescription(topic.shortDescription || topic.short_description || topic.description);
   }
 }

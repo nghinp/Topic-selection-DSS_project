@@ -8,11 +8,35 @@
 
       <ng-container *ngIf="topic && !loading">
         <div class="header">
-          <div>
-            <p class="eyebrow">Topic</p>
+          <div class="hero-copy">
+            <p class="eyebrow">Topic Detail</p>
             <h1>{{ topic.title }}</h1>
-            <div class="pill">{{ areaLabel(topic.area) }}</div>
+            <p class="subtitle" *ngIf="topic.shortDescription; else noDesc">{{ topic.shortDescription }}</p>
+            <ng-template #noDesc><p class="subtitle muted">No short description provided.</p></ng-template>
+
+            <div class="meta-grid">
+              <div class="meta-card meta-card--area">
+                <span class="meta-card__label">Area</span>
+                <strong class="meta-card__value">{{ areaLabel(topic.area) }}</strong>
+              </div>
+              <div class="meta-card" *ngIf="topic.difficulty">
+                <span class="meta-card__label">Difficulty</span>
+                <strong class="meta-card__value">{{ topic.difficulty }}</strong>
+              </div>
+              <div class="meta-card">
+                <span class="meta-card__label">Thesis Type</span>
+                <strong class="meta-card__value">{{ topic.thesisType || 'Not specified' }}</strong>
+              </div>
+            </div>
+
+            <div class="topic-tags" *ngIf="(topic.interests || []).length">
+              <span class="topic-tags__label">Related interests</span>
+              <div class="interest-list">
+                <span class="pill pill--interest" *ngFor="let interest of topic.interests || []">{{ interest }}</span>
+              </div>
+            </div>
           </div>
+
           <div class="actions">
             <button class="btn ghost" type="button" (click)="saveTopic()" [disabled]="saving">Save topic</button>
             <button class="btn ghost" type="button" (click)="back()">Back to explore</button>
@@ -22,20 +46,33 @@
           <span class="success" *ngIf="saveSuccess">{{ saveSuccess }}</span>
           <span class="alert" *ngIf="saveError">{{ saveError }}</span>
         </div>
-
-        <div class="body">
-          <div class="image" *ngIf="imageSrc; else placeholder">
-            <img [src]="imageSrc" [alt]="topic.title" />
-          </div>
-          <ng-template #placeholder>
-            <div class="image placeholder">No image</div>
-          </ng-template>
-
-          <div class="description">
+        <div class="sections">
+          <section class="detail-section" *ngIf="descriptionClean">
             <h3>Description</h3>
-            <p class="muted" *ngIf="descriptionClean; else noDesc">{{ descriptionClean }}</p>
-            <ng-template #noDesc><p class="muted">No description provided.</p></ng-template>
-          </div>
+            <p class="muted">{{ descriptionClean }}</p>
+          </section>
+          <section class="detail-section" *ngIf="detailContent().problemOverview.length">
+            <h3>Problem Overview</h3>
+            <p class="muted" *ngFor="let item of detailContent().problemOverview">{{ item }}</p>
+          </section>
+          <section class="detail-section" *ngIf="detailContent().researchObjectives.length">
+            <h3>Research Objectives</h3>
+            <ul>
+              <li *ngFor="let item of detailContent().researchObjectives">{{ item }}</li>
+            </ul>
+          </section>
+          <section class="detail-section" *ngIf="detailContent().methodology.length">
+            <h3>Methodology</h3>
+            <ul>
+              <li *ngFor="let item of detailContent().methodology">{{ item }}</li>
+            </ul>
+          </section>
+          <section class="detail-section" *ngIf="detailContent().technologies.length">
+            <h3>Technologies</h3>
+            <div class="interest-list interest-list--tech">
+              <span class="pill pill--tech" *ngFor="let item of detailContent().technologies">{{ item }}</span>
+            </div>
+          </section>
         </div>
       </ng-container>
     </section>

@@ -4,6 +4,14 @@ import dotenv from 'dotenv';
 import { Pool } from 'pg';
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual } from 'crypto';
 import { HYBRID_RECOMMENDATION_CONFIG } from './config/hybridRecommendationConfig.js';
+import {
+  ALLOWED_DIFFICULTIES,
+  ALLOWED_INTERESTS,
+  ALLOWED_MAJORS,
+  ALLOWED_PREFERENCES,
+  ALLOWED_TOPIC_AREAS,
+  ALLOWED_TOPIC_THESIS_TYPES
+} from './config/validationConstants.js';
 
 dotenv.config();
 const app = express();
@@ -16,18 +24,12 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .split(',')
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
-const ALLOWED_MAJORS = new Set(['IT', 'CS', 'DS']);
-const ALLOWED_PREFERENCES = new Set(['Research', 'Practical', 'Not defined']);
-const ALLOWED_TOPIC_THESIS_TYPES = new Set(['Research', 'Practical']);
-const ALLOWED_TOPIC_AREAS = new Set([
-  'AI & Machine Learning',
-  'Data Science & Mining',
-  'Computer Vision & Multimedia',
-  'Web & Software Systems',
-  'Cybersecurity & Networks',
-  'IoT & Embedded Systems',
-  'Graphics, Games & HCI'
-]);
+const ALLOWED_MAJORS_SET = new Set(ALLOWED_MAJORS);
+const ALLOWED_PREFERENCES_SET = new Set(ALLOWED_PREFERENCES);
+const ALLOWED_TOPIC_THESIS_TYPES_SET = new Set(ALLOWED_TOPIC_THESIS_TYPES);
+const ALLOWED_TOPIC_AREAS_SET = new Set(ALLOWED_TOPIC_AREAS);
+const ALLOWED_INTERESTS_SET = new Set(ALLOWED_INTERESTS);
+const ALLOWED_DIFFICULTIES_SET = new Set(ALLOWED_DIFFICULTIES);
 const INSERT_USER_INTENT_SQL = `
   INSERT INTO user_intents (
     user_id, major, thesis_preference, include_keywords, exclude_keywords, career_aim, interests
@@ -46,9 +48,10 @@ WITH input AS (
     NULLIF(BTRIM($3::text), '') AS user_query,
     NULLIF(BTRIM($4::text), '') AS exclude_query,
     COALESCE($5::text[], ARRAY[]::text[]) AS extracted_tokens,
-    $6::numeric AS coverage_threshold,
-    COALESCE($7::text[], ARRAY[]::text[]) AS research_cues,
-    COALESCE($8::text[], ARRAY[]::text[]) AS practical_cues
+    COALESCE($6::text[], ARRAY[]::text[]) AS selected_interests,
+    $7::numeric AS coverage_threshold,
+    COALESCE($8::text[], ARRAY[]::text[]) AS research_cues,
+    COALESCE($9::text[], ARRAY[]::text[]) AS practical_cues
 ),
 ts_input AS (
   SELECT
@@ -68,14 +71,19 @@ candidates AS (
     tt.topic_id,
     tt.title,
     tt.description,
+    tt.short_description,
     tt.area,
     tt.thesis_type,
+    tt.difficulty,
+    COALESCE(tt.interests, ARRAY[]::text[]) AS interests,
+    COALESCE(tt.detail_content, '{}'::jsonb) AS detail_content,
     tt.created_at,
     tt.search_vec,
-    LOWER(CONCAT_WS(' ', tt.title, COALESCE(tt.description, ''), tt.area)) AS search_text,
+    LOWER(CONCAT_WS(' ', tt.title, COALESCE(tt.short_description, ''), COALESCE(tt.description, ''), tt.area, COALESCE(tt.search_text, ''))) AS search_text,
     ti.thesis_preference,
     ti.include_tsq,
     ti.extracted_tokens,
+    ti.selected_interests,
     ti.coverage_threshold,
     ti.research_cues,
     ti.practical_cues
@@ -94,8 +102,12 @@ validated AS (
     c.topic_id,
     c.title,
     c.description,
+    c.short_description,
     c.area,
     c.thesis_type,
+    c.difficulty,
+    c.interests,
+    c.detail_content,
     c.created_at,
     c.thesis_preference,
     CASE
@@ -109,6 +121,22 @@ validated AS (
         FROM unnest(c.extracted_tokens) AS token
       ) / cardinality(c.extracted_tokens)
     END AS coverage,
+    CASE
+      WHEN cardinality(c.selected_interests) = 0 THEN 0
+      ELSE (
+        SELECT COUNT(*)
+        FROM unnest(c.selected_interests) AS selected_interest
+        WHERE selected_interest = ANY(c.interests)
+      )
+    END AS matched_selected_interests_count,
+    CASE
+      WHEN cardinality(c.selected_interests) = 0 THEN NULL::numeric
+      ELSE (
+        SELECT COUNT(*)::numeric
+        FROM unnest(c.selected_interests) AS selected_interest
+        WHERE selected_interest = ANY(c.interests)
+      ) / cardinality(c.selected_interests)
+    END AS interest_match_score,
     (
       SELECT COUNT(*)
       FROM unnest(c.research_cues) AS cue
@@ -119,6 +147,7 @@ validated AS (
       FROM unnest(c.practical_cues) AS cue
       WHERE POSITION(cue IN c.search_text) > 0
     ) AS practical_cue_hits,
+    c.selected_interests,
     c.coverage_threshold
   FROM candidates c
 ),
@@ -147,20 +176,34 @@ scored AS (
       WHEN r.max_rank > 0 THEN r.topic_rank / r.max_rank
       ELSE 0::real
     END AS topic_rank_norm,
-    (0.8 * CASE WHEN r.max_rank > 0 THEN r.topic_rank / r.max_rank ELSE 0::real END) +
-    (0.2 * COALESCE(r.coverage, 0::numeric)) AS final_score
+    -- Keep legacy weighting unless structured interests are present.
+    CASE
+      WHEN cardinality(r.selected_interests) > 0 THEN
+        (0.55 * CASE WHEN r.max_rank > 0 THEN r.topic_rank / r.max_rank ELSE 0::real END) +
+        (0.15 * COALESCE(r.coverage, 0::numeric)) +
+        (0.30 * COALESCE(r.interest_match_score, 0::numeric))
+      ELSE
+        (0.8 * CASE WHEN r.max_rank > 0 THEN r.topic_rank / r.max_rank ELSE 0::real END) +
+        (0.2 * COALESCE(r.coverage, 0::numeric))
+    END AS final_score
   FROM ranked r
 )
 SELECT
   topic_id,
   title,
   description,
+  short_description,
   area,
   thesis_type,
+  difficulty,
+  interests,
+  detail_content,
   created_at,
   topic_rank,
   topic_rank_norm,
   coverage,
+  matched_selected_interests_count,
+  interest_match_score,
   final_score,
   inferred_type,
   research_cue_hits,
@@ -219,7 +262,7 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
   if (baseInput.error) {
     return res.status(baseInput.error.status).json({ message: baseInput.error.message });
   }
-  const { major, thesisPreference, includeKeywords, excludeKeywords, careerAim, interests, effectiveUserId } = baseInput;
+  const { major, thesisPreference, includeKeywords, excludeKeywords, careerAim, selectedInterests, effectiveUserId } = baseInput;
 
   const includeTokens = tokenizeKeywords(includeKeywords);
   const excludeTokens = tokenizeKeywords(excludeKeywords);
@@ -234,10 +277,9 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
   const extractedTokens = extractUserTokens({
     major,
     includeKeywords,
-    careerAim,
-    interests
+    careerAim
   });
-  const userQuery = buildUserQuery({ major, includeKeywords, careerAim, interests });
+  const userQuery = buildUserQuery({ major, includeKeywords, careerAim });
   const majorAllowlist = HYBRID_RECOMMENDATION_CONFIG.majorAreaAllowlist[major];
 
   const client = await pool.connect();
@@ -251,7 +293,7 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
       includeKeywords,
       excludeKeywords,
       careerAim,
-      interests
+      interests: selectedInterests
     });
 
     const recommendationResult = await client.query(HYBRID_RECOMMENDATION_SQL, [
@@ -260,6 +302,7 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
       userQuery,
       excludeKeywords,
       extractedTokens,
+      selectedInterests,
       HYBRID_RECOMMENDATION_CONFIG.coverageThreshold,
       HYBRID_RECOMMENDATION_CONFIG.researchCues,
       HYBRID_RECOMMENDATION_CONFIG.practicalCues
@@ -277,18 +320,21 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
     const topicRank = Number(best.topic_rank || 0);
     const topicRankNorm = Number(best.topic_rank_norm || 0);
     const coverage = best.coverage === null ? null : Number(best.coverage);
+    const interestMatchScore = best.interest_match_score === null ? null : Number(best.interest_match_score);
     const finalScore = Number(best.final_score || 0);
     const breakdown = {
       scores: {
         finalScore,
         topicRank,
         topicRankNorm,
-        coverage
+        coverage,
+        interestMatchScore
       },
       filters: {
         majorAllowlist,
         thesisPreferenceApplied: thesisPreference !== 'Not defined',
         excludeApplied: Boolean(excludeKeywords),
+        selectedInterests,
         coverageThreshold: HYBRID_RECOMMENDATION_CONFIG.coverageThreshold
       },
       tokens: extractedTokens,
@@ -315,8 +361,12 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
         topic_id: best.topic_id,
         title: best.title,
         description: best.description,
+        short_description: best.short_description,
         area: best.area,
         thesis_type: best.thesis_type,
+        difficulty: best.difficulty,
+        interests: best.interests,
+        detail_content: best.detail_content,
         created_at: best.created_at
       },
       scores: breakdown.scores,
@@ -325,8 +375,11 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
         topicTitle: best.title,
         area: best.area,
         thesisType: best.thesis_type,
+        topicInterests: best.interests,
+        selectedInterests,
         thesisPreference,
         coverage,
+        interestMatchScore,
         topicRankNorm,
         inferredType: best.inferred_type
       }),
@@ -392,7 +445,10 @@ app.delete('/api/saved-topics/:id', requireAuth, async (req, res) => {
 app.get('/api/topics', async (_req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT topic_id AS id, area, title, description, NULL::text AS "imageUrl", created_at AS "createdAt"
+      `SELECT topic_id AS id, area, title, description, thesis_type AS "thesisType", COALESCE(interests, ARRAY[]::text[]) AS interests, NULL::text AS "imageUrl", created_at AS "createdAt"
+             , short_description AS "shortDescription"
+             , difficulty
+             , COALESCE(detail_content, '{}'::jsonb) AS "detailContent"
          FROM thesis_topics
         ORDER BY created_at DESC
         LIMIT 500`
@@ -411,10 +467,12 @@ app.get('/api/topics/search', async (req, res) => {
   try {
     const term = `%${q}%`;
     const { rows } = await pool.query(
-      `SELECT topic_id AS id, area, title, description, NULL::text AS "imageUrl"
+      `SELECT topic_id AS id, area, title, description, thesis_type AS "thesisType", COALESCE(interests, ARRAY[]::text[]) AS interests, NULL::text AS "imageUrl",
+              short_description AS "shortDescription", difficulty, COALESCE(detail_content, '{}'::jsonb) AS "detailContent"
          FROM thesis_topics
         WHERE title ILIKE $1
            OR description ILIKE $1
+           OR short_description ILIKE $1
            OR area ILIKE $2
         ORDER BY created_at DESC
         LIMIT 50`,
@@ -430,7 +488,8 @@ app.get('/api/topics/search', async (req, res) => {
 app.get('/api/topics/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT topic_id AS id, area, title, description, NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"
+      `SELECT topic_id AS id, area, title, description, thesis_type AS "thesisType", COALESCE(interests, ARRAY[]::text[]) AS interests, NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt",
+              short_description AS "shortDescription", difficulty, COALESCE(detail_content, '{}'::jsonb) AS "detailContent"
          FROM thesis_topics
         WHERE topic_id = $1`,
       [req.params.id]
@@ -447,7 +506,8 @@ app.get('/api/topics/:id', async (req, res) => {
 app.get('/api/admin/topics', requireAdmin, async (_req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT topic_id AS id, area, title, description, thesis_type AS "thesisType", NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"
+      `SELECT topic_id AS id, area, title, description, thesis_type AS "thesisType", COALESCE(interests, ARRAY[]::text[]) AS interests, NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt",
+              short_description AS "shortDescription", difficulty, COALESCE(detail_content, '{}'::jsonb) AS "detailContent"
          FROM thesis_topics
         ORDER BY created_at DESC`
     );
@@ -459,24 +519,47 @@ app.get('/api/admin/topics', requireAdmin, async (_req, res) => {
 });
 
 app.post('/api/admin/topics', requireAdmin, async (req, res) => {
-  const { area, title, description = null, thesisType = null } = req.body || {};
+  const { area, title, description = null, thesisType = null, shortDescription = null, difficulty = null } = req.body || {};
   if (!area || !title || !thesisType) {
     return res.status(400).json({ message: 'area, title, thesisType are required' });
   }
-  if (!ALLOWED_TOPIC_AREAS.has(area)) {
+  if (!ALLOWED_TOPIC_AREAS_SET.has(area)) {
     return res.status(400).json({ message: 'area is invalid for Phase 2 taxonomy' });
   }
-  if (!ALLOWED_TOPIC_THESIS_TYPES.has(thesisType)) {
+  if (!ALLOWED_TOPIC_THESIS_TYPES_SET.has(thesisType)) {
     return res.status(400).json({ message: 'thesisType must be Research or Practical' });
+  }
+  const normalizedTopicInterests = normalizeInterestArray(req.body?.interests, { maxItems: 3 });
+  if (normalizedTopicInterests.error) {
+    return res.status(normalizedTopicInterests.error.status).json({ message: normalizedTopicInterests.error.message });
+  }
+  const normalizedDifficulty = normalizeDifficulty(difficulty);
+  if (normalizedDifficulty.error) {
+    return res.status(normalizedDifficulty.error.status).json({ message: normalizedDifficulty.error.message });
+  }
+  const normalizedDetailContent = normalizeDetailContent(req.body?.detailContent);
+  if (normalizedDetailContent.error) {
+    return res.status(normalizedDetailContent.error.status).json({ message: normalizedDetailContent.error.message });
   }
   const id = randomUUID();
   try {
     await pool.query(
-      `INSERT INTO thesis_topics (topic_id, area, title, description, thesis_type)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [id, area, title, description, thesisType]
+      `INSERT INTO thesis_topics (topic_id, area, title, description, thesis_type, interests, short_description, difficulty, detail_content)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [id, area, title, description, thesisType, normalizedTopicInterests.value, normalizeWhitespace(shortDescription), normalizedDifficulty.value, JSON.stringify(normalizedDetailContent.value)]
     );
-    res.status(201).json({ id, area, title, description, thesisType, imageUrl: null });
+    res.status(201).json({
+      id,
+      area,
+      title,
+      description,
+      thesisType,
+      interests: normalizedTopicInterests.value,
+      shortDescription: normalizeWhitespace(shortDescription),
+      difficulty: normalizedDifficulty.value,
+      detailContent: normalizedDetailContent.value,
+      imageUrl: null
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'DB insert failed' });
@@ -484,15 +567,27 @@ app.post('/api/admin/topics', requireAdmin, async (req, res) => {
 });
 
 app.put('/api/admin/topics/:id', requireAdmin, async (req, res) => {
-  const { area, title, description = null, thesisType = null } = req.body || {};
+  const { area, title, description = null, thesisType = null, shortDescription = null, difficulty = null } = req.body || {};
   if (!area || !title || !thesisType) {
     return res.status(400).json({ message: 'area, title, thesisType are required' });
   }
-  if (!ALLOWED_TOPIC_AREAS.has(area)) {
+  if (!ALLOWED_TOPIC_AREAS_SET.has(area)) {
     return res.status(400).json({ message: 'area is invalid for Phase 2 taxonomy' });
   }
-  if (!ALLOWED_TOPIC_THESIS_TYPES.has(thesisType)) {
+  if (!ALLOWED_TOPIC_THESIS_TYPES_SET.has(thesisType)) {
     return res.status(400).json({ message: 'thesisType must be Research or Practical' });
+  }
+  const normalizedTopicInterests = normalizeInterestArray(req.body?.interests, { maxItems: 3 });
+  if (normalizedTopicInterests.error) {
+    return res.status(normalizedTopicInterests.error.status).json({ message: normalizedTopicInterests.error.message });
+  }
+  const normalizedDifficulty = normalizeDifficulty(difficulty);
+  if (normalizedDifficulty.error) {
+    return res.status(normalizedDifficulty.error.status).json({ message: normalizedDifficulty.error.message });
+  }
+  const normalizedDetailContent = normalizeDetailContent(req.body?.detailContent);
+  if (normalizedDetailContent.error) {
+    return res.status(normalizedDetailContent.error.status).json({ message: normalizedDetailContent.error.message });
   }
   try {
     const result = await pool.query(
@@ -501,10 +596,15 @@ app.put('/api/admin/topics/:id', requireAdmin, async (req, res) => {
               title = $2,
               description = $3,
               thesis_type = $4,
+              interests = $5,
+              short_description = $6,
+              difficulty = $7,
+              detail_content = $8::jsonb,
               updated_at = NOW()
-        WHERE topic_id = $5
-      RETURNING topic_id AS id, area, title, description, thesis_type AS "thesisType", NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`,
-      [area, title, description, thesisType, req.params.id]
+        WHERE topic_id = $9
+      RETURNING topic_id AS id, area, title, description, thesis_type AS "thesisType", COALESCE(interests, ARRAY[]::text[]) AS interests, NULL::text AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt",
+                short_description AS "shortDescription", difficulty, COALESCE(detail_content, '{}'::jsonb) AS "detailContent"`,
+      [area, title, description, thesisType, normalizedTopicInterests.value, normalizeWhitespace(shortDescription), normalizedDifficulty.value, JSON.stringify(normalizedDetailContent.value), req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ message: 'Not found' });
     res.json(result.rows[0]);
@@ -626,13 +726,15 @@ function parseRecommendationInput({
   const includeKeywords = normalizeLongText(body.includeKeywords);
   const excludeKeywords = normalizeLongText(body.excludeKeywords);
   const careerAim = normalizeLongText(body.careerAim);
-  const interests = normalizeLongText(body.interests);
-
-  if (!ALLOWED_MAJORS.has(major)) {
+  if (!ALLOWED_MAJORS_SET.has(major)) {
     return { error: { status: 400, message: 'major must be one of IT, CS, DS' } };
   }
-  if (!ALLOWED_PREFERENCES.has(thesisPreference)) {
+  if (!ALLOWED_PREFERENCES_SET.has(thesisPreference)) {
     return { error: { status: 400, message: 'thesisPreference must be Research, Practical, or Not defined' } };
+  }
+  const selectedInterests = normalizeInterestArray(body.selectedInterests);
+  if (selectedInterests.error) {
+    return { error: selectedInterests.error };
   }
 
   const requestedUserId = normalizeUserId(body.userId);
@@ -647,7 +749,7 @@ function parseRecommendationInput({
     includeKeywords,
     excludeKeywords,
     careerAim,
-    interests,
+    selectedInterests: selectedInterests.value,
     effectiveUserId: reqUserId || requestedUserId || null
   };
 }
@@ -660,7 +762,7 @@ async function createUserIntent(client, { userId, major, thesisPreference, inclu
     includeKeywords,
     excludeKeywords,
     careerAim,
-    interests
+    interests ?? []
   ]);
   return result.rows[0].intent_id;
 }
@@ -699,6 +801,91 @@ function normalizePreference(value) {
   return raw;
 }
 
+function normalizeDifficulty(value) {
+  const normalized = normalizeText(value);
+  if (!normalized) return { value: null };
+  if (!ALLOWED_DIFFICULTIES_SET.has(normalized)) {
+    return { error: { status: 400, message: 'difficulty must be Beginner, Intermediate, or Advanced' } };
+  }
+  return { value: normalized };
+}
+
+function normalizeDetailContent(value) {
+  const empty = {
+    problemOverview: [],
+    researchObjectives: [],
+    methodology: [],
+    technologies: []
+  };
+  if (value === undefined || value === null) {
+    return { value: empty };
+  }
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    return { error: { status: 400, message: 'detailContent must be an object' } };
+  }
+
+  const normalizeSection = (sectionValue, sectionName) => {
+    if (sectionValue === undefined || sectionValue === null) return [];
+    if (!Array.isArray(sectionValue)) {
+      throw new Error(`${sectionName} must be an array of strings`);
+    }
+    return sectionValue.map((item) => {
+      if (typeof item !== 'string') {
+        throw new Error(`${sectionName} must be an array of strings`);
+      }
+      return normalizeWhitespace(item);
+    }).filter(Boolean);
+  };
+
+  try {
+    return {
+      value: {
+        problemOverview: normalizeSection(value.problemOverview, 'problemOverview'),
+        researchObjectives: normalizeSection(value.researchObjectives, 'researchObjectives'),
+        methodology: normalizeSection(value.methodology, 'methodology'),
+        technologies: normalizeSection(value.technologies, 'technologies')
+      }
+    };
+  } catch (err) {
+    return { error: { status: 400, message: err.message || 'detailContent is invalid' } };
+  }
+}
+
+function normalizeInterestArray(value, options = {}) {
+  const { maxItems = null } = options;
+  if (value === undefined || value === null) {
+    return { value: [] };
+  }
+  if (!Array.isArray(value)) {
+    return { error: { status: 400, message: 'selectedInterests/interests must be an array of strings' } };
+  }
+
+  const deduped = [];
+  const seen = new Set();
+  for (const item of value) {
+    if (typeof item !== 'string') {
+      return { error: { status: 400, message: 'selectedInterests/interests must be an array of strings' } };
+    }
+    const normalized = item.trim();
+    if (!normalized) continue;
+    if (!ALLOWED_INTERESTS_SET.has(normalized)) {
+      return { error: { status: 400, message: `Invalid interest: ${normalized}` } };
+    }
+    if (!seen.has(normalized)) {
+      // Preserve request order while removing duplicates.
+      seen.add(normalized);
+      deduped.push(normalized);
+    }
+  }
+
+  if (maxItems !== null && deduped.length > maxItems) {
+    return { error: { status: 400, message: `A topic can have at most ${maxItems} interests` } };
+  }
+
+  return { value: deduped };
+}
+
+
 function tokenizeKeywords(value) {
   const normalized = normalizeWhitespace(value)
     .toLowerCase()
@@ -713,25 +900,36 @@ function tokenizeKeywords(value) {
   return new Set(tokens);
 }
 
-function extractUserTokens({ major, includeKeywords, careerAim, interests }) {
-  const combined = [includeKeywords, careerAim, interests, major].filter(Boolean).join(' ');
+function extractUserTokens({ major, includeKeywords, careerAim }) {
+  const combined = [includeKeywords, careerAim, major].filter(Boolean).join(' ');
   return [...tokenizeKeywords(combined)];
 }
 
-function buildUserQuery({ major, includeKeywords, careerAim, interests }) {
-  return normalizeWhitespace([includeKeywords, careerAim, interests, major].filter(Boolean).join(' '));
+function buildUserQuery({ major, includeKeywords, careerAim }) {
+  return normalizeWhitespace([includeKeywords, careerAim, major].filter(Boolean).join(' '));
 }
 
 function buildHybridExplanation({
   topicTitle,
   area,
   thesisType,
+  topicInterests,
+  selectedInterests,
   thesisPreference,
   coverage,
+  interestMatchScore,
   topicRankNorm,
   inferredType
 }) {
   const coverageText = coverage === null ? 'keyword coverage was skipped because no extracted tokens remained after normalization' : `coverage reached ${(coverage * 100).toFixed(0)}%`;
+  const interestText =
+    selectedInterests.length
+      ? interestMatchScore === null
+        ? 'Structured interest matching was not applied.'
+        : topicInterests.length
+          ? `Structured interests matched ${(interestMatchScore * 100).toFixed(0)}% of your selected tags.`
+          : 'No structured topic interests were stored, so interest matching contributed 0%.'
+      : 'No structured interest filter was applied.';
   const preferenceText =
     thesisPreference === 'Not defined'
       ? 'No thesis-type gate was applied.'
@@ -741,5 +939,5 @@ function buildHybridExplanation({
           ? `The topic has no stored thesis type, but cue validation leaned ${inferredType.toLowerCase()}.`
           : 'The topic has no stored thesis type, so preference validation stayed low-confidence.';
 
-  return `${topicTitle} was selected because it survived the ${area} major filter, ${coverageText}, and ranked highest on full-text relevance (${(topicRankNorm * 100).toFixed(0)}% normalized). ${preferenceText}`;
+  return `${topicTitle} was selected because it survived the ${area} major filter, ${coverageText}, ranked highest on full-text relevance (${(topicRankNorm * 100).toFixed(0)}% normalized), and ${interestText} ${preferenceText}`;
 }

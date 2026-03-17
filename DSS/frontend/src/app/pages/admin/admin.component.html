@@ -27,15 +27,54 @@
           <span>Title</span>
           <input type="text" [(ngModel)]="draft.title" placeholder="e.g., AI thesis idea" />
         </label>
+        <label>
+          <span>Difficulty</span>
+          <select [(ngModel)]="draft.difficulty">
+            <option value="">Select difficulty</option>
+            <option *ngFor="let option of difficultyOptions" [value]="option">{{ option }}</option>
+          </select>
+        </label>
       </div>
       <label class="full">
-        <span>Description</span>
-        <textarea rows="3" [(ngModel)]="draft.description" placeholder="Optional summary for this topic. Images will be embedded as markdown."></textarea>
+        <span>Short Description</span>
+        <textarea rows="2" [(ngModel)]="draft.shortDescription" placeholder="Short summary shown in recommendation and topic detail."></textarea>
       </label>
       <label class="full">
-        <span>Attach image (will embed into description)</span>
-        <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+        <span>Description</span>
+        <textarea rows="3" [(ngModel)]="draft.description" placeholder="Optional summary for this topic."></textarea>
       </label>
+      <label class="full">
+        <span>Interests (up to 3)</span>
+        <div class="interest-grid">
+          <label class="interest-option" *ngFor="let interest of interestOptions">
+            <input
+              type="checkbox"
+              [checked]="isInterestSelected(interest)"
+              [disabled]="!isInterestSelected(interest) && draft.interests.length >= 3"
+              (change)="toggleInterest(interest, $event.target.checked)"
+            />
+            <span>{{ interest }}</span>
+          </label>
+        </div>
+      </label>
+      <div class="detail-grid">
+        <label class="full">
+          <span>Problem Overview</span>
+          <textarea rows="5" [ngModel]="sectionText('problemOverview')" (ngModelChange)="updateDetailSection('problemOverview', $event)" placeholder="One paragraph or bullet per line."></textarea>
+        </label>
+        <label class="full">
+          <span>Research Objectives</span>
+          <textarea rows="5" [ngModel]="sectionText('researchObjectives')" (ngModelChange)="updateDetailSection('researchObjectives', $event)" placeholder="One objective per line."></textarea>
+        </label>
+        <label class="full">
+          <span>Methodology</span>
+          <textarea rows="5" [ngModel]="sectionText('methodology')" (ngModelChange)="updateDetailSection('methodology', $event)" placeholder="One step per line."></textarea>
+        </label>
+        <label class="full">
+          <span>Technologies</span>
+          <textarea rows="5" [ngModel]="sectionText('technologies')" (ngModelChange)="updateDetailSection('technologies', $event)" placeholder="One technology per line."></textarea>
+        </label>
+      </div>
       <div class="actions">
         <button class="btn primary" type="button" (click)="submit()" [disabled]="saving">
           {{ editingId ? 'Update topic' : 'Create topic' }}
@@ -58,7 +97,8 @@
             <th>Area</th>
             <th>Type</th>
             <th>Title</th>
-            <th>Image</th>
+            <th>Difficulty</th>
+            <th>Interests</th>
             <th></th>
           </tr>
         </thead>
@@ -67,6 +107,8 @@
             <td class="mono">{{ t.area }}</td>
             <td>{{ t.thesisType || '-' }}</td>
             <td>{{ t.title }}</td>
+            <td>{{ t.difficulty || '-' }}</td>
+            <td>{{ (t.interests || []).join(', ') || '-' }}</td>
             <td class="row-actions">
               <button class="btn ghost small" type="button" (click)="edit(t)" [disabled]="saving">Edit</button>
               <button class="btn ghost small danger" type="button" (click)="remove(t.id)" [disabled]="saving">Delete</button>
