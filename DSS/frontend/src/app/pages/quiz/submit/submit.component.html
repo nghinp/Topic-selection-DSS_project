@@ -29,7 +29,19 @@
             <span class="pill" *ngFor="let interest of bestTopicInterests()">{{ interest }}</span>
           </div>
           <p *ngIf="bestTopicSummary() as summary">{{ summary }}</p>
-          <a class="btn ghost small" [routerLink]="['/topics', result.bestTopic.topic_id]">View topic detail</a>
+          <div class="result-actions">
+            <a class="btn ghost small" [routerLink]="['/topics', result.bestTopic.topic_id]">View topic detail</a>
+            <button
+              class="btn primary small"
+              [disabled]="saveLoading || saveSuccess"
+              (click)="onSaveResult()"
+              [class.success]="saveSuccess"
+            >
+              <ng-container *ngIf="!saveLoading && !saveSuccess">Save Result</ng-container>
+              <ng-container *ngIf="saveLoading">Saving...</ng-container>
+              <ng-container *ngIf="saveSuccess">Saved! ✓</ng-container>
+            </button>
+          </div>
           <!-- <section class="why-card">
             <div class="why-card__header">
               <div>
@@ -82,4 +94,20 @@
       </section>
     </section>
   </main>
+</div>
+
+<!-- Login Required Modal -->
+<div class="modal-overlay" *ngIf="showLoginModal" (click)="closeLoginModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeLoginModal()">&times;</button>
+    <div class="modal-icon">
+      <span aria-hidden="true">&#128274;</span>
+    </div>
+    <h2>Login Required</h2>
+    <p>Please log in to your account to save your results and track them later.</p>
+    <div class="modal-actions">
+      <button class="btn ghost" (click)="closeLoginModal()">Cancel</button>
+      <button class="btn primary" (click)="goToLogin()">Login</button>
+    </div>
+  </div>
 </div>

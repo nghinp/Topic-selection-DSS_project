@@ -9,7 +9,16 @@ import { FormsModule } from '@angular/forms';
 import { AREA_LABELS } from '../../constants/areas';
 import { TopicsService } from '../../services/topics.service';
 
-type SavedTopic = { id: string; topic: string; label?: string; createdAt?: string };
+type SavedTopic = { id: string; topic: string; label?: string; createdAt?: string; title?: string; area?: string };
+type RecommendationHistory = {
+  id: string;
+  topicId: string;
+  title: string;
+  area: string;
+  shortDescription?: string;
+  score: number;
+  createdAt: string;
+};
 
 @Component({
   selector: 'app-account',
@@ -20,6 +29,7 @@ type SavedTopic = { id: string; topic: string; label?: string; createdAt?: strin
 })
 export class AccountComponent implements OnInit {
   savedTopics: SavedTopic[] = [];
+  recommendationHistory: RecommendationHistory[] = [];
   loading = true;
   error = '';
 
@@ -30,6 +40,7 @@ export class AccountComponent implements OnInit {
   }
 
   displayTitle(t: SavedTopic): string {
+    if (t.title) return t.title;
     if (t.label && !this.isAreaCode(t.label)) {
       return t.label;
     }
@@ -37,6 +48,7 @@ export class AccountComponent implements OnInit {
   }
 
   displayArea(t: SavedTopic): string | null {
+    if (t.area) return t.area;
     if (t.label && this.isAreaCode(t.label)) {
       return AREA_LABELS[t.label] || t.label;
     }
@@ -45,6 +57,10 @@ export class AccountComponent implements OnInit {
 
   private isAreaCode(value?: string): boolean {
     return Boolean(value && AREA_LABELS[value]);
+  }
+
+  getAreaLabel(code: string): string {
+    return AREA_LABELS[code] || code;
   }
 
   openTopic(topic: SavedTopic): void {
@@ -83,9 +99,10 @@ export class AccountComponent implements OnInit {
   loadData(): void {
     this.loading = true;
     this.error = '';
-    Promise.all([this.fetchTopics()])
+    Promise.all([this.fetchTopics(), this.fetchHistory()])
       .then(() => (this.loading = false))
-      .catch(() => {
+      .catch((err) => {
+        console.error('Load data failed', err);
         this.error = 'Could not load account data.';
         this.loading = false;
       });
@@ -119,6 +136,18 @@ export class AccountComponent implements OnInit {
         },
         error: reject
       });
+    });
+  }
+
+  private async fetchHistory(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        this.http.get<RecommendationHistory[]>(API_ENDPOINTS.recommendations, { headers: this.authHeaders }).subscribe({
+            next: (rows) => {
+              this.recommendationHistory = rows;
+              resolve();
+            },
+            error: reject
+        });
     });
   }
 

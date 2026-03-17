@@ -7,7 +7,8 @@ export const API_ENDPOINTS = {
   adminTopics: `${API_BASE}/admin/topics`,
   topics: `${API_BASE}/topics`,
   topicDetail: (id: string) => `${API_BASE}/topics/${id}`,
-  searchTopics: `${API_BASE}/topics/search`
+  searchTopics: `${API_BASE}/topics/search`,
+  recommendations: `${API_BASE}/recommendations`
 };
 
 export default API_ENDPOINTS;

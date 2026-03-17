@@ -17,7 +17,7 @@
       </header>
 
       <section class="flow__section">
-        <h2>Your Initial Ideas</h2>
+        <h2>Your Academic Foundation</h2>
         <p class="flow__subtitle">
           Tell us a bit about your major and which direction you want to focus on.
         </p>
@@ -28,17 +28,10 @@
               <div class="question-card__header">
                 <span class="question-card__tag">Step 1</span>
                 <h3>Study field</h3>
-                <p></p>
+                <p>Choose your major</p>
               </div>
               <div class="question-card__body">
-                <label for="major">Choose your major</label>
-                <select
-                  id="major"
-                  name="major"
-                  [(ngModel)]="wizard.major"
-                  required
-                  (change)="onFieldChange()"
-                >
+                <select id="major" name="major" [(ngModel)]="wizard.major" required (change)="onFieldChange()">
                   <option value="" disabled>Select major</option>
                   <option value="IT">IT</option>
                   <option value="CS">CS</option>
@@ -52,32 +45,19 @@
               <div class="question-card__header">
                 <span class="question-card__tag">Step 1</span>
                 <h3>Preference</h3>
-                <p>Let us know which direction you feel most comfortable with.</p>
+                <p>Which direction do you prefer?</p>
               </div>
               <div class="question-card__body">
                 <fieldset class="form-field form-field--radio">
-                  <legend>Which direction do you prefer?</legend>
                   <div class="radio-group">
                     <label class="radio-option">
-                      <input
-                        type="radio"
-                        name="direction"
-                        value="research"
-                        [(ngModel)]="wizard.direction"
-                        required
-                        (change)="onFieldChange()"
-                      />
+                      <input type="radio" name="direction" value="research" [(ngModel)]="wizard.direction" required
+                        (change)="onFieldChange()" />
                       <span>Research</span>
                     </label>
                     <label class="radio-option">
-                      <input
-                        type="radio"
-                        name="direction"
-                        value="practical"
-                        [(ngModel)]="wizard.direction"
-                        required
-                        (change)="onFieldChange()"
-                      />
+                      <input type="radio" name="direction" value="practical" [(ngModel)]="wizard.direction" required
+                        (change)="onFieldChange()" />
                       <span>Practical application</span>
                     </label>
                   </div>
@@ -90,13 +70,8 @@
           <div class="actions">
             <button type="button" class="btn ghost" (click)="onBack()">Back</button>
             <span class="spacer"></span>
-            <button
-              type="button"
-              class="btn primary"
-              [class.btn--disabled]="!isStepValid"
-              [attr.aria-disabled]="!isStepValid"
-              (click)="onNextAttempt()"
-            >
+            <button type="button" class="btn primary" [class.btn--disabled]="!isStepValid"
+              [attr.aria-disabled]="!isStepValid" (click)="onNextAttempt()">
               Next
             </button>
           </div>

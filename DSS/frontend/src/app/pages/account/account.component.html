@@ -1,39 +1,139 @@
 <div class="page">
   <app-navbar></app-navbar>
 
-  <main class="content card account">
-    <div *ngIf="loading" class="muted">Loading...</div>
-    <div *ngIf="error && !loading" class="alert">{{ error }}</div>
+  <main class="content">
+    <!-- Premium Hero Section -->
+    <header class="account-hero">
+      <div class="hero-bg-glow"></div>
+      <div class="hero-content">
+        <span class="eyebrow">User account</span>
+        <h1>Welcome back, {{ auth.displayName }}</h1>
+        <p class="lede">
+          Access your saved research topics and manage your account preferences in one place.
+        </p>
+      </div>
+    </header>
 
-    <section *ngIf="!loading" class="account-grid">
-      <article class="card-section">
-        <header><h3>Saved topics</h3></header>
-        <div *ngIf="!savedTopics.length" class="muted">No topics saved.</div>
-        <ul class="list" *ngIf="savedTopics.length">
-          <li *ngFor="let t of savedTopics">
-            <div
-              class="saved-row"
-              [class.clickable]="true"
-              (click)="openTopic(t)"
-            >
-              <ng-container *ngIf="isUuid(t.topic); else noLink">
-                <a class="link" [routerLink]="['/topics', t.topic]"><strong>{{ displayTitle(t) }}</strong></a>
-              </ng-container>
-              <ng-template #noLink><strong>{{ displayTitle(t) }}</strong></ng-template>
-              <span class="muted" *ngIf="displayArea(t)"> · {{ displayArea(t) }}</span>
-              <span class="muted" *ngIf="t.createdAt"> · {{ t.createdAt | date:'short' }}</span>
-              <button
-                class="btn ghost small"
-                type="button"
-                (click)="removeSaved(t.id); $event.stopPropagation()"
-                [disabled]="deleting[t.id]"
-              >
-                {{ deleting[t.id] ? 'Deleting...' : 'Delete' }}
-              </button>
+    <div class="account-container">
+      <div class="account__layout">
+        <!-- Sidebar: User Profile -->
+        <aside class="profile-sidebar">
+          <div class="profile-card glass">
+            <div class="profile-avatar">
+              {{ (auth.user?.name || auth.displayName).charAt(0).toUpperCase() }}
             </div>
-          </li>
-        </ul>
-      </article>
-    </section>
+            <div class="profile-info">
+              <h3>{{ auth.user?.name || auth.displayName }}</h3>
+              <p class="muted">{{ auth.user?.email || 'Individual Plan' }}</p>
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <nav class="sidebar-nav">
+              <button class="nav-btn active">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                </svg>
+                Saved Topics
+              </button>
+            </nav>
+          </div>
+        </aside>
+
+        <div class="results">
+          <section class="results-section history-section" *ngIf="!loading && recommendationHistory.length > 0">
+            <div class="results-header">
+              <h2>Recent Recommendations</h2>
+            </div>
+
+            <div class="history-grid">
+              <article class="history-card glass" *ngFor="let h of recommendationHistory">
+                <div class="history-card__header">
+                  <span class="area-tag">{{ getAreaLabel(h.area) }}</span>
+                  <div class="score-pill">
+                    <span class="score-label">Match</span>
+                    <span class="score-value">{{ (h.score * 100).toFixed(0) }}%</span>
+                  </div>
+                </div>
+                <div class="history-card__body">
+                  <h3>{{ h.title }}</h3>
+                  <p class="muted" *ngIf="h.shortDescription">{{ h.shortDescription }}</p>
+                </div>
+                <div class="history-card__footer">
+                  <span class="date">{{ h.createdAt | date:'MMM d, y' }}</span>
+                  <a [routerLink]="['/topics', h.topicId]" class="link-btn">
+                    Details
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <div class="sidebar-divider" style="margin: 40px 0;"
+            *ngIf="!loading && recommendationHistory.length > 0 && savedTopics.length > 0"></div>
+
+          <div class="results-header">
+            <h2>Your Saved Topics ({{ savedTopics.length }})</h2>
+          </div>
+
+          <div class="status-msg" *ngIf="loading">
+            <div class="loading-spinner"></div>
+            <span>Loading your topics...</span>
+          </div>
+          <div class="error-msg" *ngIf="error && !loading">{{ error }}</div>
+
+          <div class="topics-grid" *ngIf="!loading && !error">
+            <article class="topic-card-premium" *ngFor="let t of savedTopics">
+              <div class="topic-header">
+                <span class="topic-area-tag" *ngIf="displayArea(t)">{{ displayArea(t) }}</span>
+                <button class="save-btn is-saved" (click)="removeSaved(t.id); $event.stopPropagation()"
+                  [disabled]="deleting[t.id]" [attr.title]="deleting[t.id] ? 'Deleting...' : 'Remove from saved'">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="topic-body">
+                <h3>
+                  <ng-container *ngIf="isUuid(t.topic); else noLink">
+                    <a [routerLink]="['/topics', t.topic]">{{ displayTitle(t) }}</a>
+                  </ng-container>
+                  <ng-template #noLink>{{ displayTitle(t) }}</ng-template>
+                </h3>
+                <p class="topic-meta" *ngIf="t.createdAt">
+                  Saved on {{ t.createdAt | date:'mediumDate' }}
+                </p>
+              </div>
+
+              <div class="topic-footer">
+                <a class="topic-link-action" *ngIf="isUuid(t.topic)" [routerLink]="['/topics', t.topic]">
+                  <span>View Details</span>
+                  <svg fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3">
+                    </path>
+                  </svg>
+                </a>
+              </div>
+            </article>
+          </div>
+
+          <div class="no-results" *ngIf="!loading && !error && savedTopics.length === 0">
+            <h3>No topics saved yet</h3>
+            <p>Start exploring and save topics you're interested in.</p>
+            <a routerLink="/explore" class="btn primary" style="margin-top: 20px;">Explore Topics</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>

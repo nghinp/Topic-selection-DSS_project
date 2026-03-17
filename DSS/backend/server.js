@@ -291,8 +291,6 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
       interests: selectedInterests
     });
 
-    // Low-signal requests should not pretend to be personalized recommendations.
-    // Require at least one personalization signal before running hybrid scoring.
     if (!recommendationMode) {
       await client.query('COMMIT');
       return res.status(400).json({
@@ -405,10 +403,12 @@ app.post('/api/recommendation/hybrid', requireAuthOptional, async (req, res) => 
 app.get('/api/saved-topics', requireAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, topic, label, created_at AS "createdAt"
-         FROM saved_topics
-        WHERE user_id = $1
-        ORDER BY created_at DESC`,
+      `SELECT st.id, st.topic, st.label, st.created_at AS "createdAt",
+              tt.title, tt.area
+         FROM saved_topics st
+         LEFT JOIN thesis_topics tt ON tt.topic_id = st.topic::uuid
+        WHERE st.user_id = $1
+        ORDER BY st.created_at DESC`,
       [req.userId]
     );
     res.json(rows);
@@ -444,6 +444,25 @@ app.delete('/api/saved-topics/:id', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'DB delete failed' });
+  }
+});
+
+// Recommendation history
+app.get('/api/recommendations', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT tr.rec_id AS "id", tr.topic_id AS "topicId", tt.title, tt.area, tt.short_description AS "shortDescription", tr.final_score AS "score", tr.created_at AS "createdAt"
+       FROM topic_recommendations tr
+       JOIN thesis_topics tt ON tt.topic_id = tr.topic_id
+       WHERE tr.user_id = $1
+       ORDER BY tr.created_at DESC
+       LIMIT 10`,
+      [req.userId]
+    );
+    res.json(rows || []);
+  } catch (err) {
+    console.error('Fetch recommendations failed', err);
+    res.status(500).json({ message: 'DB fetch failed' });
   }
 });
 
@@ -868,16 +887,15 @@ function normalizeInterestArray(value, options = {}) {
   const deduped = [];
   const seen = new Set();
   for (const item of value) {
-    if (typeof item !== 'string') {
-      return { error: { status: 400, message: 'selectedInterests/interests must be an array of strings' } };
+    if (item === null || typeof item !== 'string') {
+      continue;
     }
     const normalized = item.trim();
     if (!normalized) continue;
     if (!ALLOWED_INTERESTS_SET.has(normalized)) {
-      return { error: { status: 400, message: `Invalid interest: ${normalized}` } };
+      continue;
     }
     if (!seen.has(normalized)) {
-      // Preserve request order while removing duplicates.
       seen.add(normalized);
       deduped.push(normalized);
     }
@@ -892,7 +910,7 @@ function normalizeInterestArray(value, options = {}) {
 
 
 function tokenizeKeywords(value) {
-  const normalized = normalizeWhitespace(value)
+  const normalized = normalizeWhitespace(value ?? '')
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s]+/gu, ' ');
 

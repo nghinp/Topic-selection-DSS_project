@@ -27,6 +27,9 @@ type RecommendationRequest = {
 })
 export class SubmitComponent implements OnInit {
   protected loading = false;
+  protected saveLoading = false;
+  protected saveSuccess = false;
+  protected showLoginModal = false;
   protected errorMessage = '';
   protected result: RecommendationResult | null = null;
 
@@ -72,12 +75,52 @@ export class SubmitComponent implements OnInit {
         this.result = res;
         this.wizard.setLastRecommendation(res);
         this.loading = false;
+        this.saveSuccess = false;
       },
       error: (err) => {
         this.errorMessage = err?.error?.message || 'Could not generate recommendation.';
         this.loading = false;
       }
     });
+  }
+
+  protected onSaveResult() {
+    if (!this.result?.bestTopic) return;
+
+    if (!this.auth.isAuthed()) {
+      this.showLoginModal = true;
+      return;
+    }
+
+    this.saveLoading = true;
+    const best = this.result.bestTopic;
+    const payload = {
+      topic: best.topic_id,
+      label: best.area
+    };
+
+    const headers = {
+      Authorization: `Bearer ${this.auth.token || localStorage.getItem('authToken')}`
+    };
+
+    this.http.post(API_ENDPOINTS.savedTopics, payload, { headers }).subscribe({
+      next: () => {
+        this.saveSuccess = true;
+        this.saveLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.message || 'Could not save result.';
+        this.saveLoading = false;
+      }
+    });
+  }
+
+  protected closeLoginModal() {
+    this.showLoginModal = false;
+  }
+
+  protected goToLogin() {
+    this.router.navigate(['/login']);
   }
 
   startOver() {

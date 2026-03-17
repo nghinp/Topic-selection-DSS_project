@@ -60,7 +60,6 @@
         </div>
 
         <div class="topics-grid" *ngIf="!loadingFeatured">
-          <!-- Dynamic topics from API (if any) -->
           <article class="premium-card topic-card" *ngFor="let t of featured" (click)="openTopic(t.id)" tabindex="0">
             <div class="card-glow"></div>
             <div class="card-content">
@@ -157,43 +156,6 @@
               <a class="read-more" href="https://ieeexplore.ieee.org/" target="_blank" rel="noopener noreferrer">Access
                 journals &rarr;</a>
             </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="premium-section traits">
-        <div class="section__header center-text">
-          <h2>The four assessment dimensions</h2>
-          <p class="muted">Each dimension contributes to your personalized topic recommendation.</p>
-        </div>
-
-        <div class="traits-grid">
-          <article class="trait-node">
-            <div class="trait-number">01</div>
-            <h4>Thesis Type Preference</h4>
-            <p class="muted">Helps determine whether you are better suited for research-based or application-based
-              projects.</p>
-          </article>
-
-          <article class="trait-node">
-            <div class="trait-number">02</div>
-            <h4>Working Style</h4>
-            <p class="muted">Identifies whether you thrive in structured planning, independent work, or collaborative
-              environments.</p>
-          </article>
-
-          <article class="trait-node">
-            <div class="trait-number">03</div>
-            <h4>Interest Area Identification</h4>
-            <p class="muted">Maps your interests to specialization areas such as AI, Web, Mobile, Cybersecurity, IoT,
-              Data, and more.</p>
-          </article>
-
-          <article class="trait-node">
-            <div class="trait-number">04</div>
-            <h4>Skill Self-Assessment</h4>
-            <p class="muted">Evaluates your current technical capabilities to match you with realistic and achievable
-              thesis options.</p>
           </article>
         </div>
       </section>

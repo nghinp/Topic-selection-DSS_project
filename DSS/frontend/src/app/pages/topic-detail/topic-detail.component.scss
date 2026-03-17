@@ -48,15 +48,6 @@
   max-width: 920px;
 }
 
-.eyebrow {
-  margin: 0 0 12px;
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .hero-copy h1 {
   margin: 0;
   font-size: clamp(1.7rem, 3vw, 2.7rem);
@@ -239,7 +230,7 @@
   color: #4d4758;
 }
 
-.detail-section p + p {
+.detail-section p+p {
   margin-top: 10px;
 }
 
@@ -248,7 +239,7 @@
   padding-left: 20px;
 }
 
-.detail-section li + li {
+.detail-section li+li {
   margin-top: 10px;
 }
 

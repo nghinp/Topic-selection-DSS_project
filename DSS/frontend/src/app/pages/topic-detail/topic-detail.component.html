@@ -9,10 +9,11 @@
       <ng-container *ngIf="topic && !loading">
         <div class="header">
           <div class="hero-copy">
-            <p class="eyebrow">Topic Detail</p>
             <h1>{{ topic.title }}</h1>
             <p class="subtitle" *ngIf="topic.shortDescription; else noDesc">{{ topic.shortDescription }}</p>
-            <ng-template #noDesc><p class="subtitle muted">No short description provided.</p></ng-template>
+            <ng-template #noDesc>
+              <p class="subtitle muted">No short description provided.</p>
+            </ng-template>
 
             <div class="meta-grid">
               <div class="meta-card meta-card--area">

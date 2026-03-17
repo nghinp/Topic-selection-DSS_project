@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit {
     private readonly router: Router,
     private readonly http: HttpClient,
     public readonly auth: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadFeatured();
@@ -68,7 +68,7 @@ export class HomeComponent implements OnInit {
         this.stats.topics = rows.length;
         const areas = new Set(rows.map((t) => t.area));
         this.stats.areas = areas.size;
-        this.featured = rows.slice(0, 3);
+        this.featured = rows.slice(0, 4);
         this.loadingFeatured = false;
       },
       error: () => {
