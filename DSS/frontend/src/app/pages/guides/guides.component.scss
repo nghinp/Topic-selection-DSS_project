@@ -24,7 +24,7 @@
 }
 
 /* ================= HERO SECTION ================= */
-.about-hero {
+.guides-hero {
   position: relative;
   padding: 120px 24px 100px;
   background: var(--brand-navy);
@@ -36,10 +36,10 @@
     position: absolute;
     top: -100px;
     right: -100px;
-    width: 400px;
-    height: 400px;
+    width: 600px;
+    height: 600px;
     background: radial-gradient(circle, rgba(193, 36, 108, 0.15) 0%, transparent 70%);
-    filter: blur(60px);
+    filter: blur(80px);
     z-index: 0;
   }
 
@@ -73,175 +73,110 @@
     color: rgba(255, 255, 255, 0.7);
     line-height: 1.6;
     max-width: 600px;
-    margin: 0 auto 48px;
+    margin: 0 auto;
   }
 }
 
-/* ================= PILLARS (GLASSMOPHISM) ================= */
-.hero__pillars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  max-width: 1100px;
-  margin: -60px auto 0;
-  padding: 0 24px;
-  position: relative;
-  z-index: 2;
-}
-
-.pillar-glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 32px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
-    border-color: var(--brand-pink);
-  }
-
-  .pill {
-    display: inline-block;
-    padding: 6px 12px;
-    background: rgba(193, 36, 108, 0.1);
-    color: var(--brand-pink);
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    letter-spacing: 0.05em;
-  }
-
-  h3 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  p {
-    color: var(--text-muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-}
-
-/* ================= CONTENT SECTION ================= */
-/* ================= DECORATIVE CONTENT SECTION ================= */
+/* ================= MAIN CONTENT SECTION ================= */
 .main-info {
-  padding: 10px 24px 40px;
-  max-width: 1100px;
+  padding: 80px 24px;
+  max-width: 1000px;
   margin: 0 auto;
   position: relative;
 
   .decoration-glow {
     position: absolute;
-    top: 50%;
+    bottom: -100px;
     left: -100px;
-    width: 300px;
-    height: 300px;
+    width: 400px;
+    height: 400px;
     background: radial-gradient(circle, rgba(193, 36, 108, 0.05) 0%, transparent 70%);
-    filter: blur(40px);
+    filter: blur(60px);
     z-index: 0;
     pointer-events: none;
   }
 
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 60px;
-    align-items: center;
+  .info-container {
     position: relative;
     z-index: 1;
   }
 
-  .text-content {
-    h2 {
-      font-size: 42px;
-      font-weight: 800;
-      margin-bottom: 32px;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-pink) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: inline-block;
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 60px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.03);
+  }
+
+  .card-section {
+    margin-bottom: 60px;
+
+    &:last-child {
+      margin-bottom: 0;
     }
 
-    .about__text p {
+    h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--brand-navy);
+
+      .section-number {
+        font-size: 14px;
+        color: var(--brand-pink);
+        background: rgba(193, 36, 108, 0.1);
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+    }
+
+    p {
       font-size: 18px;
       line-height: 1.8;
       color: var(--text-muted);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
 
       strong {
         color: var(--brand-pink);
         font-weight: 600;
       }
+    }
 
-      &:last-child {
-        margin-bottom: 0;
+    ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+
+      li {
+        position: relative;
+        padding-left: 28px;
+        font-size: 17px;
+        color: var(--text-muted);
+        line-height: 1.6;
+
+        &::before {
+          content: '→';
+          position: absolute;
+          left: 0;
+          color: var(--brand-pink);
+          font-weight: 700;
+        }
+
+        strong {
+          color: var(--brand-navy);
+          font-weight: 600;
+        }
       }
     }
   }
-
-  .visual-decoration {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .abstract-shape {
-      width: 280px;
-      height: 280px;
-      background: linear-gradient(135deg, rgba(193, 36, 108, 0.1) 0%, rgba(18, 22, 58, 0.05) 100%);
-      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-      position: relative;
-      animation: morph 12s linear infinite alternate;
-
-      &::after {
-        content: '';
-        position: absolute;
-        top: -20px;
-        right: -20px;
-        width: 100px;
-        height: 100px;
-        border: 2px dashed rgba(193, 36, 108, 0.2);
-        border-radius: 50%;
-      }
-    }
-
-    .info-icon {
-      position: absolute;
-      width: 120px;
-      height: 120px;
-      background: #fff;
-      border-radius: 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(193, 36, 108, 0.1);
-      
-      svg {
-        width: 48px;
-        height: 48px;
-        color: var(--brand-pink);
-      }
-    }
-  }
-}
-
-@keyframes morph {
-  0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
-  25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
-  50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
-  75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
 }
 
 /* ================= CTA BANNER ================= */
@@ -257,19 +192,8 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -50px;
-    left: -50px;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(193, 36, 108, 0.2) 0%, transparent 70%);
-    filter: blur(40px);
-  }
 
   .eyebrow {
     color: var(--brand-pink);
@@ -313,19 +237,19 @@
 }
 
 @media (max-width: 768px) {
-  .about-hero {
+  .guides-hero {
     padding: 80px 24px 60px;
   }
 
-  .hero__pillars {
-    margin-top: 20px;
-  }
-
   .main-info {
-    padding: 60px 24px;
+    padding: 40px 24px;
     
-    .premium-card {
+    .glass-card {
       padding: 32px;
+    }
+
+    h2 {
+      font-size: 24px;
     }
   }
 
@@ -350,7 +274,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 40px;
-    max-width: 1280px;
+    max-width: 1000px;
     margin: 0 auto;
     margin-bottom: 40px;
   }
@@ -386,7 +310,7 @@
   }
 
   .footer-bottom {
-    max-width: 1280px;
+    max-width: 1000px;
     margin: 0 auto;
     padding-top: 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);

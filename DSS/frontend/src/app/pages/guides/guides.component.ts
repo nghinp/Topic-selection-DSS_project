@@ -4,10 +4,10 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-about',
+  selector: 'app-guides',
   standalone: true,
   imports: [CommonModule, NavbarComponent, RouterLink],
-  templateUrl: './about.component.html',
-  styleUrl: './about.component.scss'
+  templateUrl: './guides.component.html',
+  styleUrl: './guides.component.scss'
 })
-export class AboutComponent {}
+export class GuidesComponent {}

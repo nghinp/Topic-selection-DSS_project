@@ -57,7 +57,20 @@
           </section> -->
         </div>
 
-        <p class="muted" *ngIf="loading">Computing recommendation...</p>
+        <div class="loading-state" *ngIf="loading">
+          <div class="spinner-wrapper">
+            <div class="spinner"></div>
+            <div class="spinner-inner"></div>
+          </div>
+          <p class="loading-text">
+            Computing recommendation
+            <span class="loading-dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </span>
+          </p>
+        </div>
         <p class="form-error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
         <div class="actions">
@@ -69,17 +82,4 @@
       </section>
     </section>
   </main>
-
-  <footer class="footer">
-    <div class="footer__left">
-      <span class="brand">TopicInsights</span>
-      <p class="muted">A smart decision support system for thesis topic selection.</p>
-    </div>
-
-    <div class="footer__links">
-      <a href="/about">About</a>
-      <a href="#">Guides</a>
-      <a href="#">Privacy</a>
-    </div>
-  </footer>
 </div>
