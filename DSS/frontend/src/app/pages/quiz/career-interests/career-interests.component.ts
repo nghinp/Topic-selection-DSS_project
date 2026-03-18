@@ -16,6 +16,7 @@ import { INTEREST_OPTIONS, InterestOption } from '../../../constants/interests';
 export class CareerInterestsComponent {
   wizard: WizardState;
   interestOptions = INTEREST_OPTIONS;
+  readonly maxSelectedInterests = 3;
 
   constructor(
     private readonly wizardService: ThesisWizardService,
@@ -35,6 +36,9 @@ export class CareerInterestsComponent {
 
   toggleInterest(value: InterestOption, checked: boolean) {
     if (checked) {
+      if (this.wizard.selectedInterests.length >= this.maxSelectedInterests && !this.isInterestSelected(value)) {
+        return;
+      }
       this.wizard.selectedInterests = Array.from(new Set([...this.wizard.selectedInterests, value]));
       return;
     }
@@ -43,5 +47,9 @@ export class CareerInterestsComponent {
 
   isInterestSelected(value: InterestOption) {
     return this.wizard.selectedInterests.includes(value);
+  }
+
+  isInterestDisabled(value: InterestOption) {
+    return this.wizard.selectedInterests.length >= this.maxSelectedInterests && !this.isInterestSelected(value);
   }
 }

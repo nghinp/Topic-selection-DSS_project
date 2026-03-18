@@ -35,10 +35,13 @@
 
           <div class="question-card question-card--full">
             <div class="question-card__body">
-              <label>Choose your interests</label>
+              <label>Choose up to 3 interests</label>
+              <p class="selection-hint muted">
+                Select at most 3 interests so the recommendation score stays focused and accurate.
+              </p>
               <div class="interest-grid">
                 <label class="interest-option" *ngFor="let interest of interestOptions">
-                  <input type="checkbox" [checked]="isInterestSelected(interest)"
+                  <input type="checkbox" [checked]="isInterestSelected(interest)" [disabled]="isInterestDisabled(interest)"
                     (change)="toggleInterest(interest, $event.target.checked)" />
                   <span>{{ interest }}</span>
                 </label>
