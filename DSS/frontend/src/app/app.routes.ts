@@ -10,19 +10,11 @@ import { SearchComponent } from './pages/search/search.component';
 import { TopicDetailComponent } from './pages/topic-detail/topic-detail.component';
 import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy.component';
 import { GuidesComponent } from './pages/guides/guides.component';
-import { StudyFieldQuizComponent } from './pages/quiz/study-field-quiz/study-field-quiz.component';
-import { CareerInterestsComponent } from './pages/quiz/career-interests/career-interests.component';
-import { InitialIdeasComponent } from './pages/quiz/initial-ideas/initial-ideas.component';
-import { SubmitComponent } from './pages/quiz/submit/submit.component';
+import { TopicGenerationComponent } from './pages/topic-generation/topic-generation.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'study-field-quiz', component: StudyFieldQuizComponent },
-  { path: 'study-field-quiz/thesis-type-addtion', redirectTo: 'study-field-quiz/step-2', pathMatch: 'full' },
-  { path: 'study-field-quiz/career-interests', component: CareerInterestsComponent },
-  { path: 'study-field-quiz/step-2', component: InitialIdeasComponent },
-  { path: 'study-field-quiz/initial-ideas', redirectTo: 'study-field-quiz/step-2', pathMatch: 'full' },
-  { path: 'study-field-quiz/submit', component: SubmitComponent },
+  { path: 'topic-generation', component: TopicGenerationComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'account', component: AccountComponent },

@@ -8,7 +8,9 @@ export const ALLOWED_TOPIC_AREAS = [
   'Web & Software Systems',
   'Cybersecurity & Networks',
   'IoT & Embedded Systems',
-  'Graphics, Games & HCI'
+  'Graphics, Games & HCI',
+  'Blockchain & Distributed Systems',
+  'Natural Language Processing'
 ];
 export const ALLOWED_INTERESTS = [
   'Artificial Intelligence',

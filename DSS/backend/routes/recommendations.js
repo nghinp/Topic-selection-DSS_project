@@ -5,7 +5,6 @@ import { requireAuth, requireAuthOptional } from '../middleware/auth.js';
 import { HYBRID_RECOMMENDATION_CONFIG } from '../config/hybridRecommendationConfig.js';
 import {
   normalizeWhitespace,
-  tokenizeKeywords,
   extractUserTokens,
   buildUserQuery,
   buildHybridExplanation,
@@ -35,9 +34,7 @@ WITH input AS (
     NULLIF(BTRIM($4::text), '') AS exclude_query,
     COALESCE($5::text[], ARRAY[]::text[]) AS extracted_tokens,
     COALESCE($6::text[], ARRAY[]::text[]) AS selected_interests,
-    $7::numeric AS coverage_threshold,
-    COALESCE($8::text[], ARRAY[]::text[]) AS research_cues,
-    COALESCE($9::text[], ARRAY[]::text[]) AS practical_cues
+    $7::numeric AS coverage_threshold
 ),
 ts_input AS (
   SELECT
@@ -59,7 +56,7 @@ candidates AS (
     COALESCE(tt.detail_content, '{}'::jsonb) AS detail_content,
     tt.created_at, tt.search_vec,
     LOWER(CONCAT_WS(' ', tt.title, COALESCE(tt.short_description, ''), COALESCE(tt.description, ''), tt.area, COALESCE(tt.search_text, ''))) AS search_text,
-    ti.thesis_preference, ti.include_tsq, ti.extracted_tokens, ti.selected_interests, ti.coverage_threshold, ti.research_cues, ti.practical_cues
+    ti.thesis_preference, ti.include_tsq, ti.extracted_tokens, ti.selected_interests, ti.coverage_threshold
   FROM thesis_topics tt
   CROSS JOIN ts_input ti
   WHERE tt.area = ANY(ti.major_allowlist)
@@ -95,15 +92,11 @@ validated AS (
         FROM unnest(c.selected_interests) AS selected_interest
         WHERE selected_interest = ANY(c.interests)
       ) / cardinality(c.selected_interests)
-    END AS interest_match_score,
-    (SELECT COUNT(*) FROM unnest(c.research_cues) AS cue WHERE POSITION(cue IN c.search_text) > 0) AS research_cue_hits,
-    (SELECT COUNT(*) FROM unnest(c.practical_cues) AS cue WHERE POSITION(cue IN c.search_text) > 0) AS practical_cue_hits
+    END AS interest_match_score
   FROM candidates c
 ),
 coverage_pass AS (
-  SELECT
-    v.*,
-    NULL::text AS inferred_type
+  SELECT v.*
   FROM validated v
   WHERE v.coverage IS NULL OR v.coverage >= v.coverage_threshold
 ),
@@ -129,8 +122,7 @@ scored AS (
   FROM ranked r
 )
 SELECT topic_id, title, description, short_description, area, thesis_type, difficulty, interests, detail_content, created_at,
-       topic_rank, topic_rank_norm, coverage, matched_selected_interests_count, interest_match_score, final_score,
-       inferred_type, research_cue_hits, practical_cue_hits
+       topic_rank, topic_rank_norm, coverage, matched_selected_interests_count, interest_match_score, final_score
 FROM scored
 ORDER BY final_score DESC, topic_rank DESC, created_at DESC NULLS LAST
 LIMIT 1
@@ -162,8 +154,7 @@ router.post('/hybrid', requireAuthOptional, async (req, res) => {
       HYBRID_RECOMMENDATION_CONFIG.majorAreaAllowlist[major],
       thesisPreference, buildUserQuery({ major, includeKeywords, careerAim }),
       excludeKeywords, extractUserTokens({ major, includeKeywords, careerAim }),
-      selectedInterests, HYBRID_RECOMMENDATION_CONFIG.coverageThreshold,
-      HYBRID_RECOMMENDATION_CONFIG.researchCues, HYBRID_RECOMMENDATION_CONFIG.practicalCues
+      selectedInterests, HYBRID_RECOMMENDATION_CONFIG.coverageThreshold
     ]);
 
     if (!rows.length) {
@@ -174,8 +165,7 @@ router.post('/hybrid', requireAuthOptional, async (req, res) => {
     const best = rows[0];
     const breakdown = {
       scores: { finalScore: Number(best.final_score), topicRank: Number(best.topic_rank), topicRankNorm: Number(best.topic_rank_norm), coverage: best.coverage === null ? null : Number(best.coverage), interestMatchScore: best.interest_match_score === null ? null : Number(best.interest_match_score) },
-      filters: { selectedInterests, coverageThreshold: HYBRID_RECOMMENDATION_CONFIG.coverageThreshold },
-      validation: { inferredType: best.inferred_type, researchCueHits: Number(best.research_cue_hits), practicalCueHits: Number(best.practical_cue_hits) }
+      filters: { selectedInterests, coverageThreshold: HYBRID_RECOMMENDATION_CONFIG.coverageThreshold }
     };
 
     const recommendationId = randomUUID();
@@ -185,7 +175,7 @@ router.post('/hybrid', requireAuthOptional, async (req, res) => {
     res.status(201).json({
       bestTopic: best,
       scores: breakdown.scores,
-      explain: buildHybridExplanation({ topicTitle: best.title, area: best.area, thesisType: best.thesis_type, topicInterests: best.interests, selectedInterests, thesisPreference, coverage: breakdown.scores.coverage, interestMatchScore: breakdown.scores.interestMatchScore, topicRankNorm: breakdown.scores.topicRankNorm, inferredType: best.inferred_type }),
+      explain: buildHybridExplanation({ topicTitle: best.title, area: best.area, thesisType: best.thesis_type, topicInterests: best.interests, selectedInterests, thesisPreference, coverage: breakdown.scores.coverage, interestMatchScore: breakdown.scores.interestMatchScore, topicRankNorm: breakdown.scores.topicRankNorm }),
       recommendationId, intentId
     });
   } catch (err) {

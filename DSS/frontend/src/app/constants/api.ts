@@ -8,7 +8,11 @@ export const API_ENDPOINTS = {
   topics: `${API_BASE}/topics`,
   topicDetail: (id: string) => `${API_BASE}/topics/${id}`,
   searchTopics: `${API_BASE}/topics/search`,
-  recommendations: `${API_BASE}/recommendations`
+  recommendations: `${API_BASE}/recommendations`,
+  topicGenerationConfig: `${API_BASE}/topic-generation/config`,
+  topicGenerationGenerate: `${API_BASE}/topic-generation/generate`,
+  topicGenerationSave: `${API_BASE}/topic-generation/save`,
+  topicGenerationSaved: `${API_BASE}/topic-generation/saved`
 };
 
 export default API_ENDPOINTS;

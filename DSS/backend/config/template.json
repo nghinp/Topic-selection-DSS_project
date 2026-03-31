@@ -1,0 +1,1286 @@
+{
+    "version": "1.0",
+    "description": "Template configuration for thesis topic generation",
+    "templateFamilies": {
+        "practical_system_development": {
+            "id": "A",
+            "description": "Templates for practical implementation-oriented topics",
+            "templates": [
+                {
+                    "id": "A1",
+                    "pattern": "{system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "Decision Support System for Thesis Topic Selection"
+                },
+                {
+                    "id": "A2",
+                    "pattern": "Web-Based {system} for {target_user}",
+                    "slots": [
+                        "system",
+                        "target_user"
+                    ],
+                    "example": "Web-Based Student Support System for University Learners"
+                },
+                {
+                    "id": "A3",
+                    "pattern": "Development of a {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "Development of a Chatbot System for MOOC Learning Support"
+                },
+                {
+                    "id": "A4",
+                    "pattern": "Design and Implementation of a {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "Design and Implementation of a Smart Parking System for University Campuses"
+                },
+                {
+                    "id": "A5",
+                    "pattern": "AI-Powered {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "AI-Powered Recommendation System for Personalized Learning"
+                },
+                {
+                    "id": "A6",
+                    "pattern": "{system} with {feature} for {domain}",
+                    "slots": [
+                        "system",
+                        "feature",
+                        "domain"
+                    ],
+                    "example": "E-commerce Platform with Personalized Recommendation for Book Shopping"
+                },
+                {
+                    "id": "A7",
+                    "pattern": "Intelligent {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "Intelligent Monitoring System for Air Quality Prediction"
+                },
+                {
+                    "id": "A8",
+                    "pattern": "IoT-Based {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "IoT-Based Monitoring System for Smart Home Energy Management"
+                },
+                {
+                    "id": "A9",
+                    "pattern": "AIoT-Based {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "AIoT-Based Attendance System for Smart Campuses"
+                },
+                {
+                    "id": "A10",
+                    "pattern": "{system} for {target_user} in {domain}",
+                    "slots": [
+                        "system",
+                        "target_user",
+                        "domain"
+                    ],
+                    "example": "Learning Support Platform for Primary Students in Mathematics Education"
+                }
+            ]
+        },
+        "research_model_method": {
+            "id": "B",
+            "description": "Templates for research-oriented AI, ML, CV, NLP, and algorithmic topics",
+            "templates": [
+                {
+                    "id": "B1",
+                    "pattern": "A {model} for {task}",
+                    "slots": [
+                        "model",
+                        "task"
+                    ],
+                    "example": "A Deep Learning Model for Skin Disease Classification"
+                },
+                {
+                    "id": "B2",
+                    "pattern": "A Deep Learning-Based Approach for {task}",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "A Deep Learning-Based Approach for Brain Tumor Segmentation"
+                },
+                {
+                    "id": "B3",
+                    "pattern": "A Machine Learning Framework for {task}",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "A Machine Learning Framework for Traffic Accident Risk Prediction"
+                },
+                {
+                    "id": "B4",
+                    "pattern": "{task} using {model}",
+                    "slots": [
+                        "task",
+                        "model"
+                    ],
+                    "example": "Customer Churn Prediction using Gradient Boosting"
+                },
+                {
+                    "id": "B5",
+                    "pattern": "{task} with {technique}",
+                    "slots": [
+                        "task",
+                        "technique"
+                    ],
+                    "example": "Medical Image Classification with Federated Learning"
+                },
+                {
+                    "id": "B6",
+                    "pattern": "Improving {task} using {method}",
+                    "slots": [
+                        "task",
+                        "method"
+                    ],
+                    "example": "Improving Speech Recognition using Multi-Modal Learning"
+                },
+                {
+                    "id": "B7",
+                    "pattern": "An Enhanced {model} for {task}",
+                    "slots": [
+                        "model",
+                        "task"
+                    ],
+                    "example": "An Enhanced U-Net for Medical Image Segmentation"
+                },
+                {
+                    "id": "B8",
+                    "pattern": "Optimizing {task} using {technique}",
+                    "slots": [
+                        "task",
+                        "technique"
+                    ],
+                    "example": "Optimizing Edge Inference using Tiny Neural Networks"
+                },
+                {
+                    "id": "B9",
+                    "pattern": "Application of {technology} in {domain}",
+                    "slots": [
+                        "technology",
+                        "domain"
+                    ],
+                    "example": "Application of Large Language Models in Healthcare Question Answering"
+                },
+                {
+                    "id": "B10",
+                    "pattern": "Applying Machine Learning for {domain}",
+                    "slots": [
+                        "domain"
+                    ],
+                    "example": "Applying Machine Learning for Retail Demand Forecasting"
+                },
+                {
+                    "id": "B11",
+                    "pattern": "Explainable AI for {task}",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "Explainable AI for Cardiovascular Disease Risk Prediction"
+                },
+                {
+                    "id": "B12",
+                    "pattern": "A Hybrid Approach for {task}",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "A Hybrid Approach for Document Retrieval in Legal Question Answering"
+                },
+                {
+                    "id": "B13",
+                    "pattern": "A Multi-modal Approach for {task}",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "A Multi-modal Approach for Conversational Fashion Recommendation"
+                },
+                {
+                    "id": "B14",
+                    "pattern": "{technology} and {model} for {task}",
+                    "slots": [
+                        "technology",
+                        "model",
+                        "task"
+                    ],
+                    "example": "Large Language Models and LightGBM for Stock Prediction"
+                },
+                {
+                    "id": "B15",
+                    "pattern": "Combining {model} and {model} for {task}",
+                    "slots": [
+                        "model",
+                        "task"
+                    ],
+                    "example": "Combining Factorization Machines and Deep Learning for Complex Feature Interaction"
+                },
+                {
+                    "id": "B16",
+                    "pattern": "Optimizing {model} using {technique} for {task}",
+                    "slots": [
+                        "model",
+                        "technique",
+                        "task"
+                    ],
+                    "example": "Optimizing YOLO using Patch-Based Inference for Object Detection"
+                },
+                {
+                    "id": "B17",
+                    "pattern": "On-chip Training of {model} for {task}",
+                    "slots": [
+                        "model",
+                        "task"
+                    ],
+                    "example": "On-chip Training of Binary Neural Networks for Image Classification"
+                }
+            ]
+        },
+        "data_analytics_dss": {
+            "id": "C",
+            "description": "Templates for analytics, mining, prediction, and DSS topics",
+            "templates": [
+                {
+                    "id": "C1",
+                    "pattern": "Decision Support System for {domain}",
+                    "slots": [
+                        "domain"
+                    ],
+                    "example": "Decision Support System for Academic Major Selection"
+                },
+                {
+                    "id": "C2",
+                    "pattern": "A Data-Driven Decision Support System for {domain}",
+                    "slots": [
+                        "domain"
+                    ],
+                    "example": "A Data-Driven Decision Support System for Research Direction Selection"
+                },
+                {
+                    "id": "C3",
+                    "pattern": "Data Analytics for {domain}",
+                    "slots": [
+                        "domain"
+                    ],
+                    "example": "Data Analytics for Football Performance Evaluation"
+                },
+                {
+                    "id": "C4",
+                    "pattern": "Data-Driven Analysis of {problem}",
+                    "slots": [
+                        "problem"
+                    ],
+                    "example": "Data-Driven Analysis of Student Academic Performance"
+                },
+                {
+                    "id": "C5",
+                    "pattern": "Predicting {target} using {method}",
+                    "slots": [
+                        "target",
+                        "method"
+                    ],
+                    "example": "Predicting Retail Demand using Time Series Models"
+                },
+                {
+                    "id": "C6",
+                    "pattern": "{type} Mining for {domain}",
+                    "slots": [
+                        "type",
+                        "domain"
+                    ],
+                    "example": "Pattern Mining for Temporal Healthcare Data"
+                },
+                {
+                    "id": "C7",
+                    "pattern": "Classification and Prediction of {target} through {method}",
+                    "slots": [
+                        "target",
+                        "method"
+                    ],
+                    "example": "Classification and Prediction of Student Performance through Data Mining"
+                }
+            ]
+        },
+        "security_network": {
+            "id": "D",
+            "description": "Templates for security, privacy, and network systems",
+            "templates": [
+                {
+                    "id": "D1",
+                    "pattern": "Secure {system} with {technique}",
+                    "slots": [
+                        "system",
+                        "technique"
+                    ],
+                    "example": "Secure Messaging System with End-to-End Encryption"
+                },
+                {
+                    "id": "D2",
+                    "pattern": "Design of a Secure {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "Design of a Secure Email Gateway for Spam Detection"
+                },
+                {
+                    "id": "D3",
+                    "pattern": "{threat} Detection using {method}",
+                    "slots": [
+                        "threat",
+                        "method"
+                    ],
+                    "example": "Phishing Detection using Machine Learning"
+                },
+                {
+                    "id": "D4",
+                    "pattern": "Privacy-Preserving {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "Privacy-Preserving Chat System for Group Communication"
+                }
+            ]
+        },
+        "hardware_embedded_fpga": {
+            "id": "E",
+            "description": "Templates for hardware, architecture, and FPGA topics",
+            "templates": [
+                {
+                    "id": "E1",
+                    "pattern": "Design and Implementation of a {system}",
+                    "slots": [
+                        "system"
+                    ],
+                    "example": "Design and Implementation of a Multi-Core RISC-V CPU"
+                },
+                {
+                    "id": "E2",
+                    "pattern": "Design of a {architecture} with {feature}",
+                    "slots": [
+                        "architecture",
+                        "feature"
+                    ],
+                    "example": "Design of a RISC-V Core with SPI and UART Peripherals"
+                },
+                {
+                    "id": "E3",
+                    "pattern": "Implementation of {model} on FPGA for {task}",
+                    "slots": [
+                        "model",
+                        "task"
+                    ],
+                    "example": "Implementation of a Binarized CNN on FPGA for PCB Defect Detection"
+                },
+                {
+                    "id": "E4",
+                    "pattern": "Design and Optimization of {architecture} for {task}",
+                    "slots": [
+                        "architecture",
+                        "task"
+                    ],
+                    "example": "Design and Optimization of Tiny Neural Networks for Edge AI"
+                }
+            ]
+        },
+        "games_graphics_vr": {
+            "id": "F",
+            "description": "Templates for game, graphics, simulation, and VR/AR topics",
+            "templates": [
+                {
+                    "id": "F1",
+                    "pattern": "Development of a {game_type} Game with {feature}",
+                    "slots": [
+                        "game_type",
+                        "feature"
+                    ],
+                    "example": "Development of a Survival Game with Procedural Generation"
+                },
+                {
+                    "id": "F2",
+                    "pattern": "Simulation of {system} using {technology}",
+                    "slots": [
+                        "system",
+                        "technology"
+                    ],
+                    "example": "Simulation of Ocean Environments using VR Technology"
+                },
+                {
+                    "id": "F3",
+                    "pattern": "VR Application for {domain}",
+                    "slots": [
+                        "domain"
+                    ],
+                    "example": "VR Application for Medical Training"
+                },
+                {
+                    "id": "F4",
+                    "pattern": "AR-Based {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "AR-Based Cultural Heritage Exploration System for Tourism"
+                },
+                {
+                    "id": "F5",
+                    "pattern": "Design and Development of an Interactive {platform} for {domain}",
+                    "slots": [
+                        "platform",
+                        "domain"
+                    ],
+                    "example": "Design and Development of an Interactive Web Platform for Algorithm Simulation"
+                }
+            ]
+        },
+        "llm_chatbot_nlp": {
+            "id": "G",
+            "description": "Templates for LLM, chatbot, QA, translation, and NLP systems",
+            "templates": [
+                {
+                    "id": "G1",
+                    "pattern": "Chatbot for {domain} using {technology}",
+                    "slots": [
+                        "domain",
+                        "technology"
+                    ],
+                    "example": "Chatbot for Traffic Law Support using Large Language Models"
+                },
+                {
+                    "id": "G2",
+                    "pattern": "Intelligent Chatbot for {target_user}",
+                    "slots": [
+                        "target_user"
+                    ],
+                    "example": "Intelligent Chatbot for Online Learners"
+                },
+                {
+                    "id": "G3",
+                    "pattern": "Question Answering System for {domain}",
+                    "slots": [
+                        "domain"
+                    ],
+                    "example": "Question Answering System for Primary School Math Learning"
+                },
+                {
+                    "id": "G4",
+                    "pattern": "Using Large Language Models for {task}",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "Using Large Language Models for Time Series Forecasting"
+                },
+                {
+                    "id": "G5",
+                    "pattern": "LLM-Based {system} for {domain}",
+                    "slots": [
+                        "system",
+                        "domain"
+                    ],
+                    "example": "LLM-Based Learning Assistant for Personalized Education"
+                },
+                {
+                    "id": "G6",
+                    "pattern": "Context-Aware {task} Using Large Language Models",
+                    "slots": [
+                        "task"
+                    ],
+                    "example": "Context-Aware English-Vietnamese Translation Using Large Language Models"
+                }
+            ]
+        }
+    },
+    "templateSelectionRules": [
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "web_software_platform"
+            },
+            "families": [
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "A1",
+                "A2",
+                "A3",
+                "A4",
+                "A6",
+                "A10"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "iot_embedded_edge"
+            },
+            "families": [
+                "practical_system_development",
+                "hardware_embedded_fpga"
+            ],
+            "preferredTemplates": [
+                "A4",
+                "A8",
+                "A9",
+                "E1"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "graphics_games_hci"
+            },
+            "families": [
+                "games_graphics_vr",
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "F1",
+                "F3",
+                "F4",
+                "F5",
+                "A4"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "cybersecurity_trust"
+            },
+            "families": [
+                "security_network",
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "D1",
+                "D2",
+                "D4",
+                "A4"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "ai_intelligent_systems"
+            },
+            "families": [
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "B1",
+                "B2",
+                "B3",
+                "B6",
+                "B9",
+                "B11",
+                "B12",
+                "B13",
+                "B14",
+                "B15",
+                "B16",
+                "B17"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "data_science_analytics"
+            },
+            "families": [
+                "data_analytics_dss",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "C3",
+                "C4",
+                "C5",
+                "C6",
+                "C7",
+                "B3",
+                "B10",
+                "B14",
+                "B15"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "computer_vision_multimedia"
+            },
+            "families": [
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "B1",
+                "B2",
+                "B4",
+                "B7",
+                "B8",
+                "B13",
+                "B14",
+                "B15",
+                "B16",
+                "B17"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "nlp_language_conversational"
+            },
+            "families": [
+                "llm_chatbot_nlp",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "G3",
+                "G4",
+                "G5",
+                "G6",
+                "B9",
+                "B12"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "hardware_architecture_fpga"
+            },
+            "families": [
+                "hardware_embedded_fpga",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "E2",
+                "E3",
+                "E4",
+                "B8"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "blockchain_distributed_trust"
+            },
+            "families": [
+                "security_network",
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "D1",
+                "D2",
+                "A4"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "ai_intelligent_systems"
+            },
+            "families": [
+                "practical_system_development",
+                "research_model_method",
+                "data_analytics_dss"
+            ],
+            "preferredTemplates": [
+                "A5",
+                "A7",
+                "B3",
+                "B10",
+                "C5",
+                "C7"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "data_science_analytics"
+            },
+            "families": [
+                "data_analytics_dss",
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "C1",
+                "C2",
+                "C4",
+                "C5",
+                "C7",
+                "A1",
+                "A6"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "computer_vision_multimedia"
+            },
+            "families": [
+                "research_model_method",
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "A5",
+                "A7",
+                "B1",
+                "B4",
+                "B9"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Practical",
+                "area": "nlp_language_conversational"
+            },
+            "families": [
+                "llm_chatbot_nlp",
+                "practical_system_development"
+            ],
+            "preferredTemplates": [
+                "G1",
+                "G2",
+                "G3",
+                "G5",
+                "A5",
+                "A7"
+            ]
+        }
+    ],
+    "componentPools": {
+        "system": [
+            "Decision Support System",
+            "Recommendation System",
+            "Monitoring System",
+            "Question Answering System",
+            "Chatbot",
+            "Web Platform",
+            "Mobile Application",
+            "Management System",
+            "Search System",
+            "Secure Messaging System",
+            "3D Virtual System",
+            "AR Navigation System",
+            "Multi-modal Recommender System",
+            "Multi-modal Search Engine",
+            "Data Analysis System",
+            "Expert System",
+            "Full-stack Web Application",
+            "ERP System",
+            "Automatic Speech Recognition (ASR) System",
+            "IoT-Based Monitoring System",
+            "Embedded Control System",
+            "Sensor-based Information System",
+            "Smart Application",
+            "Real-time Data Processing System"
+        ],
+        "domain": [
+            "thesis topic selection",
+            "academic major selection",
+            "student learning support",
+            "MOOC learning support",
+            "medical diagnosis",
+            "cardiovascular disease support",
+            "diabetes management",
+            "stock market analysis",
+            "retail demand forecasting",
+            "smart home automation",
+            "smart campus management",
+            "air quality monitoring",
+            "traffic law support",
+            "e-commerce operations",
+            "coffee cultivation compliance",
+            "legal document retrieval",
+            "cultural heritage exploration",
+            "virtual interactive learning",
+            "3D asset management",
+            "stock prediction",
+            "finance",
+            "telecommunications",
+            "privacy-preserving healthcare",
+            "business management",
+            "eCommerce",
+            "interactive entertainment",
+            "video games",
+            "game mechanics",
+            "digital entertainment",
+            "gamified systems",
+            "virtual simulators",
+            "Educational Management Systems",
+            "Personalized ELearning Platforms",
+            "Clinical Diagnostics  Analysis",
+            "Automated Trading Systems",
+            "Risk  Fraud Management",
+            "Energy Efficiency Systems",
+            "Connected Public Infrastructure",
+            "Customer Experience Analytics",
+            "Enterprise Resource Planning ERP",
+            "Supply Chain Optimization",
+            "Cyber Threat Detection",
+            "Identity  Access Management",
+            "Media Streaming  Recommendation",
+            "Environmental Sustainability",
+            "Logistics  Fleet Management",
+            "Civic Engagement Platforms",
+            "Social Networking Platforms",
+            "Community Collaboration Tools",
+            "smart parking",
+            "expense tracking",
+            "attendance management",
+            "student support",
+            "learning assistance",
+            "Smart Environment Monitoring",
+            "Smart Home Automation",
+            "IoT-based Environmental Monitoring",
+            "Energy Efficiency in Smart Buildings",
+            "Smart Agriculture Systems",
+            "Autonomous Greenhouse Management",
+            "Precision Livestock Farming",
+            "Smart Urban Mobility Systems",
+            "Intelligent Waste Management",
+            "Industrial IoT Automation",
+            "Digital Banking Services",
+            "Mobile Financial Transactions",
+            "Internet Banking Security",
+            "Authenticated Credit Processing",
+            "Electronic Payment Infrastructure",
+            "Digital Asset Custody",
+            "Fintech Compliance Systems",
+            "Biometric Access Management"
+        ],
+        "feature": [
+            "personalized recommendation",
+            "real-time monitoring",
+            "multi-language support",
+            "anomaly detection",
+            "progress tracking",
+            "semantic retrieval",
+            "privacy preservation",
+            "explainability",
+            "automated reporting",
+            "interactive visualization",
+            "procedural generation",
+            "real-time rendering",
+            "multiplayer synchronization"
+        ],
+        "target_user": [
+            "IT students",
+            "university students",
+            "online learners",
+            "primary school learners",
+            "patients",
+            "investors",
+            "motorbike riders",
+            "coffee farmers",
+            "general users",
+            "retail customers"
+        ],
+        "technology": [
+            "Machine Learning",
+            "Deep Learning",
+            "Large Language Models",
+            "Federated Learning",
+            "Computer Vision",
+            "IoT",
+            "AIoT",
+            "Blockchain",
+            "Knowledge Graph",
+            "Vector Retrieval",
+            "RAG",
+            "FPGA",
+            "Multi-modal Learning",
+            "Neural Fields",
+            "Digital Signal Processing",
+            "Semantic Communication",
+            "Microservices",
+            "DevOps",
+            "Unity 3D",
+            "Web 3D APIs"
+        ],
+        "model": [
+            "LightGBM model",
+            "XGBoost framework",
+            "U-Net model",
+            "CNN model",
+            "Transformer model",
+            "Graph Neural Network",
+            "Binarized Neural Network",
+            "DeepFM model",
+            "Diffusion model",
+            "YOLO Model",
+            "EmerNeRF",
+            "Factorization Machines"
+        ],
+        "task": [
+            "skin disease classification",
+            "brain tumor segmentation",
+            "traffic risk prediction",
+            "sentiment analysis",
+            "time series forecasting",
+            "phishing detection",
+            "image analysis",
+            "legal question answering",
+            "speech recognition",
+            "document retrieval",
+            "network analysis",
+            "temporal pattern mining",
+            "pattern recognition in time-series data",
+            "complex feature interaction learning",
+            "emotion recognition",
+            "human activity recognition",
+            "spatio-temporal analysis"
+        ],
+        "method": [
+            "machine learning",
+            "deep learning",
+            "federated learning",
+            "time series analysis",
+            "semantic retrieval",
+            "graph learning",
+            "multi-modal learning",
+            "reinforcement learning"
+        ],
+        "technique": [
+            "federated learning",
+            "contrastive learning",
+            "semantic retrieval",
+            "graph neural networks",
+            "attention mechanisms",
+            "reinforcement learning",
+            "retrieval-augmented generation"
+        ],
+        "type": [
+            "Pattern",
+            "Data",
+            "Knowledge",
+            "Temporal Pattern"
+        ],
+        "game_type": [
+            "Survival",
+            "Multiplayer",
+            "Educational",
+            "Simulation",
+            "Puzzle",
+            "Role-playing",
+            "Strategy",
+            "Action",
+            "Adventure",
+            "Hunting"
+        ],
+        "threat": [
+            "Phishing",
+            "Spam",
+            "DDoS",
+            "Fraud",
+            "Anomaly"
+        ],
+        "architecture": [
+            "RISC-V CPU",
+            "5-Stage Pipeline Core",
+            "SRAM Macro",
+            "Neural Network Accelerator",
+            "Edge AI Architecture"
+        ],
+        "platform": [
+            "Web Platform",
+            "Interactive Platform",
+            "Learning Platform",
+            "Visualization Platform"
+        ],
+        "problem": [
+            "student academic performance",
+            "retail sales behavior",
+            "traffic accident risks",
+            "mental health trends in students",
+            "job demand in data science"
+        ],
+        "target": [
+            "retail demand",
+            "stock prices",
+            "market trends",
+            "student performance",
+            "cardiovascular disease risk",
+            "diabetes risk",
+            "traffic accident risks"
+        ]
+    },
+    "specializationComponentPools": {
+        "machine_learning": {
+            "model": [
+                "XGBoost Framework",
+                "LightGBM Model",
+                "Transformer Model",
+                "Graph Neural Network",
+                "Ensemble Learning Model"
+            ],
+            "task": [
+                "fraud detection",
+                "risk prediction",
+                "customer churn prediction",
+                "demand forecasting",
+                "classification of financial anomalies"
+            ]
+        },
+        "data_analytics": {
+            "model": [
+                "XGBoost Framework",
+                "LightGBM Model",
+                "Random Forest Model",
+                "Gradient Boosting Model"
+            ],
+            "task": [
+                "fraud detection",
+                "risk scoring",
+                "customer churn prediction",
+                "stock price prediction",
+                "business loan risk analysis",
+                "financial trend prediction"
+            ]
+        },
+        "predictive_modeling": {
+            "model": [
+                "XGBoost Framework",
+                "LightGBM Model",
+                "Random Forest Model",
+                "Transformer Model"
+            ],
+            "task": [
+                "credit risk prediction",
+                "customer churn prediction",
+                "sales forecasting",
+                "stock price prediction",
+                "business loan default prediction"
+            ]
+        },
+        "image_retrieval": {
+            "model": [
+                "CLIP Model",
+                "Vision Transformer Model",
+                "Siamese Network",
+                "Triplet Network",
+                "Multi-modal Transformer"
+            ],
+            "task": [
+                "image retrieval",
+                "content-based image retrieval",
+                "visual similarity retrieval",
+                "game asset retrieval",
+                "artwork retrieval",
+                "multi-modal image search"
+            ]
+        },
+        "image_classification": {
+            "model": [
+                "CNN Model",
+                "ResNet Model",
+                "Vision Transformer Model",
+                "EfficientNet Model"
+            ],
+            "task": [
+                "image classification",
+                "scene classification",
+                "visual category recognition",
+                "game screenshot classification"
+            ]
+        },
+        "object_detection": {
+            "model": [
+                "YOLO Model",
+                "Faster R-CNN",
+                "DETR Model",
+                "Vision Transformer Detector"
+            ],
+            "task": [
+                "object detection",
+                "real-time object detection",
+                "item detection in game scenes",
+                "visual target detection"
+            ]
+        },
+        "image_segmentation": {
+            "model": [
+                "U-Net Model",
+                "Mask R-CNN",
+                "DeepLab Model",
+                "Swin Transformer"
+            ],
+            "task": [
+                "image segmentation",
+                "instance segmentation",
+                "semantic segmentation",
+                "scene segmentation"
+            ]
+        },
+        "image_analysis": {
+            "model": [
+                "U-Net Model",
+                "CNN Model",
+                "ResNet Model",
+                "Vision Transformer Model",
+                "Swin Transformer"
+            ],
+            "task": [
+                "image analysis",
+                "visual pattern analysis",
+                "image-based anomaly detection",
+                "semantic image understanding"
+            ]
+        },
+        "rag_based_systems": {
+            "model": [
+                "Dual Encoder Retriever",
+                "ColBERT Model",
+                "Large Language Model",
+                "Hybrid Retrieval Model"
+            ],
+            "task": [
+                "legal question answering",
+                "knowledge retrieval",
+                "retrieval-augmented question answering",
+                "domain-specific document retrieval"
+            ]
+        },
+        "question_answering_systems": {
+            "model": [
+                "Large Language Model",
+                "Transformer Model",
+                "Dual Encoder Retriever",
+                "Hybrid Retrieval Model"
+            ],
+            "task": [
+                "question answering",
+                "legal question answering",
+                "domain-specific question answering",
+                "knowledge-grounded question answering"
+            ]
+        },
+        "chatbots": {
+            "system": [
+                "Customer Support Chatbot",
+                "Learning Assistant",
+                "Mental Health Assistant",
+                "Legal Support Chatbot",
+                "Virtual Helpdesk Assistant"
+            ],
+            "domain": [
+                "customer support",
+                "student support",
+                "mental health support",
+                "legal information support",
+                "digital service assistance"
+            ],
+            "task": [
+                "chatbot response generation",
+                "intent understanding",
+                "multi-turn dialogue support",
+                "empathetic conversation support"
+            ],
+            "technology": [
+                "Large Language Models",
+                "RAG",
+                "Transformer Model"
+            ]
+        },
+        "conversational_ai": {
+            "system": [
+                "Mental Health Assistant",
+                "Conversational Agent",
+                "Virtual Support Assistant",
+                "Dialogue Support System",
+                "AI Wellness Assistant"
+            ],
+            "domain": [
+                "mental health support",
+                "wellbeing support",
+                "student wellbeing support",
+                "patient support",
+                "emotional support"
+            ],
+            "task": [
+                "mental health dialogue support",
+                "empathetic response generation",
+                "conversational intent understanding",
+                "context-aware dialogue management"
+            ],
+            "technology": [
+                "Large Language Models",
+                "RAG",
+                "Transformer Model",
+                "Sentiment Analysis"
+            ]
+        },
+        "authentication_access_control": {
+            "system": [
+                "Identity Verification System",
+                "Biometric Authentication System",
+                "Secure Login Platform",
+                "Access Control System",
+                "Passwordless Authentication Service"
+            ],
+            "domain": [
+                "identity verification",
+                "biometric login",
+                "user authentication",
+                "access management",
+                "secure sign-in"
+            ],
+            "task": [
+                "identity verification",
+                "biometric authentication",
+                "access control enforcement",
+                "secure login verification"
+            ],
+            "technique": [
+                "multi-factor authentication",
+                "biometric verification",
+                "liveness detection",
+                "passwordless authentication",
+                "role-based access control"
+            ]
+        },
+        "fpga_design": {
+            "model": [
+                "Binarized Neural Network",
+                "CNN Model",
+                "Tiny Transformer Model",
+                "Edge Vision Accelerator"
+            ],
+            "task": [
+                "defect detection",
+                "object detection",
+                "image classification",
+                "edge inference acceleration"
+            ]
+        }
+    },
+    "generationSettings": {
+        "templateSampleSize": {
+            "min": 3,
+            "max": 4
+        },
+        "candidateCount": 10,
+        "maxTitleLength": 100,
+        "minTitleLength": 20,
+        "deduplicationSimilarityThreshold": 0.8,
+        "requireAtLeastDistinctTemplateCount": 2,
+        "allowRandomVariantSelection": true
+    }
+}

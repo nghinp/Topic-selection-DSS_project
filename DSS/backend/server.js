@@ -8,6 +8,7 @@ import topicRoutes from './routes/topics.js';
 import savedTopicsRoutes from './routes/savedTopics.js';
 import adminTopicsRoutes from './routes/adminTopics.js';
 import recommendationRoutes from './routes/recommendations.js';
+import topicGenerationRoutes from './routes/topicGeneration.js';
 
 dotenv.config();
 
@@ -25,21 +26,22 @@ app.use('/api/saved-topics', savedTopicsRoutes);
 app.use('/api/admin/topics', adminTopicsRoutes);
 app.use('/api/recommendation', recommendationRoutes);
 app.use('/api/recommendations', recommendationRoutes); // Alias for history
+app.use('/api/topic-generation', topicGenerationRoutes);
+
+import { pool } from './config/database.js';
+pool.query(`
+  CREATE TABLE IF NOT EXISTS generated_topics (
+    id UUID PRIMARY KEY,
+    user_id UUID,
+    title TEXT NOT NULL,
+    review_data JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`).catch(console.error);
 
 // Health Check
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 
-// Start Server
 app.listen(port, () => {
-  console.log(`
-  🚀 DSS Backend Refactored & Ready
-  📡 API Base: http://localhost:${port}
-  
-  Route Groups:
-  - Auth: /api/auth (login, register)
-  - Topics: /api/topics (public catalog)
-  - Favorites: /api/saved-topics (user bookmarks)
-  - Admin: /api/admin/topics (management)
-  - Engine: /api/recommendation (hybrid results)
-  `);
+  console.log(`API Base: http://localhost:${port}`);
 });

@@ -19,6 +19,12 @@ type RecommendationHistory = {
   score: number;
   createdAt: string;
 };
+type GeneratedTopic = {
+  id: string;
+  title: string;
+  review_data: any;
+  created_at: string;
+};
 
 @Component({
   selector: 'app-account',
@@ -30,6 +36,7 @@ type RecommendationHistory = {
 export class AccountComponent implements OnInit {
   savedTopics: SavedTopic[] = [];
   recommendationHistory: RecommendationHistory[] = [];
+  generatedTopics: GeneratedTopic[] = [];
   loading = true;
   error = '';
 
@@ -99,7 +106,7 @@ export class AccountComponent implements OnInit {
   loadData(): void {
     this.loading = true;
     this.error = '';
-    Promise.all([this.fetchTopics(), this.fetchHistory()])
+    Promise.all([this.fetchTopics(), this.fetchHistory(), this.fetchGeneratedTopics()])
       .then(() => (this.loading = false))
       .catch((err) => {
         console.error('Load data failed', err);
@@ -148,6 +155,32 @@ export class AccountComponent implements OnInit {
             },
             error: reject
         });
+    });
+  }
+
+  private async fetchGeneratedTopics(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.http.get<GeneratedTopic[]>(API_ENDPOINTS.topicGenerationSaved, { headers: this.authHeaders }).subscribe({
+        next: (rows) => {
+          this.generatedTopics = rows;
+          resolve();
+        },
+        error: reject
+      });
+    });
+  }
+
+  removeGenerated(id: string): void {
+    if (!id) return;
+    this.deleting[id] = true;
+    this.http.delete(`${API_ENDPOINTS.topicGenerationSaved}/${id}`, { headers: this.authHeaders }).subscribe({
+      next: () => {
+        this.generatedTopics = this.generatedTopics.filter((t) => t.id !== id);
+        delete this.deleting[id];
+      },
+      error: () => {
+        delete this.deleting[id];
+      }
     });
   }
 

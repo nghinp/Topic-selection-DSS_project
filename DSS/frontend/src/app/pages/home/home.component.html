@@ -15,7 +15,7 @@
         </p>
 
         <div class="hero__actions">
-          <button class="btn btn-primary btn-lg action-btn" routerLink="/study-field-quiz">Take exploring quiz</button>
+          <button class="btn btn-primary btn-lg action-btn" routerLink="/topic-generation">Take exploring quiz</button>
           <div class="action-divider text-muted">or</div>
           <form class="hero-search" (ngSubmit)="search()">
             <div class="search-input-wrapper">
@@ -34,17 +34,9 @@
     </section>
 
     <section class="metrics-row">
-      <div class="metric-glass">
-        <div class="metric__value">{{ stats.topics }}</div>
-        <div class="metric__label">Curated Topics</div>
-      </div>
-      <div class="metric-glass">
-        <div class="metric__value">{{ stats.areas }}</div>
-        <div class="metric__label">Study Areas</div>
-      </div>
-      <div class="metric-glass" *ngIf="auth.isAuthed()">
+      <div class="metric-glass" *ngIf="auth.isAuthed()" routerLink="/account">
         <div class="metric__value">{{ stats.saved }}</div>
-        <div class="metric__label">Topics Saved</div>
+        <div class="metric__label" >Topics Saved</div>
       </div>
     </section>
 

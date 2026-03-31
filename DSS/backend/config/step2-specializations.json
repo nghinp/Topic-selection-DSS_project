@@ -1,0 +1,535 @@
+{
+    "step": 2,
+    "key": "technical_specialization",
+    "title": "Technical area / specialization",
+    "description": "Choose the technical specialization you want to explore. This step captures the main technical direction in a more specific way than the broad database area.",
+    "selectionMode": "single",
+    "required": true,
+    "ui": {
+        "control": "grouped_cards_with_search",
+        "showCategoryDescription": true,
+        "showOptionDescription": false,
+        "allowSearch": true
+    },
+    "mapping": {
+        "toDbAreaField": "area",
+        "strategy": "specialization_to_parent_area"
+    },
+    "groups": [
+        {
+            "groupId": "ai_intelligent_systems",
+            "label": "AI & Intelligent Systems",
+            "dbArea": "AI & Machine Learning",
+            "options": [
+                {
+                    "id": "machine_learning",
+                    "label": "Machine Learning",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "deep_learning",
+                    "label": "Deep Learning",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "large_language_models",
+                    "label": "Large Language Models",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "recommendation_systems",
+                    "label": "Recommendation Systems",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "federated_learning",
+                    "label": "Federated Learning",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "explainable_ai",
+                    "label": "Explainable AI",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "generative_ai_diffusion_models",
+                    "label": "Generative AI / Diffusion Models",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "multimodal_learning",
+                    "label": "Multi-modal Learning",
+                    "dbArea": "AI & Machine Learning"
+                }
+            ],
+            "keywords": [
+                "ai",
+                "machine learning",
+                "deep learning",
+                "llm",
+                "recommendation",
+                "federated learning",
+                "multimodal",
+                "diffusion",
+                "xai"
+            ],
+            "parentArea": "AI & Machine Learning"
+        },
+        {
+            "groupId": "data_science_analytics",
+            "label": "Data Science & Analytics",
+            "dbArea": "Data Science & Mining",
+            "options": [
+                {
+                    "id": "data_analytics",
+                    "label": "Data Analytics",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "data_mining",
+                    "label": "Data Mining",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "pattern_mining",
+                    "label": "Pattern Mining",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "time_series_forecasting",
+                    "label": "Time Series Forecasting",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "predictive_modeling",
+                    "label": "Predictive Modeling",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "decision_support_systems",
+                    "label": "Decision Support Systems",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "knowledge_graph_retrieval",
+                    "label": "Knowledge Graph / Retrieval",
+                    "dbArea": "Data Science & Mining"
+                },
+                {
+                    "id": "vector_database_semantic_retrieval",
+                    "label": "Vector Database / Semantic Retrieval",
+                    "dbArea": "Data Science & Mining"
+                }
+            ],
+            "keywords": [
+                "data analytics",
+                "data mining",
+                "pattern mining",
+                "forecasting",
+                "prediction",
+                "classification",
+                "decision support",
+                "knowledge graph",
+                "vector database"
+            ],
+            "parentArea": "Data Science & Mining"
+        },
+        {
+            "groupId": "computer_vision_multimedia",
+            "label": "Computer Vision & Multimedia",
+            "dbArea": "Computer Vision & Multimedia",
+            "options": [
+                {
+                    "id": "image_classification",
+                    "label": "Image Classification",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "object_detection",
+                    "label": "Object Detection",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "image_segmentation",
+                    "label": "Image Segmentation",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "image_analysis",
+                    "label": "Image Analysis",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "image_retrieval",
+                    "label": "Image Retrieval",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "speech_recognition",
+                    "label": "Speech Recognition",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "audio_analysis",
+                    "label": "Audio Analysis",
+                    "dbArea": "Computer Vision & Multimedia"
+                },
+                {
+                    "id": "multimedia_generation_animation",
+                    "label": "Multimedia Generation / Animation",
+                    "dbArea": "Computer Vision & Multimedia"
+                }
+            ],
+            "keywords": [
+                "image classification",
+                "object detection",
+                "segmentation",
+                "image analysis",
+                "image retrieval",
+                "speech",
+                "audio",
+                "animation",
+                "multimedia"
+            ],
+            "parentArea": "Computer Vision & Multimedia"
+        },
+        {
+            "groupId": "web_software_platform_systems",
+            "label": "Web, Software & Platform Systems",
+            "dbArea": "Web & Software Systems",
+            "options": [
+                {
+                    "id": "web_application_development",
+                    "label": "Web Application Development",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "mobile_application_development",
+                    "label": "Mobile Application Development",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "full_stack_systems",
+                    "label": "Full-stack Systems",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "enterprise_systems_erp",
+                    "label": "Enterprise Systems / ERP",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "microservices_architecture",
+                    "label": "Microservices Architecture",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "devops_cloud_systems",
+                    "label": "DevOps / Cloud Systems",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "chatbot_qa_systems",
+                    "label": "Chatbot / QA Systems",
+                    "dbArea": "Web & Software Systems"
+                },
+                {
+                    "id": "search_information_retrieval_systems",
+                    "label": "Search / Information Retrieval Systems",
+                    "dbArea": "Web & Software Systems"
+                }
+            ]
+        },
+        {
+            "groupId": "cybersecurity_trust_systems",
+            "label": "Cybersecurity & Trust Systems",
+            "dbArea": "Cybersecurity & Networks",
+            "options": [
+                {
+                    "id": "cryptography",
+                    "label": "Cryptography",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "secure_communication",
+                    "label": "Secure Communication",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "authentication_access_control",
+                    "label": "Authentication & Access Control",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "encrypted_storage_messaging",
+                    "label": "Encrypted Storage / Messaging",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "spam_phishing_detection",
+                    "label": "Spam / Phishing Detection",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "network_security",
+                    "label": "Network Security",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "incident_response_log_analytics",
+                    "label": "Incident Response / Log Analytics",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "privacy_preserving_systems",
+                    "label": "Privacy-Preserving Systems",
+                    "dbArea": "Cybersecurity & Networks"
+                }
+            ],
+            "keywords": [
+                "authentication",
+                "authorization",
+                "identity access",
+                "biometrics",
+                "cryptography",
+                "encryption",
+                "privacy",
+                "network security",
+                "incident response",
+                "threat detection",
+                "malware"
+            ]
+        },
+        {
+            "groupId": "iot_embedded_edge_systems",
+            "label": "IoT, Embedded & Edge Systems",
+            "dbArea": "IoT & Embedded Systems",
+            "options": [
+                {
+                    "id": "iot_systems",
+                    "label": "IoT Systems",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "aiot",
+                    "label": "AIoT",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "embedded_systems",
+                    "label": "Embedded Systems",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "edge_ai_edge_inference",
+                    "label": "Edge AI / Edge Inference",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "smart_devices",
+                    "label": "Smart Devices",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "sensor_based_systems",
+                    "label": "Sensor-based Systems",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "robotics_related_systems",
+                    "label": "Robotics-related Systems",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "real_time_monitoring_systems",
+                    "label": "Real-time Monitoring Systems",
+                    "dbArea": "IoT & Embedded Systems"
+                }
+            ],
+            "keywords": [
+                "iot",
+                "embedded",
+                "edge",
+                "aiot",
+                "sensor",
+                "smart device",
+                "robotics",
+                "real-time monitoring"
+            ],
+            "parentArea": "IoT & Embedded Systems"
+        },
+        {
+            "groupId": "hardware_architecture_fpga",
+            "label": "Hardware, Computer Architecture & FPGA",
+            "dbArea": "IoT & Embedded Systems",
+            "options": [
+                {
+                    "id": "fpga_design",
+                    "label": "FPGA Design",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "risc_v_architecture",
+                    "label": "RISC-V Architecture",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "vlsi_sram_cache_memory_controller",
+                    "label": "VLSI / SRAM / Cache / Memory Controller",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "accelerator_design",
+                    "label": "Accelerator Design",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "on_chip_ai_inference_training",
+                    "label": "On-chip AI Inference / Training",
+                    "dbArea": "IoT & Embedded Systems"
+                },
+                {
+                    "id": "digital_signal_processing_hardware",
+                    "label": "Digital Signal Processing Hardware",
+                    "dbArea": "IoT & Embedded Systems"
+                }
+            ],
+            "keywords": [
+                "fpga",
+                "risc-v",
+                "vlsi",
+                "sram",
+                "cache",
+                "memory controller",
+                "accelerator",
+                "digital logic"
+            ],
+            "parentArea": "IoT & Embedded Systems"
+        },
+        {
+            "groupId": "graphics_games_vrar_hci",
+            "label": "Graphics, Games, VR/AR & HCI",
+            "dbArea": "Graphics, Games & HCI",
+            "options": [
+                {
+                    "id": "game_development",
+                    "label": "Game Development",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "computer_graphics",
+                    "label": "Computer Graphics",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "vr_applications",
+                    "label": "VR Applications",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "ar_applications",
+                    "label": "AR Applications",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "3d_visualization",
+                    "label": "3D Visualization",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "human_computer_interaction",
+                    "label": "Human-Computer Interaction",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "brain_computer_interface",
+                    "label": "Brain-Computer Interface",
+                    "dbArea": "Graphics, Games & HCI"
+                },
+                {
+                    "id": "simulation_systems",
+                    "label": "Simulation Systems",
+                    "dbArea": "Graphics, Games & HCI"
+                }
+            ]
+        },
+        {
+            "groupId": "blockchain_distributed_trust",
+            "label": "Blockchain & Distributed Trust",
+            "dbArea": "Cybersecurity & Networks",
+            "options": [
+                {
+                    "id": "blockchain_applications",
+                    "label": "Blockchain Applications",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "cryptocurrency_wallets",
+                    "label": "Cryptocurrency Wallets",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "smart_contract_tokenization",
+                    "label": "Smart Contract / Tokenization",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "zero_knowledge_proof_applications",
+                    "label": "Zero-Knowledge Proof Applications",
+                    "dbArea": "Cybersecurity & Networks"
+                },
+                {
+                    "id": "privacy_transparency_systems",
+                    "label": "Privacy & Transparency Systems",
+                    "dbArea": "Cybersecurity & Networks"
+                }
+            ],
+            "keywords": [
+                "blockchain",
+                "wallet",
+                "tokenization",
+                "smart contract",
+                "zero-knowledge proof",
+                "distributed trust"
+            ],
+            "parentArea": "Cybersecurity & Networks"
+        },
+        {
+            "groupId": "nlp_language_conversational_systems",
+            "label": "NLP, Language & Conversational Systems",
+            "dbArea": "AI & Machine Learning",
+            "options": [
+                {
+                    "id": "chatbots",
+                    "label": "Chatbots",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "question_answering_systems",
+                    "label": "Question Answering Systems",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "translation_systems",
+                    "label": "Translation Systems",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "text_classification",
+                    "label": "Text Classification",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "rag_based_systems",
+                    "label": "RAG-based Systems",
+                    "dbArea": "AI & Machine Learning"
+                },
+                {
+                    "id": "conversational_ai",
+                    "label": "Conversational AI",
+                    "dbArea": "AI & Machine Learning"
+                }
+            ]
+        }
+    ]
+}

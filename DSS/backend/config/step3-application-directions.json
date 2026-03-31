@@ -1,0 +1,412 @@
+{
+    "step": 3,
+    "key": "application_direction",
+    "title": "Problem / application direction",
+    "description": "Choose the target problem domain or application context. This step captures where the technical specialization will be applied.",
+    "selectionMode": "single",
+    "required": true,
+    "ui": {
+        "control": "grouped_cards_with_search",
+        "showCategoryDescription": true,
+        "showOptionDescription": false,
+        "allowSearch": true
+    },
+    "groups": [
+        {
+            "groupId": "education_learning",
+            "label": "Education & Learning",
+            "options": [
+                {
+                    "id": "educational_management",
+                    "label": "Educational Management Systems"
+                },
+                {
+                    "id": "personalized_elearning",
+                    "label": "Personalized E-Learning Platforms"
+                },
+                {
+                    "id": "academic_support_tools",
+                    "label": "Academic & Student Support Tools"
+                },
+                {
+                    "id": "open_educational_resources",
+                    "label": "Open Educational Resources"
+                }
+            ],
+            "keywords": [
+                "education",
+                "learning",
+                "student support",
+                "academic",
+                "e-learning",
+                "online course",
+                "teaching"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "cybersecurity_trust_systems",
+                "iot_embedded_edge_systems",
+                "hardware_architecture_fpga",
+                "graphics_games_vrar_hci",
+                "blockchain_distributed_trust",
+                "nlp_language_conversational_systems"
+            ]
+        },
+        {
+            "groupId": "healthcare_medicine",
+            "label": "Healthcare & Medicine",
+            "options": [
+                {
+                    "id": "clinical_diagnostics",
+                    "label": "Clinical Diagnostics & Analysis"
+                },
+                {
+                    "id": "patient_monitoring",
+                    "label": "Patient Monitoring & Care"
+                },
+                {
+                    "id": "medical_data_management",
+                    "label": "Medical Data & Records Management"
+                },
+                {
+                    "id": "mental_health_support",
+                    "label": "Mental Health & Wellbeing Support"
+                }
+            ],
+            "keywords": [
+                "healthcare",
+                "medicine",
+                "diagnosis",
+                "patient",
+                "medical data",
+                "health monitoring",
+                "clinical"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "cybersecurity_trust_systems",
+                "iot_embedded_edge_systems",
+                "graphics_games_vrar_hci",
+                "nlp_language_conversational_systems"
+            ]
+        },
+        {
+            "groupId": "finance_banking_investment",
+            "label": "Finance, Banking & Investment",
+            "options": [
+                {
+                    "id": "financial_forecasting",
+                    "label": "Financial Analysis & Forecasting"
+                },
+                {
+                    "id": "automated_trading",
+                    "label": "Automated Trading Systems"
+                },
+                {
+                    "id": "banking_services",
+                    "label": "Digital Banking Services"
+                },
+                {
+                    "id": "risk_fraud_management",
+                    "label": "Risk & Fraud Management"
+                }
+            ],
+            "keywords": [
+                "finance",
+                "banking",
+                "investment",
+                "trading",
+                "stock",
+                "fraud",
+                "risk assessment",
+                "fintech"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "web_software_platform_systems",
+                "cybersecurity_trust_systems",
+                "blockchain_distributed_trust"
+            ]
+        },
+        {
+            "groupId": "smart_home_campus_city",
+            "label": "Smart Home, Campus & City",
+            "options": [
+                {
+                    "id": "urban_mobility",
+                    "label": "Urban Mobility & Traffic Management"
+                },
+                {
+                    "id": "smart_environment",
+                    "label": "Smart Environment & Automation"
+                },
+                {
+                    "id": "energy_efficiency",
+                    "label": "Energy Efficiency Systems"
+                },
+                {
+                    "id": "connected_infrastructure",
+                    "label": "Connected Public Infrastructure"
+                }
+            ],
+            "keywords": [
+                "smart city",
+                "smart home",
+                "automation",
+                "traffic management",
+                "energy management",
+                "iot environment"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "cybersecurity_trust_systems",
+                "iot_embedded_edge_systems",
+                "hardware_architecture_fpga"
+            ]
+        },
+        {
+            "groupId": "business_retail_ecommerce",
+            "label": "Business, Retail & E-commerce",
+            "options": [
+                {
+                    "id": "digital_commerce",
+                    "label": "Digital Commerce Platforms"
+                },
+                {
+                    "id": "customer_experience",
+                    "label": "Customer Experience Analytics"
+                },
+                {
+                    "id": "enterprise_resource",
+                    "label": "Enterprise Resource Planning (ERP)"
+                },
+                {
+                    "id": "supply_chain_optimization",
+                    "label": "Supply Chain Optimization"
+                }
+            ],
+            "keywords": [
+                "e-commerce",
+                "retail",
+                "business",
+                "customer analytics",
+                "erp",
+                "enterprise",
+                "supply chain",
+                "marketing"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "nlp_language_conversational_systems",
+                "blockchain_distributed_trust"
+            ]
+        },
+        {
+            "groupId": "security_privacy_compliance",
+            "label": "Security, Privacy & Compliance",
+            "options": [
+                {
+                    "id": "data_protection",
+                    "label": "Data Protection & Privacy"
+                },
+                {
+                    "id": "threat_detection",
+                    "label": "Cyber Threat Detection"
+                },
+                {
+                    "id": "identity_management",
+                    "label": "Identity & Access Management"
+                },
+                {
+                    "id": "regulatory_compliance",
+                    "label": "Regulatory & System Compliance"
+                }
+            ],
+            "keywords": [
+                "security",
+                "privacy",
+                "compliance",
+                "threat detection",
+                "cybersecurity",
+                "identity verification",
+                "encryption"
+            ],
+            "allowed_step2_groups": [
+                "cybersecurity_trust_systems",
+                "blockchain_distributed_trust",
+                "web_software_platform_systems",
+                "ai_intelligent_systems",
+                "nlp_language_conversational_systems"
+            ]
+        },
+        {
+            "groupId": "media_entertainment_creative",
+            "label": "Media & Entertainment",
+            "options": [
+                {
+                    "id": "interactive_entertainment",
+                    "label": "Interactive Entertainment"
+                },
+                {
+                    "id": "digital_content_creation",
+                    "label": "Digital Content Creation"
+                },
+                {
+                    "id": "virtual_augmented_experiences",
+                    "label": "Virtual & Augmented Experiences"
+                },
+                {
+                    "id": "media_recommendation",
+                    "label": "Media Streaming & Recommendation"
+                }
+            ],
+            "keywords": [
+                "media",
+                "entertainment",
+                "interactive",
+                "content creation",
+                "streaming",
+                "virtual reality",
+                "multimedia"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "graphics_games_vrar_hci",
+                "nlp_language_conversational_systems"
+            ]
+        },
+        {
+            "groupId": "industry_logistics_agriculture",
+            "label": "Industry & Agriculture",
+            "options": [
+                {
+                    "id": "industrial_automation",
+                    "label": "Industrial Automation"
+                },
+                {
+                    "id": "smart_agriculture",
+                    "label": "Smart Agriculture & Farming"
+                },
+                {
+                    "id": "environmental_sustainability",
+                    "label": "Environmental Sustainability"
+                },
+                {
+                    "id": "logistics_management",
+                    "label": "Logistics & Fleet Management"
+                }
+            ],
+            "keywords": [
+                "industry",
+                "agriculture",
+                "logistics",
+                "manufacturing",
+                "sustainability",
+                "farming",
+                "fleet management"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "iot_embedded_edge_systems",
+                "hardware_architecture_fpga",
+                "blockchain_distributed_trust"
+            ]
+        },
+        {
+            "groupId": "legal_regulation_public_information",
+            "label": "Legal & Government",
+            "options": [
+                {
+                    "id": "public_services",
+                    "label": "Public Services & E-Government"
+                },
+                {
+                    "id": "legal_information_systems",
+                    "label": "Legal Information Systems"
+                },
+                {
+                    "id": "civic_engagement",
+                    "label": "Civic Engagement Platforms"
+                }
+            ],
+            "keywords": [
+                "legal",
+                "government",
+                "public service",
+                "regulation",
+                "law",
+                "civic",
+                "e-government"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "cybersecurity_trust_systems",
+                "iot_embedded_edge_systems",
+                "hardware_architecture_fpga",
+                "graphics_games_vrar_hci",
+                "blockchain_distributed_trust",
+                "nlp_language_conversational_systems"
+            ]
+        },
+        {
+            "groupId": "social_community_platforms",
+            "label": "Social & Community",
+            "options": [
+                {
+                    "id": "social_networking",
+                    "label": "Social Networking Platforms"
+                },
+                {
+                    "id": "community_collaboration",
+                    "label": "Community Collaboration Tools"
+                },
+                {
+                    "id": "digital_forums",
+                    "label": "Digital Forums & Knowledge Bases"
+                }
+            ],
+            "keywords": [
+                "social network",
+                "community",
+                "collaboration",
+                "knowledge sharing",
+                "forums",
+                "social media"
+            ],
+            "allowed_step2_groups": [
+                "ai_intelligent_systems",
+                "data_science_analytics",
+                "computer_vision_multimedia",
+                "web_software_platform_systems",
+                "cybersecurity_trust_systems",
+                "iot_embedded_edge_systems",
+                "hardware_architecture_fpga",
+                "graphics_games_vrar_hci",
+                "blockchain_distributed_trust",
+                "nlp_language_conversational_systems"
+            ]
+        }
+    ]
+}

@@ -148,8 +148,7 @@ export function buildHybridExplanation({
   thesisPreference,
   coverage,
   interestMatchScore,
-  topicRankNorm,
-  inferredType
+  topicRankNorm
 }) {
   const coverageText = coverage === null ? 'keyword coverage was skipped because no extracted tokens remained after normalization' : `coverage reached ${(coverage * 100).toFixed(0)}%`;
   const interestMatchPercent = interestMatchScore !== null ? (interestMatchScore * 100).toFixed(0) : '0';
@@ -164,9 +163,7 @@ export function buildHybridExplanation({
   const preferenceText =
     thesisType
       ? `The thesis type matched the requested ${thesisPreference.toLowerCase()} preference.`
-      : inferredType && inferredType !== 'Unknown'
-        ? `The topic has no stored thesis type, but cue validation leaned ${inferredType.toLowerCase()}.`
-        : 'The topic passed the thesis-type filter.';
+      : 'The topic passed the thesis-type filter.';
 
   const rankPercent = (topicRankNorm * 100).toFixed(0);
   return `${topicTitle} was selected because it survived the ${area} major filter, ${coverageText}, ranked highest on full-text relevance (${rankPercent}% normalized), and ${interestText} ${preferenceText}`;

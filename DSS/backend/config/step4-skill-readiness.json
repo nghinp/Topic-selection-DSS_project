@@ -1,0 +1,483 @@
+{
+    "step": 4,
+    "key": "skill_readiness",
+    "title": "Skill / knowledge readiness",
+    "description": "Choose the skills or prior knowledge you already have. The list depends on the specialization selected in Step 2.",
+    "selectionMode": "multiple",
+    "required": false,
+    "minSelections": 0,
+    "ui": {
+        "control": "checkbox_cards",
+        "showCategoryDescription": false,
+        "showOptionDescription": false,
+        "allowSearch": false
+    },
+    "dependsOn": {
+        "step": 2,
+        "field": "technical_specialization"
+    },
+    "rules": {
+        "source": "parent_group_of_selected_step2_option",
+        "matchingStrategy": "step2_option_to_group_then_load_skills"
+    },
+    "skillSetsByStep2Group": {
+        "ai_intelligent_systems": {
+            "label": "If Step 2 = AI & Intelligent Systems",
+            "options": [
+                {
+                    "id": "python_programming_ai",
+                    "label": "Python programming"
+                },
+                {
+                    "id": "machine_learning_basics_ai",
+                    "label": "Machine learning basics"
+                },
+                {
+                    "id": "deep_learning_basics_ai",
+                    "label": "Deep learning basics"
+                },
+                {
+                    "id": "statistics_probability_ai",
+                    "label": "Statistics / probability"
+                },
+                {
+                    "id": "data_preprocessing_ai",
+                    "label": "Data preprocessing"
+                },
+                {
+                    "id": "model_training_evaluation_ai",
+                    "label": "Model training / evaluation"
+                },
+                {
+                    "id": "pytorch_tensorflow_ai",
+                    "label": "PyTorch / TensorFlow"
+                },
+                {
+                    "id": "prompt_engineering_llm_application_ai",
+                    "label": "Prompt engineering / LLM application"
+                },
+                {
+                    "id": "feature_engineering_ai",
+                    "label": "Feature engineering"
+                }
+            ],
+            "essentialSkills": [
+                "Python programming",
+                "Machine learning basics",
+                "Deep learning basics",
+                "Statistics / probability",
+                "Data preprocessing",
+                "Feature engineering",
+                "Model training / evaluation",
+                "PyTorch or TensorFlow",
+                "Prompt engineering",
+                "LLM application basics"
+            ]
+        },
+        "data_science_analytics": {
+            "label": "If Step 2 = Data Science & Analytics",
+            "options": [
+                {
+                    "id": "python_r_ds",
+                    "label": "Python / R"
+                },
+                {
+                    "id": "sql_ds",
+                    "label": "SQL"
+                },
+                {
+                    "id": "data_cleaning_ds",
+                    "label": "Data cleaning"
+                },
+                {
+                    "id": "exploratory_data_analysis_ds",
+                    "label": "Exploratory data analysis"
+                },
+                {
+                    "id": "statistics_ds",
+                    "label": "Statistics"
+                },
+                {
+                    "id": "data_visualization_ds",
+                    "label": "Data visualization"
+                },
+                {
+                    "id": "time_series_basics_ds",
+                    "label": "Time series basics"
+                },
+                {
+                    "id": "mining_classification_concepts_ds",
+                    "label": "Mining / classification concepts"
+                },
+                {
+                    "id": "dashboard_reporting_ds",
+                    "label": "Dashboard / reporting"
+                }
+            ],
+            "essentialSkills": [
+                "Python or R",
+                "SQL",
+                "Data cleaning",
+                "Exploratory data analysis",
+                "Statistics",
+                "Data visualization",
+                "Classification basics",
+                "Time series basics",
+                "Dashboard / reporting"
+            ]
+        },
+        "computer_vision_multimedia": {
+            "label": "If Step 2 = Computer Vision & Multimedia",
+            "options": [
+                {
+                    "id": "python_cv",
+                    "label": "Python"
+                },
+                {
+                    "id": "opencv_basics_cv",
+                    "label": "OpenCV basics"
+                },
+                {
+                    "id": "cnn_deep_learning_cv",
+                    "label": "CNN / deep learning"
+                },
+                {
+                    "id": "image_preprocessing_cv",
+                    "label": "Image preprocessing"
+                },
+                {
+                    "id": "model_evaluation_cv",
+                    "label": "Model evaluation"
+                },
+                {
+                    "id": "medical_imaging_basics_cv",
+                    "label": "Medical imaging basics"
+                },
+                {
+                    "id": "multimedia_data_handling_cv",
+                    "label": "Multimedia data handling"
+                },
+                {
+                    "id": "gpu_training_workflow_cv",
+                    "label": "GPU training workflow"
+                }
+            ],
+            "essentialSkills": [
+                "Python programming",
+                "OpenCV basics",
+                "CNN / deep learning basics",
+                "Image preprocessing",
+                "Model evaluation",
+                "Medical imaging basics",
+                "Multimedia data handling",
+                "GPU training workflow"
+            ]
+        },
+        "web_software_platform_systems": {
+            "label": "If Step 2 = Web, Software & Platform Systems",
+            "options": [
+                {
+                    "id": "frontend_development_web",
+                    "label": "Frontend development"
+                },
+                {
+                    "id": "backend_development_web",
+                    "label": "Backend development"
+                },
+                {
+                    "id": "database_design_web",
+                    "label": "Database design"
+                },
+                {
+                    "id": "rest_api_development_web",
+                    "label": "REST API development"
+                },
+                {
+                    "id": "authentication_basics_web",
+                    "label": "Authentication basics"
+                },
+                {
+                    "id": "full_stack_integration_web",
+                    "label": "Full-stack integration"
+                },
+                {
+                    "id": "testing_debugging_web",
+                    "label": "Testing / debugging"
+                },
+                {
+                    "id": "deployment_basics_web",
+                    "label": "Deployment basics"
+                },
+                {
+                    "id": "microservices_basics_web",
+                    "label": "Microservices basics"
+                },
+                {
+                    "id": "mobile_development_web",
+                    "label": "Mobile development"
+                }
+            ]
+        },
+        "cybersecurity_trust_systems": {
+            "label": "If Step 2 = Cybersecurity & Trust Systems",
+            "options": [
+                {
+                    "id": "linux_basics_cyber",
+                    "label": "Linux basics"
+                },
+                {
+                    "id": "computer_networks_cyber",
+                    "label": "Computer networks"
+                },
+                {
+                    "id": "authentication_authorization_cyber",
+                    "label": "Authentication / authorization"
+                },
+                {
+                    "id": "secure_coding_cyber",
+                    "label": "Secure coding"
+                },
+                {
+                    "id": "cryptography_basics_cyber",
+                    "label": "Cryptography basics"
+                },
+                {
+                    "id": "log_analysis_cyber",
+                    "label": "Log analysis"
+                },
+                {
+                    "id": "threat_detection_basics_cyber",
+                    "label": "Threat detection basics"
+                },
+                {
+                    "id": "system_administration_cyber",
+                    "label": "System administration"
+                },
+                {
+                    "id": "privacy_access_control_concepts_cyber",
+                    "label": "Privacy / access control concepts"
+                }
+            ]
+        },
+        "iot_embedded_edge_systems": {
+            "label": "If Step 2 = IoT, Embedded & Edge Systems",
+            "options": [
+                {
+                    "id": "arduino_microcontroller_basics_iot",
+                    "label": "Arduino / microcontroller basics"
+                },
+                {
+                    "id": "embedded_programming_iot",
+                    "label": "Embedded programming"
+                },
+                {
+                    "id": "sensor_integration_iot",
+                    "label": "Sensor integration"
+                },
+                {
+                    "id": "communication_protocols_iot",
+                    "label": "Communication protocols"
+                },
+                {
+                    "id": "edge_inference_basics_iot",
+                    "label": "Edge inference basics"
+                },
+                {
+                    "id": "mobile_app_integration_iot",
+                    "label": "Mobile app integration"
+                },
+                {
+                    "id": "iot_platform_integration_iot",
+                    "label": "IoT platform integration"
+                },
+                {
+                    "id": "real_time_data_handling_iot",
+                    "label": "Real-time data handling"
+                },
+                {
+                    "id": "hardware_software_interfacing_iot",
+                    "label": "Hardware-software interfacing"
+                }
+            ]
+        },
+        "hardware_architecture_fpga": {
+            "label": "If Step 2 = Hardware, Computer Architecture & FPGA",
+            "options": [
+                {
+                    "id": "digital_logic_design_hw",
+                    "label": "Digital logic design"
+                },
+                {
+                    "id": "verilog_vhdl_hw",
+                    "label": "Verilog / VHDL"
+                },
+                {
+                    "id": "fpga_basics_hw",
+                    "label": "FPGA basics"
+                },
+                {
+                    "id": "computer_architecture_hw",
+                    "label": "Computer architecture"
+                },
+                {
+                    "id": "risc_v_basics_hw",
+                    "label": "RISC-V basics"
+                },
+                {
+                    "id": "bus_interface_concepts_hw",
+                    "label": "Bus interface concepts"
+                },
+                {
+                    "id": "hardware_testing_simulation_hw",
+                    "label": "Hardware testing / simulation"
+                },
+                {
+                    "id": "dsp_basics_hw",
+                    "label": "DSP basics"
+                },
+                {
+                    "id": "accelerator_design_concepts_hw",
+                    "label": "Accelerator design concepts"
+                }
+            ],
+            "essentialSkills": [
+                "Digital logic design",
+                "Verilog / VHDL",
+                "FPGA basics",
+                "Computer architecture",
+                "RISC-V basics",
+                "Bus interface concepts",
+                "Hardware simulation / testing",
+                "DSP basics"
+            ]
+        },
+        "graphics_games_vrar_hci": {
+            "label": "If Step 2 = Graphics, Games, VR/AR & HCI",
+            "options": [
+                {
+                    "id": "unity_unreal_basics_graphics",
+                    "label": "Unity / Unreal basics"
+                },
+                {
+                    "id": "csharp_game_scripting_graphics",
+                    "label": "C# / game scripting"
+                },
+                {
+                    "id": "3d_modeling_pipeline_graphics",
+                    "label": "3D modeling pipeline"
+                },
+                {
+                    "id": "computer_graphics_basics_graphics",
+                    "label": "Computer graphics basics"
+                },
+                {
+                    "id": "vr_ar_integration_graphics",
+                    "label": "VR/AR integration"
+                },
+                {
+                    "id": "ui_ux_design_graphics",
+                    "label": "UI/UX design"
+                },
+                {
+                    "id": "interaction_design_graphics",
+                    "label": "Interaction design"
+                },
+                {
+                    "id": "simulation_logic_graphics",
+                    "label": "Simulation logic"
+                },
+                {
+                    "id": "real_time_rendering_basics_graphics",
+                    "label": "Real-time rendering basics"
+                }
+            ]
+        },
+        "blockchain_distributed_trust": {
+            "label": "If Step 2 = Blockchain & Distributed Trust",
+            "options": [
+                {
+                    "id": "blockchain_fundamentals_bc",
+                    "label": "Blockchain fundamentals"
+                },
+                {
+                    "id": "smart_contract_basics_bc",
+                    "label": "Smart contract basics"
+                },
+                {
+                    "id": "wallet_transaction_flow_bc",
+                    "label": "Wallet / transaction flow"
+                },
+                {
+                    "id": "cryptography_basics_bc",
+                    "label": "Cryptography basics"
+                },
+                {
+                    "id": "distributed_systems_basics_bc",
+                    "label": "Distributed systems basics"
+                },
+                {
+                    "id": "security_testing_basics_bc",
+                    "label": "Security testing basics"
+                },
+                {
+                    "id": "privacy_preserving_protocols_bc",
+                    "label": "Privacy-preserving protocols"
+                },
+                {
+                    "id": "web3_integration_basics_bc",
+                    "label": "Web3 integration basics"
+                }
+            ],
+            "essentialSkills": [
+                "Blockchain fundamentals",
+                "Smart contract basics",
+                "Wallet / transaction flow",
+                "Cryptography basics",
+                "Distributed systems basics",
+                "Security testing basics",
+                "Web3 integration basics"
+            ]
+        },
+        "nlp_language_conversational_systems": {
+            "label": "If Step 2 = NLP, Language & Conversational Systems",
+            "options": [
+                {
+                    "id": "python_nlp",
+                    "label": "Python"
+                },
+                {
+                    "id": "nlp_basics_nlp",
+                    "label": "NLP basics"
+                },
+                {
+                    "id": "text_preprocessing_nlp",
+                    "label": "Text preprocessing"
+                },
+                {
+                    "id": "transformer_llm_basics_nlp",
+                    "label": "Transformer / LLM basics"
+                },
+                {
+                    "id": "rag_retrieval_basics_nlp",
+                    "label": "RAG / retrieval basics"
+                },
+                {
+                    "id": "prompt_design_nlp",
+                    "label": "Prompt design"
+                },
+                {
+                    "id": "evaluation_of_text_systems_nlp",
+                    "label": "Evaluation of text systems"
+                },
+                {
+                    "id": "chatbot_flow_design_nlp",
+                    "label": "Chatbot flow design"
+                },
+                {
+                    "id": "knowledge_base_construction_nlp",
+                    "label": "Knowledge base construction"
+                }
+            ]
+        }
+    }
+}

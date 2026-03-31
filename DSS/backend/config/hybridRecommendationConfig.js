@@ -22,8 +22,6 @@ export const HYBRID_RECOMMENDATION_CONFIG = {
       'Graphics, Games & HCI'
     ]
   },
-  researchCues: ['evaluate', 'analyze', 'propose', 'framework', 'model', 'optimization'],
-  practicalCues: ['build', 'implement', 'develop', 'deploy', 'system', 'application'],
   stopwords: [
     'a',
     'an',
