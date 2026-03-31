@@ -24,8 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/saved-topics', savedTopicsRoutes);
 app.use('/api/admin/topics', adminTopicsRoutes);
-app.use('/api/recommendation', recommendationRoutes);
-app.use('/api/recommendations', recommendationRoutes); // Alias for history
+app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/topic-generation', topicGenerationRoutes);
 
 import { pool } from './config/database.js';
