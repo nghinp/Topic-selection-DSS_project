@@ -27,19 +27,7 @@ const STOP_WORDS = new Set([
     'framework', 'frameworks', 'smart', 'interface', 'digital'
 ]);
 
-const SLOT_PRIORITY = ['model', 'task', 'system', 'domain', 'technology', 'technique', 'method', 'feature', 'problem', 'target'];
-const SLOT_HEURISTICS = {
-    model: /\b(model|framework|network|cnn|rnn|lstm|gan|transformer|bert|clip|vit|yolo|u-?net|deepfm|xgboost|lightgbm|svm|gpt|llm|nerf)\b/i,
-    task: /\b(classification|segmentation|retrieval|detection|recognition|prediction|forecasting|analysis|mining|answering|recommendation|generation|tracking|ranking|search|verification|authentication|authorization|identification|triage)\b/i,
-    system: /\b(system|assistant|chatbot|agent|platform|application|service|portal|dashboard)\b/i,
-    domain: /\b(healthcare|medical|mental health|wellbeing|education|learning|finance|banking|retail|entertainment|game|gaming|media|commerce|logistics|agriculture|government|social|campus|city|home|industry|tourism|legal|student|patient|loan|credit|mortgage|underwriting|identity|access control|login|authentication)\b/i,
-    technology: /\b(machine learning|deep learning|large language models?|llm|computer vision|iot|aiot|blockchain|knowledge graph|vector retrieval|rag|fpga|multimodal|multi modal|neural fields|semantic communication|microservices|devops|unity|web ?3d|vr|ar)\b/i,
-    method: /\b(machine learning|deep learning|time series|graph learning|multi modal|multimodal|reinforcement learning|semantic retrieval)\b/i,
-    technique: /\b(federated learning|contrastive learning|semantic retrieval|graph neural networks?|attention mechanisms?|reinforcement learning|retrieval augmented generation|rag|patch based|multi factor authentication|passwordless|liveness detection|role based access control|rbac)\b/i,
-    feature: /\b(personalized|real time|multilingual|multi language|anomaly detection|progress tracking|privacy|explainability|reporting|visualization|procedural generation|rendering|multiplayer|secure login|biometric|empathetic|context aware)\b/i,
-    problem: /\b(performance|behavior|risk|trend|demand)\b/i,
-    target: /\b(prices|performance|risk|demand|trend)\b/i
-};
+const FEATURE_TAG_LIMIT = 3;
 
 const normalizeKeyword = (value = '') => value
     .toLowerCase()
@@ -87,34 +75,131 @@ const toTitleCase = (str) => {
     }).join(' ');
 };
 
-const classifyKeywordSlots = (keyword, componentPools) => {
-    const matchedSlots = [];
+const FEATURE_TAG_DEFINITIONS = [
+    {
+        id: 'real_time',
+        label: 'Real-Time',
+        description: 'Favor low-latency, live, or streaming-oriented topic variants.',
+        keywords: ['real-time monitoring', 'real-time sensing', 'real-time inference', 'low-latency processing']
+    },
+    {
+        id: 'mobile',
+        label: 'Mobile',
+        description: 'Favor mobile-accessible or mobile-centric system variants.',
+        keywords: ['Mobile Application', 'mobile-friendly access', 'mobile learning support']
+    },
+    {
+        id: 'privacy_preserving',
+        label: 'Privacy-Preserving',
+        description: 'Favor privacy-aware, secure, or data-protection-oriented topic variants.',
+        keywords: ['privacy preservation', 'privacy-preserving verification', 'academic data privacy', 'secure record sharing']
+    },
+    {
+        id: 'edge_based',
+        label: 'Edge-Based',
+        description: 'Favor edge inference, edge deployment, or on-device processing variants.',
+        keywords: ['edge inference', 'edge inference acceleration', 'low-latency processing']
+    },
+    {
+        id: 'energy_efficient',
+        label: 'Energy-Efficient',
+        description: 'Favor power-aware or resource-efficient implementations.',
+        keywords: ['energy-efficient monitoring', 'power optimization', 'resource-efficient processing']
+    },
+    {
+        id: 'low_cost',
+        label: 'Low-Cost',
+        description: 'Favor affordable, lightweight, or resource-conscious system variants.',
+        keywords: ['low-cost deployment', 'resource-efficient processing', 'energy-efficient monitoring']
+    },
+    {
+        id: 'cloud_enabled',
+        label: 'Cloud-Enabled',
+        description: 'Favor distributed, cloud-backed, or service-oriented system variants.',
+        keywords: ['cloud deployment', 'cloud-enabled integration', 'distributed services']
+    },
+    {
+        id: 'user_friendly',
+        label: 'User-Friendly',
+        description: 'Favor accessible, intuitive, or experience-oriented system variants.',
+        keywords: ['user-friendly design', 'interactive visualization', 'progress tracking']
+    }
+].map((tag) => ({
+    ...tag,
+    normalizedKeywords: tag.keywords.map((keyword) => normalizeKeyword(keyword))
+}));
 
-    for (const [slot, items] of Object.entries(componentPools)) {
-        const bestScore = items.reduce((maxScore, item) => Math.max(maxScore, scorePhraseMatch(keyword, item)), 0);
-        if (bestScore > 0) {
-            matchedSlots.push({ slot, score: bestScore });
-        }
+const FEATURE_TAGS_BY_ID = new Map(FEATURE_TAG_DEFINITIONS.map((tag) => [tag.id, tag]));
+
+const WEB_PLATFORM_SPECIALIZATIONS = new Set([
+    'web_application_development',
+    'mobile_application_development',
+    'enterprise_systems_erp',
+    'microservices_architecture',
+    'devops_cloud_systems',
+    'chatbot_qa_systems',
+    'search_information_retrieval_systems'
+]);
+
+const matchesFeatureTagKeyword = (value, featureTag) => {
+    const normalizedValue = normalizeKeyword(value);
+    return featureTag.normalizedKeywords.some((keyword) =>
+        normalizedValue.includes(keyword) ||
+        keyword.includes(normalizedValue) ||
+        scorePhraseMatch(normalizedValue, keyword) > 0
+    );
+};
+
+const candidateMatchesFeatureTag = (candidate, featureTag) => {
+    const values = [candidate.text, ...Object.values(candidate.components || {})].filter(Boolean);
+    return values.some((value) => matchesFeatureTagKeyword(value, featureTag));
+};
+
+const getDirectionalTemplatePreferences = ({ specializationId, thesisType, directionGroupId, directionOptionId }) => {
+    if (!WEB_PLATFORM_SPECIALIZATIONS.has(specializationId)) {
+        return null;
     }
 
-    Object.entries(SLOT_HEURISTICS).forEach(([slot, pattern]) => {
-        if (pattern.test(keyword) && !matchedSlots.some((match) => match.slot === slot)) {
-            matchedSlots.push({ slot, score: 1 });
+    if (directionGroupId === 'security_privacy_compliance') {
+        if (thesisType === 'Research') {
+            return ['D2', 'D4', 'B6', 'A3'];
         }
-    });
+        return ['D2', 'D4', 'D1', 'A3', 'A4'];
+    }
 
-    matchedSlots.sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return SLOT_PRIORITY.indexOf(a.slot) - SLOT_PRIORITY.indexOf(b.slot);
-    });
+    if (directionOptionId === 'identity_management') {
+        if (thesisType === 'Research') {
+            return ['D2', 'D4', 'B6', 'A3'];
+        }
+        return ['D2', 'D4', 'D1', 'A3', 'A4'];
+    }
 
-    return matchedSlots.map((match) => match.slot);
+    return null;
 };
 
 const getBestLabelMatch = (text, labels) => labels.reduce((best, label) => {
     const score = scorePhraseMatch(text, label);
     return score > best.score ? { label, score } : best;
 }, { label: null, score: 0 });
+
+const hasCompetingHighSignalConflict = ({ text, selectedMatch, strongestOther }) => {
+    if (!strongestOther || strongestOther.score < 2) return false;
+    if (strongestOther.score > selectedMatch.score) return true;
+
+    const normalizedText = normalizeKeyword(text);
+    const selectedLabelNorm = normalizeKeyword(selectedMatch.label || '');
+    const otherLabelNorm = normalizeKeyword(strongestOther.label || '');
+
+    return (
+        selectedMatch.score >= 2 &&
+        strongestOther.score === selectedMatch.score &&
+        selectedLabelNorm &&
+        otherLabelNorm &&
+        selectedLabelNorm !== otherLabelNorm &&
+        normalizedText.includes(selectedLabelNorm) &&
+        normalizedText.includes(otherLabelNorm)
+    );
+};
 
 const findSpecializationConflict = ({ text, selectedGroup, selectedOption }) => {
     if (!selectedGroup || !selectedOption) return null;
@@ -135,8 +220,45 @@ const findSpecializationConflict = ({ text, selectedGroup, selectedOption }) => 
         .sort((a, b) => b.score - a.score);
 
     const strongestOther = otherMatches[0];
-    if (strongestOther && strongestOther.score >= 2 && strongestOther.score > selectedMatch.score) {
+    if (hasCompetingHighSignalConflict({ text, selectedMatch, strongestOther })) {
         return `conflicts with specialization "${selectedOption.label}" because it matches "${strongestOther.option.label}"`;
+    }
+
+    return null;
+};
+
+const findCrossGroupSpecializationConflict = ({ text, selectedGroup, selectedOption, allGroups }) => {
+    if (!selectedGroup || !selectedOption) return null;
+
+    const selectedLabels = [
+        selectedOption.label,
+        selectedOption.id.replace(/_/g, ' '),
+        selectedGroup.label,
+        ...(selectedGroup.keywords || [])
+    ];
+    const selectedMatch = getBestLabelMatch(text, selectedLabels);
+
+    const otherMatches = allGroups
+        .filter((group) => group.groupId !== selectedGroup.groupId)
+        .map((group) => {
+            const labels = [
+                group.label,
+                ...(group.keywords || []).filter((keyword) => tokenize(keyword).length >= 2),
+                ...group.options.map((option) => option.label),
+                ...group.options.map((option) => option.id.replace(/_/g, ' '))
+            ];
+            const bestMatch = getBestLabelMatch(text, labels);
+            return {
+                group,
+                score: bestMatch.score,
+                label: bestMatch.label
+            };
+        })
+        .sort((a, b) => b.score - a.score);
+
+    const strongestOther = otherMatches[0];
+    if (hasCompetingHighSignalConflict({ text, selectedMatch, strongestOther })) {
+        return `conflicts with specialization "${selectedOption.label}" because it matches specialization group "${strongestOther.group.label}"`;
     }
 
     return null;
@@ -172,83 +294,16 @@ const findDirectionConflict = ({ text, selectedGroup, selectedOption, allGroups 
         .sort((a, b) => b.score - a.score);
 
     const strongestOther = otherMatches[0];
-    if (strongestOther && strongestOther.score >= 2 && strongestOther.score > selectedMatch.score) {
+    if (hasCompetingHighSignalConflict({ text, selectedMatch, strongestOther })) {
         return `conflicts with application direction "${selectedOption.label}" because it matches "${strongestOther.group.label}"`;
     }
 
     return null;
 };
 
-const assignKeywordsToTemplateSlots = (template, keywordEntries) => {
-    if (!keywordEntries.length) return {};
-
-    const uniqueTemplateSlots = [...new Set(template.slots)];
-    const sortedKeywords = [...keywordEntries]
-        .map((entry) => ({
-            ...entry,
-            availableSlots: entry.slots.filter((slot) => uniqueTemplateSlots.includes(slot))
-        }))
-        .sort((a, b) => a.availableSlots.length - b.availableSlots.length);
-
-    if (sortedKeywords.some((entry) => entry.availableSlots.length === 0)) {
-        return null;
-    }
-
-    const assignment = {};
-    const usedSlots = new Set();
-
-    const backtrack = (index) => {
-        if (index === sortedKeywords.length) return true;
-        const current = sortedKeywords[index];
-
-        for (const slot of current.availableSlots) {
-            if (usedSlots.has(slot)) continue;
-            usedSlots.add(slot);
-            assignment[slot] = current.raw;
-            if (backtrack(index + 1)) return true;
-            usedSlots.delete(slot);
-            delete assignment[slot];
-        }
-
-        return false;
-    };
-
-    return backtrack(0) ? assignment : null;
-};
-
-const candidateContainsKeyword = (candidate, keywordEntry) => {
-    const candidateText = normalizeKeyword(candidate.text);
-    if (candidateText.includes(keywordEntry.normalized)) return true;
-
-    return Object.values(candidate.components || {}).some((value) => normalizeKeyword(value).includes(keywordEntry.normalized));
-};
-
 const countKeywordMatches = (text, keywords) => {
     const normalizedText = normalizeKeyword(text);
     return keywords.filter((keyword) => normalizedText.includes(keyword)).length;
-};
-
-const computeKeywordSlotAlignment = (slotAssignments, keywordEntries) => {
-    if (!slotAssignments || keywordEntries.length === 0) return 0.5;
-
-    const slotEntries = Object.entries(slotAssignments);
-    let total = 0;
-    let matchedKeywords = 0;
-
-    keywordEntries.forEach((entry) => {
-        const assigned = slotEntries.find(([, value]) => value === entry.raw);
-        if (!assigned) return;
-
-        const [slot] = assigned;
-        const preferredIndex = entry.slots.indexOf(slot);
-        if (preferredIndex === -1) return;
-
-        matchedKeywords += 1;
-        total += 1 - (preferredIndex / Math.max(entry.slots.length, 1));
-    });
-
-    if (matchedKeywords === 0) return 0.5;
-    return total / matchedKeywords;
 };
 
 const getSpecializationSlotPool = (templateConfig, specializationId, slot) => {
@@ -258,23 +313,6 @@ const getSpecializationSlotPool = (templateConfig, specializationId, slot) => {
         return slotPool;
     }
     return templateConfig.componentPools[slot] || ["System", "Method"];
-};
-
-const getKeywordClassificationPools = (templateConfig, specializationId) => {
-    const pools = {};
-    const allSlots = new Set([
-        ...Object.keys(templateConfig.componentPools || {}),
-        ...Object.keys(templateConfig.specializationComponentPools?.[specializationId] || {})
-    ]);
-
-    allSlots.forEach((slot) => {
-        pools[slot] = [
-            ...(templateConfig.componentPools?.[slot] || []),
-            ...(templateConfig.specializationComponentPools?.[specializationId]?.[slot] || [])
-        ];
-    });
-
-    return pools;
 };
 
 // Map specialization groupId to template area id
@@ -291,12 +329,50 @@ const groupIdToAreaMap = {
     "nlp_language_conversational_systems": "nlp_language_conversational"
 };
 
+const SPECIALIZATION_TEMPLATE_PREFERENCES = {
+    chatbots: {
+        Research: ["G5", "G1", "G4"],
+        Practical: ["G1", "G5"]
+    },
+    cryptography: {
+        Research: ["B5", "B6", "D3"],
+        Practical: ["D1", "D2", "D4"]
+    },
+    iot_systems: {
+        Research: ["E3", "E4", "B8"],
+        Practical: ["A8", "A9", "E1"]
+    },
+    fpga_design: {
+        Research: ["E3", "E4", "E2"],
+        Practical: ["E1"]
+    },
+    game_development: {
+        Research: ["F2", "B4", "B5"],
+        Practical: ["F1", "F5", "F3", "F4"]
+    },
+    blockchain_applications: {
+        Research: ["B5", "D2", "D3"],
+        Practical: ["D1", "D2", "A4"]
+    },
+    machine_learning: {
+        Research: ["B1", "B3", "B4", "B7", "B8"]
+    },
+    data_analytics: {
+        Research: ["C3", "C4", "C5"],
+        Practical: ["C1", "C2"]
+    },
+    web_application_development: {
+        Practical: ["A2", "A3", "A4", "A10"]
+    }
+};
+
 router.get('/config', (req, res) => {
     res.json({
         step2: step2Specializations,
         step3: step3ApplicationDirections,
         step4: step4SkillReadiness,
-        template: templateConfig
+        template: templateConfig,
+        featureTags: FEATURE_TAG_DEFINITIONS.map(({ id, label, description }) => ({ id, label, description }))
     });
 });
 
@@ -306,17 +382,26 @@ router.post('/generate', (req, res) => {
     const log = (msg) => logs.push(msg);
 
     log("STEP 7: Hard validation started");
-    const { major, technical_specialization, application_direction, skills, thesis_type, include_keywords, exclude_keywords } = input;
+    const { major, technical_specialization, application_direction, skills, thesis_type, feature_tags, exclude_keywords } = input;
 
     if (!major || !['IT', 'CS', 'DS'].includes(major)) return res.status(400).json({ error: "Invalid major" });
     if (!technical_specialization) return res.status(400).json({ error: "Invalid specialization" });
     if (!application_direction) return res.status(400).json({ error: "Invalid direction" });
     if (!thesis_type || !['Research', 'Practical'].includes(thesis_type)) return res.status(400).json({ error: "Invalid thesis type" });
 
-    let includeKw = (include_keywords || []).map(k => k.toLowerCase().trim());
+    const featureTagIds = [...new Set((feature_tags || []).map((tag) => String(tag).trim()).filter(Boolean))];
     let excludeKw = (exclude_keywords || []).map(k => k.toLowerCase().trim());
-    const overlap = includeKw.filter(k => excludeKw.includes(k));
-    if (overlap.length > 0) return res.status(400).json({ error: "Keyword in both include and exclude: " + overlap.join(', ') });
+
+    if (featureTagIds.length > FEATURE_TAG_LIMIT) {
+        return res.status(400).json({ error: `You can select up to ${FEATURE_TAG_LIMIT} feature tags.` });
+    }
+
+    const invalidFeatureTags = featureTagIds.filter((tagId) => !FEATURE_TAGS_BY_ID.has(tagId));
+    if (invalidFeatureTags.length > 0) {
+        return res.status(400).json({ error: `Invalid feature tags: ${invalidFeatureTags.join(', ')}` });
+    }
+
+    const selectedFeatureTags = featureTagIds.map((tagId) => FEATURE_TAGS_BY_ID.get(tagId));
 
     // Find specialization group and option
     let selectedGroupId = null;
@@ -343,7 +428,7 @@ router.post('/generate', (req, res) => {
         direction: application_direction,
         skills: skills || [],
         thesis_type,
-        include: includeKw,
+        feature_tags: featureTagIds,
         exclude: excludeKw
     };
 
@@ -377,6 +462,13 @@ router.post('/generate', (req, res) => {
     let matchedRules = templateConfig.templateSelectionRules.filter(r =>
         r.if.thesisType === profile.thesis_type && r.if.area === profile.db_area
     );
+    let effectivePreferredTemplateIds = matchedRules.length > 0 ? [...matchedRules[0].preferredTemplates] : [];
+
+    const templateById = new Map(
+        Object.values(templateConfig.templateFamilies || {})
+            .flatMap((family) => family.templates || [])
+            .map((template) => [template.id, template])
+    );
 
     let selectedTemplates = [];
     if (matchedRules.length > 0) {
@@ -394,7 +486,45 @@ router.post('/generate', (req, res) => {
         selectedTemplates = templateConfig.templateFamilies["practical_system_development"].templates.slice(0, 5);
     }
 
+    const specializationPreferredTemplateIds = SPECIALIZATION_TEMPLATE_PREFERENCES[technical_specialization]?.[profile.thesis_type];
+    if (specializationPreferredTemplateIds?.length) {
+        const specializationTemplates = specializationPreferredTemplateIds
+            .map((templateId) => templateById.get(templateId))
+            .filter(Boolean);
+        if (specializationTemplates.length > 0) {
+            selectedTemplates = specializationTemplates;
+            effectivePreferredTemplateIds = [...specializationPreferredTemplateIds];
+        }
+    }
+
+    const directionalPreferredTemplateIds = getDirectionalTemplatePreferences({
+        specializationId: technical_specialization,
+        thesisType: profile.thesis_type,
+        directionGroupId,
+        directionOptionId: selectedDirectionOption.id
+    });
+    if (directionalPreferredTemplateIds?.length) {
+        const directionalTemplates = directionalPreferredTemplateIds
+            .map((templateId) => templateById.get(templateId))
+            .filter(Boolean);
+        if (directionalTemplates.length > 0) {
+            selectedTemplates = directionalTemplates;
+            effectivePreferredTemplateIds = [...directionalPreferredTemplateIds];
+            log(`Directional template preference override applied: ${directionalPreferredTemplateIds.join(', ')}`);
+        }
+    }
+
+    const featureFocusedTemplates = selectedFeatureTags.length > 0
+        ? selectedTemplates.filter((template) => template.slots.includes('feature'))
+        : [];
+
     log(`Selected ${selectedTemplates.length} templates: ${selectedTemplates.map(t => t.id).join(', ')}`);
+    if (selectedFeatureTags.length > 0) {
+        log(`Selected feature tags: ${selectedFeatureTags.map((tag) => tag.label).join(', ')}`);
+        if (featureFocusedTemplates.length > 0) {
+            log(`Feature-aware templates available: ${featureFocusedTemplates.map((template) => template.id).join(', ')}`);
+        }
+    }
 
     // Collect Specialization Keywords
     let specializationKeywordsList = [
@@ -432,81 +562,54 @@ router.post('/generate', (req, res) => {
 
     const normalizedDirectionLabel = selectedDirectionOption.label.replace(/&/g, 'and');
     const renderedDirectionLabel = toTitleCase(normalizedDirectionLabel);
-    const keywordClassificationPools = getKeywordClassificationPools(templateConfig, technical_specialization);
-    const applyDirectionContextToForcedChoice = (rawValue, slot) => {
+    const applyDirectionContextToChoice = (rawValue, slot, templateSlots = []) => {
         if (!rawValue) return rawValue;
         const normalizedValue = normalizeKeyword(rawValue);
         const hasDirectionSignal = directionKeywords.some((keyword) => normalizedValue.includes(keyword));
         if (hasDirectionSignal) return rawValue;
 
-        if (slot === 'domain' || slot === 'target') {
-            return `${normalizedDirectionLabel} in ${rawValue}`;
+        if (slot === 'domain') {
+            return renderedDirectionLabel;
+        }
+
+        if (slot === 'target') {
+            return `${toTitleCase(rawValue)} in ${renderedDirectionLabel}`;
         }
 
         if (slot === 'task' || slot === 'problem') {
-            return `${normalizedDirectionLabel} for ${rawValue}`;
+            return `${toTitleCase(rawValue)} in ${renderedDirectionLabel}`;
+        }
+
+        if (slot === 'system' && templateSlots.length === 1) {
+            return `${toTitleCase(rawValue)} for ${renderedDirectionLabel}`;
         }
 
         return rawValue;
     };
 
-    log("STEP 10.5: Classify include keywords");
-    const includeKeywordEntries = profile.include.map((rawKeyword) => {
-        const normalized = normalizeKeyword(rawKeyword);
-        const slots = classifyKeywordSlots(normalized, keywordClassificationPools);
-        const specializationConflict = findSpecializationConflict({
-            text: normalized,
-            selectedGroup: selectedSpecGroup,
-            selectedOption: selectedSpecOption
+    const stripTemplatePrefixDuplication = (choiceValue, slot, templatePattern) => {
+        if (!choiceValue || slot !== 'system' || !templatePattern) return choiceValue;
+
+        const duplicatedPrefixes = [
+            'AI-Powered',
+            'IoT-Based',
+            'AIoT-Based',
+            'Intelligent',
+            'Secure',
+            'Privacy-Preserving'
+        ];
+
+        let cleaned = choiceValue;
+        duplicatedPrefixes.forEach((prefix) => {
+            if (templatePattern.startsWith(`${prefix} {${slot}}`) && cleaned.startsWith(`${prefix} `)) {
+                cleaned = cleaned.slice(prefix.length + 1);
+            }
         });
-        const directionConflict = findDirectionConflict({
-            text: normalized,
-            selectedGroup: selectedDirectionGroup,
-            selectedOption: selectedDirectionOption,
-            allGroups: step3ApplicationDirections.groups
-        });
 
-        return {
-            raw: rawKeyword,
-            normalized,
-            slots,
-            conflicts: [specializationConflict, directionConflict].filter(Boolean)
-        };
-    });
+        return cleaned;
+    };
 
-    if (includeKeywordEntries.length > 0) {
-        log(`Include keyword classification: ${JSON.stringify(includeKeywordEntries.map((entry) => ({ keyword: entry.raw, slots: entry.slots, conflicts: entry.conflicts })))}`);
-    }
-
-    const conflictingIncludeKeywords = includeKeywordEntries.filter((entry) => entry.conflicts.length > 0);
-    if (conflictingIncludeKeywords.length > 0) {
-        return res.status(400).json({
-            error: conflictingIncludeKeywords
-                .map((entry) => `Include keyword "${entry.raw}" ${entry.conflicts.join(' and ')}`)
-                .join('; '),
-            logs
-        });
-    }
-
-    const unsupportedIncludeKeywords = includeKeywordEntries.filter((entry) => entry.slots.length === 0);
-    if (unsupportedIncludeKeywords.length > 0) {
-        return res.status(400).json({
-            error: `Unsupported include keywords: ${unsupportedIncludeKeywords.map((entry) => `"${entry.raw}"`).join(', ')}. Please use keywords that match a topic model, task, domain, or technique.`,
-            logs
-        });
-    }
-
-    if (includeKeywordEntries.length > 0) {
-        selectedTemplates = selectedTemplates.filter((template) => assignKeywordsToTemplateSlots(template, includeKeywordEntries));
-        log(`Templates after include keyword compatibility filter: ${selectedTemplates.map((template) => template.id).join(', ')}`);
-
-        if (selectedTemplates.length === 0) {
-            return res.status(400).json({
-                error: "No available template can satisfy all included keywords for the selected specialization and application direction.",
-                logs
-            });
-        }
-    }
+    const featureTagWords = extractWords(selectedFeatureTags.flatMap((tag) => tag.keywords));
 
     log("STEP 11: Context-aware component filling");
     const candidates = [];
@@ -514,11 +617,13 @@ router.post('/generate', (req, res) => {
 
     for (let i = 0; i < numCandidatesToGenerate; i++) {
         // Randomly pick a template
-        const template = selectedTemplates[Math.floor(Math.random() * selectedTemplates.length)];
-        const forcedSlotAssignments = assignKeywordsToTemplateSlots(template, includeKeywordEntries);
+        const templatePool = featureFocusedTemplates.length > 0 && Math.random() < 0.45
+            ? featureFocusedTemplates
+            : selectedTemplates;
+        const template = templatePool[Math.floor(Math.random() * templatePool.length)];
         let candidateText = template.pattern;
         const chosenComponents = {};
-        const activeContext = [];
+        const activeContext = [...featureTagWords];
 
         template.slots.forEach((slot) => {
             const basePool = getSpecializationSlotPool(templateConfig, technical_specialization, slot);
@@ -538,12 +643,15 @@ router.post('/generate', (req, res) => {
                 const itemStr = normalizeKeyword(item);
                 return specializationKeywords.some((sk) => itemStr.includes(sk));
             }));
+            const cleanFeatureTagPool = deduplicate(currentPool.filter((item) =>
+                selectedFeatureTags.some((tag) => matchesFeatureTagKeyword(item, tag))
+            ));
 
             let choice = "";
             const rand = Math.random();
 
-            if (forcedSlotAssignments && forcedSlotAssignments[slot]) {
-                choice = applyDirectionContextToForcedChoice(forcedSlotAssignments[slot], slot);
+            if (cleanFeatureTagPool.length > 0 && (slot === 'feature' || rand < 0.7)) {
+                choice = cleanFeatureTagPool[Math.floor(Math.random() * cleanFeatureTagPool.length)];
             } else if (cleanCoupledPool.length > 0 && rand < 0.95) {
                 choice = cleanCoupledPool[Math.floor(Math.random() * cleanCoupledPool.length)];
             } else if (cleanDirectionPool.length > 0) {
@@ -555,6 +663,8 @@ router.post('/generate', (req, res) => {
                 choice = finalPool[Math.floor(Math.random() * finalPool.length)];
             }
 
+            choice = applyDirectionContextToChoice(choice, slot, template.slots);
+            choice = stripTemplatePrefixDuplication(choice, slot, template.pattern);
             choice = toTitleCase(choice);
 
             candidateText = candidateText.replace(new RegExp(`\\{${slot}\\}`, 'g'), choice);
@@ -562,7 +672,7 @@ router.post('/generate', (req, res) => {
 
             // Update context
             tokenize(choice).forEach((word) => {
-                if (word.length > 3 && !activeContext.includes(word)) {
+                if (word.length > 3 && !STOP_WORDS.has(word) && !activeContext.includes(word)) {
                     activeContext.push(word);
                 }
             });
@@ -577,16 +687,11 @@ router.post('/generate', (req, res) => {
         // Fix 'a/an' grammatical errors (e.g., "a Action" -> "an Action") 
         candidateText = candidateText.replace(/\b([Aa])\s+([AEIOaeio]|Un|Um|Ur|Up)/g, '$1n $2');
 
-        if (directionKeywords.length > 0 && countKeywordMatches(candidateText, directionKeywords) === 0) {
-            candidateText = `${candidateText} in ${renderedDirectionLabel}`;
-        }
-
         candidates.push({
             id: `cand_${i}`,
             text: candidateText,
             templateId: template.id,
-            components: chosenComponents,
-            keywordSlotAlignment: computeKeywordSlotAlignment(forcedSlotAssignments, includeKeywordEntries)
+            components: chosenComponents
         });
     }
 
@@ -620,11 +725,6 @@ router.post('/generate', (req, res) => {
             return regex.test(textLower);
         })) {
             rejectReason = `Contains excluded keyword`;
-        } else if (includeKeywordEntries.length > 0) {
-            const missingKeywords = includeKeywordEntries.filter((entry) => !candidateContainsKeyword(cand, entry));
-            if (missingKeywords.length > 0) {
-                rejectReason = `Missing required include keyword(s): ${missingKeywords.map((entry) => entry.raw).join(', ')}`;
-            }
         }
 
         if (!rejectReason && directionKeywords.length > 0 && countKeywordMatches(cand.text, directionKeywords) === 0) {
@@ -643,6 +743,18 @@ router.post('/generate', (req, res) => {
         }
 
         if (!rejectReason) {
+            const crossGroupSpecializationConflict = findCrossGroupSpecializationConflict({
+                text: cand.text,
+                selectedGroup: selectedSpecGroup,
+                selectedOption: selectedSpecOption,
+                allGroups: step2Specializations.groups
+            });
+            if (crossGroupSpecializationConflict) {
+                rejectReason = crossGroupSpecializationConflict;
+            }
+        }
+
+        if (!rejectReason) {
             const directionConflict = findDirectionConflict({
                 text: cand.text,
                 selectedGroup: selectedDirectionGroup,
@@ -651,6 +763,32 @@ router.post('/generate', (req, res) => {
             });
             if (directionConflict) {
                 rejectReason = directionConflict;
+            }
+        }
+
+        if (!rejectReason) {
+            for (const componentValue of Object.values(cand.components || {})) {
+                const componentDirectionConflict = findDirectionConflict({
+                    text: componentValue,
+                    selectedGroup: selectedDirectionGroup,
+                    selectedOption: selectedDirectionOption,
+                    allGroups: step3ApplicationDirections.groups
+                });
+                if (componentDirectionConflict) {
+                    rejectReason = `Component "${componentValue}" ${componentDirectionConflict}`;
+                    break;
+                }
+
+                const componentSpecializationConflict = findCrossGroupSpecializationConflict({
+                    text: componentValue,
+                    selectedGroup: selectedSpecGroup,
+                    selectedOption: selectedSpecOption,
+                    allGroups: step2Specializations.groups
+                });
+                if (componentSpecializationConflict) {
+                    rejectReason = `Component "${componentValue}" ${componentSpecializationConflict}`;
+                    break;
+                }
             }
         }
 
@@ -703,8 +841,8 @@ router.post('/generate', (req, res) => {
 
         // Specialization Affinity (Prioritize core templates of the specialization)
         let specializationAffinity = 0.5;
-        if (matchedRules.length > 0) {
-            const prefDb = matchedRules[0].preferredTemplates;
+        if (effectivePreferredTemplateIds.length > 0) {
+            const prefDb = effectivePreferredTemplateIds;
             const index = prefDb.indexOf(cand.templateId);
             if (index !== -1) {
                 // Higher score for templates listed earlier (core to the major)
@@ -712,21 +850,18 @@ router.post('/generate', (req, res) => {
             }
         }
 
-        // Keyword Match (Heavy boost for having included keywords)
-        let keywordMatch = 0.5;
-        if (includeKeywordEntries.length > 0) {
-            const kwOverlap = includeKeywordEntries.filter((entry) => candidateContainsKeyword(cand, entry));
-            keywordMatch = kwOverlap.length / includeKeywordEntries.length;
+        let featureTagMatch = 0.5;
+        if (selectedFeatureTags.length > 0) {
+            const matchedFeatureTags = selectedFeatureTags.filter((tag) => candidateMatchesFeatureTag(cand, tag));
+            featureTagMatch = matchedFeatureTags.length / selectedFeatureTags.length;
         }
 
-        const keywordSlotFit = includeKeywordEntries.length > 0 ? cand.keywordSlotAlignment ?? 0.5 : 0.5;
-        const totalScore = 0.25 * feasibilityFit + 0.25 * directionMatch + 0.20 * keywordMatch + 0.15 * keywordSlotFit + 0.15 * specializationAffinity;
+        const totalScore = 0.3 * feasibilityFit + 0.3 * directionMatch + 0.2 * specializationAffinity + 0.2 * featureTagMatch;
 
         cand.scores = {
             feasibility_fit: parseFloat(feasibilityFit.toFixed(2)),
             direction_match: parseFloat(directionMatch.toFixed(2)),
-            keyword_match: parseFloat(keywordMatch.toFixed(2)),
-            keyword_slot_fit: parseFloat(keywordSlotFit.toFixed(2)),
+            feature_tag_match: parseFloat(featureTagMatch.toFixed(2)),
             specialization_affinity: parseFloat(specializationAffinity.toFixed(2)),
             total_score: parseFloat(totalScore.toFixed(2))
         };
@@ -753,6 +888,9 @@ router.post('/generate', (req, res) => {
     if (profile.skills && profile.skills.length > 0) {
         explanation += ` Components like ${formatComponents(bestTopic.components)} were chosen to directly leverage your expertise in ${profile.skills.map(formatSkill).join(', ')}.`;
     }
+    if (selectedFeatureTags.length > 0) {
+        explanation += ` Optional feature tags such as ${selectedFeatureTags.map((tag) => tag.label).join(', ')} were used to refine the final title without forcing every tag into the wording.`;
+    }
 
     const result = {
         best_topic: bestTopic.text,
@@ -760,6 +898,7 @@ router.post('/generate', (req, res) => {
         score_breakdown: bestTopic.scores,
         selected_template: bestTopic.templateId,
         selected_components: bestTopic.components,
+        selected_feature_tags: selectedFeatureTags.map((tag) => tag.label),
         rejected_candidates_summary: rejectedCandidates.map(r => ({ text: r.text, reason: r.reason })),
         all_scored_candidates: validCandidates.map(c => ({ text: c.text, score: c.scores.total_score })),
         logs

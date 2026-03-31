@@ -209,11 +209,6 @@
                     "dbArea": "Web & Software Systems"
                 },
                 {
-                    "id": "full_stack_systems",
-                    "label": "Full-stack Systems",
-                    "dbArea": "Web & Software Systems"
-                },
-                {
                     "id": "enterprise_systems_erp",
                     "label": "Enterprise Systems / ERP",
                     "dbArea": "Web & Software Systems"
@@ -238,7 +233,18 @@
                     "label": "Search / Information Retrieval Systems",
                     "dbArea": "Web & Software Systems"
                 }
-            ]
+            ],
+            "keywords": [
+                "web application",
+                "mobile application",
+                "enterprise systems",
+                "microservices",
+                "devops",
+                "cloud systems",
+                "chatbot",
+                "information retrieval"
+            ],
+            "parentArea": "Web & Software Systems"
         },
         {
             "groupId": "cybersecurity_trust_systems",
@@ -298,7 +304,8 @@
                 "incident response",
                 "threat detection",
                 "malware"
-            ]
+            ],
+            "parentArea": "Cybersecurity & Networks"
         },
         {
             "groupId": "iot_embedded_edge_systems",
@@ -451,7 +458,18 @@
                     "label": "Simulation Systems",
                     "dbArea": "Graphics, Games & HCI"
                 }
-            ]
+            ],
+            "keywords": [
+                "game development",
+                "computer graphics",
+                "virtual reality",
+                "augmented reality",
+                "3d visualization",
+                "human computer interaction",
+                "brain computer interface",
+                "simulation"
+            ],
+            "parentArea": "Graphics, Games & HCI"
         },
         {
             "groupId": "blockchain_distributed_trust",
@@ -529,7 +547,17 @@
                     "label": "Conversational AI",
                     "dbArea": "AI & Machine Learning"
                 }
-            ]
+            ],
+            "keywords": [
+                "chatbot",
+                "question answering",
+                "translation",
+                "text classification",
+                "rag",
+                "conversational ai",
+                "natural language processing"
+            ],
+            "parentArea": "AI & Machine Learning"
         }
     ]
 }

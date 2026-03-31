@@ -580,6 +580,86 @@
         {
             "if": {
                 "thesisType": "Research",
+                "area": "web_software_platform"
+            },
+            "families": [
+                "data_analytics_dss",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "C4",
+                "C5",
+                "B3",
+                "B10"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "cybersecurity_trust"
+            },
+            "families": [
+                "security_network",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "D3",
+                "B5",
+                "B6",
+                "B8"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "iot_embedded_edge"
+            },
+            "families": [
+                "hardware_embedded_fpga",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "E3",
+                "E4",
+                "B8",
+                "B5"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "graphics_games_hci"
+            },
+            "families": [
+                "games_graphics_vr",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "F2",
+                "B1",
+                "B4",
+                "B5"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
+                "area": "blockchain_distributed_trust"
+            },
+            "families": [
+                "security_network",
+                "research_model_method"
+            ],
+            "preferredTemplates": [
+                "D3",
+                "B5",
+                "B6",
+                "B8"
+            ]
+        },
+        {
+            "if": {
+                "thesisType": "Research",
                 "area": "ai_intelligent_systems"
             },
             "families": [
@@ -877,6 +957,10 @@
             "explainability",
             "automated reporting",
             "interactive visualization",
+            "low-cost deployment",
+            "user-friendly design",
+            "cloud-enabled integration",
+            "resource-efficient processing",
             "procedural generation",
             "real-time rendering",
             "multiplayer synchronization"
@@ -1010,7 +1094,7 @@
             "retail sales behavior",
             "traffic accident risks",
             "mental health trends in students",
-            "job demand in data science"
+            "service integration bottlenecks"
         ],
         "target": [
             "retail demand",
@@ -1023,6 +1107,178 @@
         ]
     },
     "specializationComponentPools": {
+        "web_application_development": {
+            "system": [
+                "Web Platform",
+                "Full-stack Web Application",
+                "Student Information System",
+                "Learning Management Platform",
+                "Academic Support System"
+            ],
+            "domain": [
+                "student learning support",
+                "Educational Management Systems",
+                "academic major selection",
+                "MOOC learning support",
+                "course management"
+            ],
+            "problem": [
+                "student portal usability",
+                "academic workflow optimization",
+                "learning resource access patterns",
+                "digital academic service quality",
+                "identity and access management workflows",
+                "secure user access orchestration"
+            ],
+            "target_user": [
+                "University Students",
+                "Academic Staff",
+                "Online Learners"
+            ]
+        },
+        "cryptography": {
+            "system": [
+                "Secure Messaging System",
+                "Identity Verification System",
+                "Credential Verification Platform",
+                "Secure Web Platform",
+                "Academic Record Protection System"
+            ],
+            "domain": [
+                "student record protection",
+                "academic credential verification",
+                "Educational Management Systems",
+                "secure exam authentication",
+                "academic data privacy"
+            ],
+            "technique": [
+                "digital signatures",
+                "attribute-based encryption",
+                "zero-knowledge proof",
+                "end-to-end encryption",
+                "multi-factor authentication"
+            ],
+            "task": [
+                "academic credential verification",
+                "student identity verification",
+                "secure record sharing",
+                "exam integrity protection"
+            ],
+            "method": [
+                "cryptographic protocols",
+                "secure hashing",
+                "privacy-preserving verification"
+            ],
+            "threat": [
+                "credential fraud",
+                "data tampering",
+                "identity spoofing",
+                "privacy breach"
+            ]
+        },
+        "iot_systems": {
+            "system": [
+                "IoT-Based Monitoring System",
+                "Smart Classroom Monitoring System",
+                "Campus Sensor Network",
+                "Real-time Attendance Monitoring System"
+            ],
+            "domain": [
+                "Educational Management Systems",
+                "smart classroom management",
+                "campus resource monitoring",
+                "classroom environment monitoring"
+            ],
+            "task": [
+                "attendance monitoring",
+                "classroom occupancy detection",
+                "environmental monitoring",
+                "resource usage monitoring"
+            ],
+            "architecture": [
+                "Edge IoT Architecture",
+                "Campus Sensor Architecture",
+                "Low-Power Monitoring Architecture"
+            ],
+            "feature": [
+                "real-time sensing",
+                "energy-efficient monitoring",
+                "edge inference",
+                "low-latency event detection"
+            ]
+        },
+        "game_development": {
+            "game_type": [
+                "Educational",
+                "Simulation",
+                "Serious"
+            ],
+            "feature": [
+                "Progress Tracking",
+                "Adaptive Difficulty",
+                "Collaborative Learning",
+                "Quest-based Learning",
+                "Performance Feedback"
+            ],
+            "domain": [
+                "student learning support",
+                "Educational Management Systems",
+                "virtual interactive learning",
+                "MOOC learning support"
+            ],
+            "system": [
+                "Gamified Learning System",
+                "Interactive Learning Environment"
+            ],
+            "platform": [
+                "Learning Platform",
+                "Interactive Platform",
+                "Educational Web Platform"
+            ],
+            "technology": [
+                "Unity Engine",
+                "VR Technology",
+                "AR Technology"
+            ],
+            "task": [
+                "player engagement prediction",
+                "educational game adaptation",
+                "learning outcome analysis"
+            ]
+        },
+        "blockchain_applications": {
+            "system": [
+                "Academic Credential Verification Platform",
+                "Decentralized Record Management System",
+                "Secure Certificate System",
+                "Blockchain-based Learning Record System"
+            ],
+            "domain": [
+                "academic credential verification",
+                "student record management",
+                "Educational Management Systems",
+                "certificate issuance"
+            ],
+            "technique": [
+                "smart contracts",
+                "zero-knowledge proof",
+                "distributed ledger",
+                "consensus verification"
+            ],
+            "task": [
+                "credential verification",
+                "tamper-proof academic records",
+                "decentralized certificate issuance"
+            ],
+            "method": [
+                "smart contract verification",
+                "distributed consensus"
+            ],
+            "threat": [
+                "certificate fraud",
+                "record tampering"
+            ]
+        },
         "machine_learning": {
             "model": [
                 "XGBoost Framework",
@@ -1036,7 +1292,11 @@
                 "risk prediction",
                 "customer churn prediction",
                 "demand forecasting",
-                "classification of financial anomalies"
+                "classification of financial anomalies",
+                "student performance prediction",
+                "dropout risk prediction",
+                "personalized learning recommendation",
+                "academic resource demand forecasting"
             ]
         },
         "data_analytics": {
@@ -1046,13 +1306,28 @@
                 "Random Forest Model",
                 "Gradient Boosting Model"
             ],
+            "domain": [
+                "Educational Management Systems",
+                "student learning support",
+                "academic major selection",
+                "MOOC learning support"
+            ],
+            "problem": [
+                "student academic performance",
+                "learning engagement patterns",
+                "academic workflow optimization",
+                "educational data quality"
+            ],
             "task": [
                 "fraud detection",
                 "risk scoring",
                 "customer churn prediction",
                 "stock price prediction",
                 "business loan risk analysis",
-                "financial trend prediction"
+                "financial trend prediction",
+                "student performance analysis",
+                "learning engagement analysis",
+                "academic trend prediction"
             ]
         },
         "predictive_modeling": {
@@ -1067,7 +1342,10 @@
                 "customer churn prediction",
                 "sales forecasting",
                 "stock price prediction",
-                "business loan default prediction"
+                "business loan default prediction",
+                "student performance prediction",
+                "dropout risk prediction",
+                "course demand forecasting"
             ]
         },
         "image_retrieval": {
@@ -1088,6 +1366,16 @@
             ]
         },
         "image_classification": {
+            "system": [
+                "Visual Classification System",
+                "Image Analytics Platform",
+                "Document Analysis System"
+            ],
+            "domain": [
+                "Educational Management Systems",
+                "student learning support",
+                "academic document processing"
+            ],
             "model": [
                 "CNN Model",
                 "ResNet Model",
@@ -1098,7 +1386,10 @@
                 "image classification",
                 "scene classification",
                 "visual category recognition",
-                "game screenshot classification"
+                "game screenshot classification",
+                "document image classification",
+                "student engagement classification",
+                "classroom activity classification"
             ]
         },
         "object_detection": {
@@ -1174,18 +1465,23 @@
         },
         "chatbots": {
             "system": [
-                "Customer Support Chatbot",
+                "Student Support Chatbot",
                 "Learning Assistant",
-                "Mental Health Assistant",
-                "Legal Support Chatbot",
-                "Virtual Helpdesk Assistant"
+                "Academic Helpdesk Chatbot",
+                "Virtual Learning Assistant",
+                "Course Guidance Chatbot"
             ],
             "domain": [
-                "customer support",
+                "Educational Management Systems",
                 "student support",
-                "mental health support",
-                "legal information support",
-                "digital service assistance"
+                "learning assistance",
+                "academic advising support",
+                "digital campus services"
+            ],
+            "target_user": [
+                "University Students",
+                "Online Learners",
+                "Academic Staff"
             ],
             "task": [
                 "chatbot response generation",
@@ -1257,6 +1553,22 @@
             ]
         },
         "fpga_design": {
+            "system": [
+                "FPGA-based Monitoring System",
+                "Edge AI Accelerator",
+                "Hardware Inference Engine"
+            ],
+            "architecture": [
+                "FPGA-based Edge AI Architecture",
+                "RISC-V Accelerator Architecture",
+                "Low-Power Inference Architecture"
+            ],
+            "feature": [
+                "real-time inference",
+                "power optimization",
+                "low-latency processing",
+                "parallel dataflow"
+            ],
             "model": [
                 "Binarized Neural Network",
                 "CNN Model",
@@ -1264,10 +1576,13 @@
                 "Edge Vision Accelerator"
             ],
             "task": [
+                "student activity classification",
+                "classroom monitoring",
                 "defect detection",
                 "object detection",
                 "image classification",
-                "edge inference acceleration"
+                "edge inference acceleration",
+                "real-time vision inference"
             ]
         }
     },

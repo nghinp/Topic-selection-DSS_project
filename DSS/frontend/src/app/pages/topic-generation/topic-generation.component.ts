@@ -27,11 +27,10 @@ export class TopicGenerationComponent implements OnInit {
     application_direction: '',
     skills: [] as string[],
     thesis_type: '',
-    include_keywords: '',
+    feature_tags: [] as string[],
     exclude_keywords: ''
   };
 
-  keywordWarning = false;
   expandedGroupStep2: string | null = null;
   expandedGroupStep3: string | null = null;
   saving = false;
@@ -74,6 +73,7 @@ export class TopicGenerationComponent implements OnInit {
     this.formData.technical_specialization = '';
     this.formData.application_direction = '';
     this.formData.skills = [];
+    this.formData.feature_tags = [];
     this.expandedGroupStep2 = null;
     this.expandedGroupStep3 = null;
   }
@@ -85,6 +85,7 @@ export class TopicGenerationComponent implements OnInit {
     if (!changed) return;
 
     this.formData.skills = [];
+    this.formData.feature_tags = [];
 
     if (this.formData.application_direction && !this.isCurrentDirectionValid()) {
       this.formData.application_direction = '';
@@ -117,10 +118,30 @@ export class TopicGenerationComponent implements OnInit {
     }
   }
 
-  checkKeywordWarning() {
-    const includes = this.formData.include_keywords.split(',').map(s => s.trim().toLowerCase()).filter(s => s);
-    const excludes = this.formData.exclude_keywords.split(',').map(s => s.trim().toLowerCase()).filter(s => s);
-    this.keywordWarning = includes.some(kw => excludes.includes(kw));
+  getFeatureTags() {
+    return this.config?.featureTags || [];
+  }
+
+  toggleFeatureTag(tagId: string) {
+    const idx = this.formData.feature_tags.indexOf(tagId);
+    if (idx > -1) {
+      this.formData.feature_tags.splice(idx, 1);
+      return;
+    }
+
+    if (this.formData.feature_tags.length >= 3) {
+      return;
+    }
+
+    this.formData.feature_tags.push(tagId);
+  }
+
+  getFeatureTagLabels(): string[] {
+    const tags = this.getFeatureTags();
+    return this.formData.feature_tags.map((id) => {
+      const tag = tags.find((item: any) => item.id === id);
+      return tag ? tag.label : id;
+    });
   }
 
   isStepValid(step: number): boolean {
@@ -130,9 +151,7 @@ export class TopicGenerationComponent implements OnInit {
       case 3: return this.isCurrentSpecializationValid() && this.isCurrentDirectionValid();
       case 4: return true; // skills are optional
       case 5: return !!this.formData.thesis_type;
-      case 6: 
-        this.checkKeywordWarning();
-        return !this.keywordWarning;
+      case 6: return true; // feature tags and excludes are optional
       case 7: return true; // Review step
       case 8: return true;
       default: return false;
@@ -239,7 +258,7 @@ export class TopicGenerationComponent implements OnInit {
       application_direction: '',
       skills: [],
       thesis_type: '',
-      include_keywords: '',
+      feature_tags: [],
       exclude_keywords: ''
     };
   }
@@ -272,7 +291,6 @@ export class TopicGenerationComponent implements OnInit {
     
     const payload = {
       ...this.formData,
-      include_keywords: this.formData.include_keywords.split(',').map(s => s.trim()).filter(s => s),
       exclude_keywords: this.formData.exclude_keywords.split(',').map(s => s.trim()).filter(s => s),
     };
 
@@ -287,7 +305,7 @@ export class TopicGenerationComponent implements OnInit {
       },
       error: (err) => {
         this.generating = false;
-        this.error = "An error occurred while generating the topic.";
+        this.error = err?.error?.error || "An error occurred while generating the topic.";
       }
     });
   }
@@ -308,7 +326,7 @@ export class TopicGenerationComponent implements OnInit {
         specialization: this.getSpecLabel(),
         direction: this.getDirLabel(),
         thesis_type: this.formData.thesis_type,
-        include_keywords: this.formData.include_keywords,
+        feature_tags: this.getFeatureTagLabels().join(', '),
         exclude_keywords: this.formData.exclude_keywords,
         skills: this.getSkillLabels().join(', ')
     };

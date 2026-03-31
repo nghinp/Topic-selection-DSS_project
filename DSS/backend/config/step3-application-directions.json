@@ -242,6 +242,8 @@
                 "threat detection",
                 "cybersecurity",
                 "identity verification",
+                "identity access management",
+                "access control",
                 "encryption"
             ],
             "allowed_step2_groups": [

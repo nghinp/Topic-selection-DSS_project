@@ -1,0 +1,459 @@
+﻿{
+    "baseUrl":  "http://localhost:3001/api",
+    "mode":  "Both",
+    "iterations":  20,
+    "caseLimit":  0,
+    "totalEvaluations":  400,
+    "overall":  {
+                    "passCount":  400,
+                    "warnCount":  0,
+                    "failCount":  0
+                },
+    "runSummaries":  [
+                         {
+                             "iteration":  1,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-001.json"
+                         },
+                         {
+                             "iteration":  2,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-002.json"
+                         },
+                         {
+                             "iteration":  3,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-003.json"
+                         },
+                         {
+                             "iteration":  4,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-004.json"
+                         },
+                         {
+                             "iteration":  5,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-005.json"
+                         },
+                         {
+                             "iteration":  6,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-006.json"
+                         },
+                         {
+                             "iteration":  7,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-007.json"
+                         },
+                         {
+                             "iteration":  8,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-008.json"
+                         },
+                         {
+                             "iteration":  9,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-009.json"
+                         },
+                         {
+                             "iteration":  10,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-010.json"
+                         },
+                         {
+                             "iteration":  11,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-011.json"
+                         },
+                         {
+                             "iteration":  12,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-012.json"
+                         },
+                         {
+                             "iteration":  13,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-013.json"
+                         },
+                         {
+                             "iteration":  14,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-014.json"
+                         },
+                         {
+                             "iteration":  15,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-015.json"
+                         },
+                         {
+                             "iteration":  16,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-016.json"
+                         },
+                         {
+                             "iteration":  17,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-017.json"
+                         },
+                         {
+                             "iteration":  18,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-018.json"
+                         },
+                         {
+                             "iteration":  19,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-019.json"
+                         },
+                         {
+                             "iteration":  20,
+                             "exitCode":  0,
+                             "passCount":  20,
+                             "warnCount":  0,
+                             "failCount":  0,
+                             "report":  "C:\\nam2sem2\\the special study of field\\project\\DSS\\.temp-title-stress-runs\\run-020.json"
+                         }
+                     ],
+    "cases":  [
+                  {
+                      "caseId":  "blockchain_distributed_trust-practical",
+                      "specializationOption":  "Blockchain Applications",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "data_science_analytics-practical",
+                      "specializationOption":  "Data Analytics",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "iot_embedded_edge_systems-research",
+                      "specializationOption":  "IoT Systems",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "web_software_platform_systems-research",
+                      "specializationOption":  "Web Application Development",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "cybersecurity_trust_systems-practical",
+                      "specializationOption":  "Cryptography",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "ai_intelligent_systems-practical",
+                      "specializationOption":  "Machine Learning",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "iot_embedded_edge_systems-practical",
+                      "specializationOption":  "IoT Systems",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "graphics_games_vrar_hci-practical",
+                      "specializationOption":  "Game Development",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "ai_intelligent_systems-research",
+                      "specializationOption":  "Machine Learning",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "web_software_platform_systems-practical",
+                      "specializationOption":  "Web Application Development",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "nlp_language_conversational_systems-practical",
+                      "specializationOption":  "Chatbots",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "blockchain_distributed_trust-research",
+                      "specializationOption":  "Blockchain Applications",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "hardware_architecture_fpga-research",
+                      "specializationOption":  "FPGA Design",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "cybersecurity_trust_systems-research",
+                      "specializationOption":  "Cryptography",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "data_science_analytics-research",
+                      "specializationOption":  "Data Analytics",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "nlp_language_conversational_systems-research",
+                      "specializationOption":  "Chatbots",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "computer_vision_multimedia-research",
+                      "specializationOption":  "Image Classification",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "computer_vision_multimedia-practical",
+                      "specializationOption":  "Image Classification",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "hardware_architecture_fpga-practical",
+                      "specializationOption":  "FPGA Design",
+                      "thesisType":  "Practical",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  },
+                  {
+                      "caseId":  "graphics_games_vrar_hci-research",
+                      "specializationOption":  "Game Development",
+                      "thesisType":  "Research",
+                      "passCount":  20,
+                      "warnCount":  0,
+                      "failCount":  0,
+                      "sampleWarnings":  [
+
+                                         ],
+                      "sampleFailures":  [
+
+                                         ]
+                  }
+              ],
+    "topIssues":  [
+
+                  ]
+}

@@ -132,21 +132,24 @@
             </div>
           </ng-container>
 
-          <!-- STEP 6: Keywords -->
+          <!-- STEP 6: Feature Tags -->
           <ng-container *ngIf="currentStep === 6">
-            <h2>Step 6: Constraints & Preferences</h2>
-            <p class="flow__subtitle">Add any specific keywords you want to include or exclude.</p>
+            <h2>Step 6: Feature Tags & Exclusions</h2>
+            <p class="flow__subtitle">Optionally refine the title with up to three feature tags, and list any terms you want to avoid.</p>
             <div class="form-container">
               <div class="form-group">
-                <label>Include Keywords (comma-separated)</label>
-                <input class="input-field" type="text" [(ngModel)]="formData.include_keywords" (ngModelChange)="checkKeywordWarning()" placeholder="e.g. pig breeding, game engine">
+                <label>Feature Tags (Optional, choose up to 3)</label>
+                <div class="question-grid">
+                  <label class="checkbox-card" *ngFor="let tag of getFeatureTags()" [class.selected]="formData.feature_tags.includes(tag.id)">
+                    <input type="checkbox" [value]="tag.id" (change)="toggleFeatureTag(tag.id)" [checked]="formData.feature_tags.includes(tag.id)">
+                    <span>{{tag.label}}</span>
+                  </label>
+                </div>
+                <p class="muted" style="margin-top: 10px;">Selected: {{ formData.feature_tags.length }}/3</p>
               </div>
               <div class="form-group">
                 <label>Exclude Keywords (comma-separated)</label>
-                <input class="input-field" type="text" [(ngModel)]="formData.exclude_keywords" (ngModelChange)="checkKeywordWarning()" placeholder="e.g. blockchain">
-              </div>
-              <div class="form-error" *ngIf="keywordWarning">
-                Warning: The same keyword cannot be in both include and exclude constraints.
+                <input class="input-field" type="text" [(ngModel)]="formData.exclude_keywords" placeholder="e.g. blockchain">
               </div>
             </div>
           </ng-container>
@@ -173,8 +176,8 @@
                 <span class="review-item__value">{{formData.thesis_type}}</span>
               </div>
               <div class="review-item">
-                <span class="review-item__label">Included Keywords</span>
-                <span class="review-item__value">{{formData.include_keywords || 'None'}}</span>
+                <span class="review-item__label">Feature Tags</span>
+                <span class="review-item__value">{{getFeatureTagLabels().join(', ') || 'None selected'}}</span>
               </div>
               <div class="review-item">
                 <span class="review-item__label">Excluded Keywords</span>
