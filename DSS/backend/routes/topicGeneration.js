@@ -36,7 +36,21 @@ const normalizeKeyword = (value = '') => value
     .replace(/\s+/g, ' ')
     .trim();
 
+const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const tokenize = (value = '') => normalizeKeyword(value).split(/\s+/).filter(Boolean);
+
+const containsExcludedPhrase = (text, excludedPhrases = []) => {
+    const normalizedText = normalizeKeyword(text);
+    if (!normalizedText) return false;
+
+    return excludedPhrases.some((phrase) => {
+        const normalizedPhrase = normalizeKeyword(phrase);
+        if (!normalizedPhrase) return false;
+        const pattern = new RegExp(`(^|\\s)${escapeRegExp(normalizedPhrase).replace(/\s+/g, '\\s+')}($|\\s)`, 'i');
+        return pattern.test(normalizedText);
+    });
+};
 
 const extractWords = (list) => {
     const words = new Set();
@@ -390,7 +404,7 @@ router.post('/generate', (req, res) => {
     if (!thesis_type || !['Research', 'Practical'].includes(thesis_type)) return res.status(400).json({ error: "Invalid thesis type" });
 
     const featureTagIds = [...new Set((feature_tags || []).map((tag) => String(tag).trim()).filter(Boolean))];
-    let excludeKw = (exclude_keywords || []).map(k => k.toLowerCase().trim());
+    let excludeKw = (exclude_keywords || []).map((keyword) => normalizeKeyword(keyword)).filter(Boolean);
 
     if (featureTagIds.length > FEATURE_TAG_LIMIT) {
         return res.status(400).json({ error: `You can select up to ${FEATURE_TAG_LIMIT} feature tags.` });
@@ -685,7 +699,13 @@ router.post('/generate', (req, res) => {
         candidateText = candidateText.replace(/\b([A-Za-z]+)\s+\1\b/gi, '$1');
 
         // Fix 'a/an' grammatical errors (e.g., "a Action" -> "an Action") 
-        candidateText = candidateText.replace(/\b([Aa])\s+([AEIOaeio]|Un|Um|Ur|Up)/g, '$1n $2');
+        // Handles technical vowel sounds (AI, IoT, Edge) while avoiding 'an' for 'User' sounds.
+        candidateText = candidateText.replace(/\b([Aa])\s+([AEIOaeio])/g, (match, article, nextChar) => {
+            const nextWord = candidateText.slice(candidateText.indexOf(match) + match.length - 1).split(/\s+/)[0].toLowerCase();
+            const exceptions = ['user', 'universal', 'unit', 'one', 'once'];
+            const needsAn = 'aeio'.includes(nextChar.toLowerCase()) || (nextChar.toLowerCase() === 'u' && !exceptions.some(ex => nextWord.startsWith(ex)));
+            return needsAn ? `${article}n ${nextChar}` : `${article} ${nextChar}`;
+        });
 
         candidates.push({
             id: `cand_${i}`,
@@ -720,10 +740,7 @@ router.post('/generate', (req, res) => {
         let rejectReason = null;
         const textLower = cand.text.toLowerCase();
 
-        if (profile.exclude.some(ex => {
-            const regex = new RegExp(`\\b${ex.replace(/[^a-z0-9]/g, '')}\\b`, 'i');
-            return regex.test(textLower);
-        })) {
+        if (containsExcludedPhrase(cand.text, profile.exclude)) {
             rejectReason = `Contains excluded keyword`;
         }
 

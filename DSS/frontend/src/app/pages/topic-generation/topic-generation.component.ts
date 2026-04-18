@@ -1,26 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../constants/api';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { TopicGenerationService } from '../../services/topic-generation.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-topic-generation',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './topic-generation.component.html',
   styleUrls: ['./topic-generation.component.scss']
 })
 export class TopicGenerationComponent implements OnInit {
   currentStep = 1;
-  config: any = null;
   loadingConfig = true;
   generating = false;
   result: any = null;
   error: string | null = null;
-  
+
   formData = {
     major: '',
     technical_specialization: '',
@@ -36,12 +35,15 @@ export class TopicGenerationComponent implements OnInit {
   saving = false;
   saved = false;
 
-  constructor(private http: HttpClient, public auth: AuthService) {}
+  constructor(
+    private http: HttpClient,
+    public auth: AuthService,
+    public genService: TopicGenerationService
+  ) { }
 
   ngOnInit() {
-    this.http.get(API_ENDPOINTS.topicGenerationConfig).subscribe({
-      next: (data) => {
-        this.config = data;
+    this.genService.loadConfig().subscribe({
+      next: () => {
         this.normalizeDependentSelections();
         this.loadingConfig = false;
       },
@@ -52,16 +54,10 @@ export class TopicGenerationComponent implements OnInit {
     });
   }
 
+  get config() { return this.genService.config; }
+
   getSpecializationGroups() {
-    if (!this.config?.step2) return [];
-    const mapping: any = {
-      'IT': ['web_software_platform_systems', 'cybersecurity_trust_systems', 'iot_embedded_edge_systems', 'blockchain_distributed_trust'],
-      'CS': ['ai_intelligent_systems', 'data_science_analytics', 'computer_vision_multimedia', 'cybersecurity_trust_systems', 'hardware_architecture_fpga', 'graphics_games_vrar_hci', 'blockchain_distributed_trust', 'nlp_language_conversational_systems'],
-      'DS': ['ai_intelligent_systems', 'data_science_analytics', 'computer_vision_multimedia', 'nlp_language_conversational_systems']
-    };
-    if (!this.formData.major) return [];
-    const allowed = mapping[this.formData.major] || [];
-    return this.config.step2.groups.filter((g: any) => allowed.includes(g.groupId));
+    return this.genService.getSpecializationGroups(this.formData.major);
   }
 
   onMajorChange(nextMajor: string) {
@@ -94,19 +90,7 @@ export class TopicGenerationComponent implements OnInit {
   }
 
   getSkills() {
-    if (!this.config?.step4 || !this.formData.technical_specialization) return [];
-    
-    // Find groupId for selected specialization
-    let selectedGroupId = null;
-    for (const group of this.config.step2.groups) {
-      if (group.options.find((opt: any) => opt.id === this.formData.technical_specialization)) {
-        selectedGroupId = group.groupId;
-        break;
-      }
-    }
-    
-    const skillSet = this.config.step4.skillSetsByStep2Group[selectedGroupId];
-    return skillSet ? skillSet.options : [];
+    return this.genService.getSkills(this.formData.technical_specialization);
   }
 
   toggleSkill(skillId: string) {
@@ -122,18 +106,19 @@ export class TopicGenerationComponent implements OnInit {
     return this.config?.featureTags || [];
   }
 
+  isFeatureTagDisabled(tagId: string): boolean {
+    return this.formData.feature_tags.length >= 3 && !this.formData.feature_tags.includes(tagId);
+  }
+
   toggleFeatureTag(tagId: string) {
     const idx = this.formData.feature_tags.indexOf(tagId);
     if (idx > -1) {
       this.formData.feature_tags.splice(idx, 1);
       return;
     }
-
-    if (this.formData.feature_tags.length >= 3) {
-      return;
+    if (this.formData.feature_tags.length < 3) {
+      this.formData.feature_tags.push(tagId);
     }
-
-    this.formData.feature_tags.push(tagId);
   }
 
   getFeatureTagLabels(): string[] {
@@ -149,10 +134,10 @@ export class TopicGenerationComponent implements OnInit {
       case 1: return !!this.formData.major;
       case 2: return this.isCurrentSpecializationValid();
       case 3: return this.isCurrentSpecializationValid() && this.isCurrentDirectionValid();
-      case 4: return true; // skills are optional
+      case 4: return true;
       case 5: return !!this.formData.thesis_type;
-      case 6: return true; // feature tags and excludes are optional
-      case 7: return true; // Review step
+      case 6: return true;
+      case 7: return true;
       case 8: return true;
       default: return false;
     }
@@ -161,7 +146,6 @@ export class TopicGenerationComponent implements OnInit {
   nextStep() {
     if (this.isStepValid(this.currentStep)) {
       if (this.currentStep === 7) {
-        // Submit
         this.currentStep = 8;
         this.submit();
       } else {
@@ -176,17 +160,6 @@ export class TopicGenerationComponent implements OnInit {
     }
   }
 
-
-  getStep2GroupId(): string | null {
-    if (!this.config?.step2 || !this.formData.technical_specialization) return null;
-    for (const group of this.config.step2.groups) {
-      if (group.options.find((o: any) => o.id === this.formData.technical_specialization)) {
-        return group.groupId;
-      }
-    }
-    return null;
-  }
-
   isCurrentSpecializationValid(): boolean {
     if (!this.formData.technical_specialization) return false;
     return this.getSpecializationGroups().some((group: any) =>
@@ -194,39 +167,24 @@ export class TopicGenerationComponent implements OnInit {
     );
   }
 
-  isStep3GroupAllowed(group: any): boolean {
-    const s2Group = this.getStep2GroupId();
-    if (!s2Group || !group.allowed_step2_groups) return true;
-    return group.allowed_step2_groups.includes(s2Group);
+  getAvailableDirectionGroups() {
+    return this.genService.getAvailableDirectionGroups(this.formData.technical_specialization);
   }
 
   isCurrentDirectionValid(): boolean {
     if (!this.config?.step3 || !this.formData.application_direction) return false;
-
     const selectedGroup = this.config.step3.groups.find((group: any) =>
       group.options.some((option: any) => option.id === this.formData.application_direction)
     );
-
-    if (!selectedGroup) return false;
-    return this.isStep3GroupAllowed(selectedGroup);
+    return !!selectedGroup && this.genService.isStep3GroupAllowed(selectedGroup, this.formData.technical_specialization);
   }
 
   getSpecLabel(): string {
-    if (!this.config?.step2 || !this.formData.technical_specialization) return '';
-    for (const group of this.config.step2.groups) {
-      const opt = group.options.find((o: any) => o.id === this.formData.technical_specialization);
-      if (opt) return opt.label;
-    }
-    return '';
+    return this.genService.getLabelById('step2', this.formData.technical_specialization);
   }
 
   getDirLabel(): string {
-    if (!this.config?.step3 || !this.formData.application_direction) return '';
-    for (const group of this.config.step3.groups) {
-      const opt = group.options.find((o: any) => o.id === this.formData.application_direction);
-      if (opt) return opt.label;
-    }
-    return '';
+    return this.genService.getLabelById('step3', this.formData.application_direction);
   }
 
   getSkillLabels(): string[] {
@@ -242,7 +200,7 @@ export class TopicGenerationComponent implements OnInit {
   }
 
   toggleGroupStep3(groupId: string, group?: any) {
-    if (group && !this.isStep3GroupAllowed(group)) return;
+    if (group && !this.genService.isStep3GroupAllowed(group, this.formData.technical_specialization)) return;
     this.expandedGroupStep3 = this.expandedGroupStep3 === groupId ? null : groupId;
   }
 
@@ -284,24 +242,20 @@ export class TopicGenerationComponent implements OnInit {
 
   submit() {
     this.normalizeDependentSelections();
-
     this.generating = true;
     this.error = null;
     this.saved = false;
-    
+
     const payload = {
       ...this.formData,
       exclude_keywords: this.formData.exclude_keywords.split(',').map(s => s.trim()).filter(s => s),
     };
 
-    this.http.post(API_ENDPOINTS.topicGenerationGenerate, payload).subscribe({
+    this.genService.generate(payload).subscribe({
       next: (res: any) => {
         this.generating = false;
-        if (res.error) {
-          this.error = res.error;
-        } else {
-          this.result = res;
-        }
+        if (res.error) this.error = res.error;
+        else this.result = res;
       },
       error: (err) => {
         this.generating = false;
@@ -317,32 +271,29 @@ export class TopicGenerationComponent implements OnInit {
 
   saveTopic() {
     if (!this.auth.isAuthed()) {
-        alert("Please login to save the topic to your profile.");
-        return;
+      alert("Please login to save the topic to your profile.");
+      return;
     }
     this.saving = true;
     const reviewData = {
-        major: this.formData.major,
-        specialization: this.getSpecLabel(),
-        direction: this.getDirLabel(),
-        thesis_type: this.formData.thesis_type,
-        feature_tags: this.getFeatureTagLabels().join(', '),
-        exclude_keywords: this.formData.exclude_keywords,
-        skills: this.getSkillLabels().join(', ')
+      major: this.formData.major,
+      specialization: this.getSpecLabel(),
+      direction: this.getDirLabel(),
+      thesis_type: this.formData.thesis_type,
+      feature_tags: this.getFeatureTagLabels().join(', '),
+      exclude_keywords: this.formData.exclude_keywords,
+      skills: this.getSkillLabels().join(', ')
     };
-    
-    this.http.post(API_ENDPOINTS.topicGenerationSave, {
-        title: this.result.best_topic,
-        review_data: reviewData
-    }, { headers: this.authHeaders }).subscribe({
-        next: () => {
-             this.saving = false;
-             this.saved = true;
-        },
-        error: () => {
-             this.saving = false;
-             alert("Failed to save topic.");
-        }
+
+    this.genService.saveTopic(this.result.best_topic, reviewData, this.authHeaders).subscribe({
+      next: () => {
+        this.saving = false;
+        this.saved = true;
+      },
+      error: () => {
+        this.saving = false;
+        alert("Failed to save topic.");
+      }
     });
   }
 }

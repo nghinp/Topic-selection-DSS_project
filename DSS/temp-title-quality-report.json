@@ -9,11 +9,12 @@
         "specializationOption":  "Machine Learning",
         "directionGroup":  "Education \u0026 Learning",
         "directionOption":  "Educational Management Systems",
-        "selectedTemplate":  "B3",
+        "selectedTemplate":  "B1",
         "selectedComponents":  {
-                                   "task":  "Academic Resource Demand Forecasting"
+                                   "model":  "Ensemble Learning Model",
+                                   "task":  "Personalized Learning Recommendation"
                                },
-        "generatedTitle":  "A Machine Learning Framework for Academic Resource Demand Forecasting",
+        "generatedTitle":  "An Ensemble Learning Model for Personalized Learning Recommendation",
         "errors":  [
 
                    ],
@@ -33,10 +34,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "A7",
         "selectedComponents":  {
-                                   "system":  "Recommendation System",
-                                   "domain":  "Educational Management Systems"
+                                   "system":  "Embedded Control System",
+                                   "domain":  "Personalized ELearning Platforms"
                                },
-        "generatedTitle":  "Intelligent Recommendation System for Educational Management Systems",
+        "generatedTitle":  "Intelligent Embedded Control System for Personalized ELearning Platforms",
         "errors":  [
 
                    ],
@@ -100,10 +101,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "B1",
         "selectedComponents":  {
-                                   "model":  "CNN Model",
+                                   "model":  "ResNet Model",
                                    "task":  "Student Engagement Classification"
                                },
-        "generatedTitle":  "A CNN Model for Student Engagement Classification",
+        "generatedTitle":  "A ResNet Model for Student Engagement Classification",
         "errors":  [
 
                    ],
@@ -123,10 +124,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "A5",
         "selectedComponents":  {
-                                   "system":  "Visual Classification System",
-                                   "domain":  "Educational Management Systems"
+                                   "system":  "Image Analytics Platform",
+                                   "domain":  "Student Learning Support"
                                },
-        "generatedTitle":  "AI-Powered Visual Classification System for Educational Management Systems",
+        "generatedTitle":  "AI-Powered Image Analytics Platform for Student Learning Support",
         "errors":  [
 
                    ],
@@ -146,9 +147,9 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "C4",
         "selectedComponents":  {
-                                   "problem":  "Academic Workflow Optimization"
+                                   "problem":  "Student Portal Usability"
                                },
-        "generatedTitle":  "Data-Driven Analysis of Academic Workflow Optimization",
+        "generatedTitle":  "Data-Driven Analysis of Student Portal Usability",
         "errors":  [
 
                    ],
@@ -169,9 +170,9 @@
         "selectedTemplate":  "A2",
         "selectedComponents":  {
                                    "system":  "Learning Management Platform",
-                                   "target_user":  "University Students"
+                                   "target_user":  "Academic Staff"
                                },
-        "generatedTitle":  "Web-Based Learning Management Platform for University Students",
+        "generatedTitle":  "Web-Based Learning Management Platform for Academic Staff",
         "errors":  [
 
                    ],
@@ -192,9 +193,9 @@
         "selectedTemplate":  "B5",
         "selectedComponents":  {
                                    "task":  "Academic Credential Verification",
-                                   "technique":  "Attribute-based Encryption"
+                                   "technique":  "Digital Signatures"
                                },
-        "generatedTitle":  "Academic Credential Verification with Attribute-based Encryption",
+        "generatedTitle":  "Academic Credential Verification with Digital Signatures",
         "errors":  [
 
                    ],
@@ -215,9 +216,9 @@
         "selectedTemplate":  "D1",
         "selectedComponents":  {
                                    "system":  "Academic Record Protection System",
-                                   "technique":  "Attribute-based Encryption"
+                                   "technique":  "Multi-factor Authentication"
                                },
-        "generatedTitle":  "Secure Academic Record Protection System with Attribute-based Encryption",
+        "generatedTitle":  "Secure Academic Record Protection System with Multi-factor Authentication",
         "errors":  [
 
                    ],
@@ -237,10 +238,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "E3",
         "selectedComponents":  {
-                                   "model":  "EmerNeRF",
-                                   "task":  "Resource Usage Monitoring in Educational Management Systems"
+                                   "model":  "LightGBM Model",
+                                   "task":  "Classroom Occupancy Detection in Educational Management Systems"
                                },
-        "generatedTitle":  "Implementation of EmerNeRF on FPGA for Resource Usage Monitoring in Educational Management Systems",
+        "generatedTitle":  "Implementation of LightGBM Model on FPGA for Classroom Occupancy Detection in Educational Management Systems",
         "errors":  [
 
                    ],
@@ -283,9 +284,9 @@
         "selectedTemplate":  "E3",
         "selectedComponents":  {
                                    "model":  "Edge Vision Accelerator",
-                                   "task":  "Edge Inference Acceleration in Educational Management Systems"
+                                   "task":  "Real-time Vision Inference in Educational Management Systems"
                                },
-        "generatedTitle":  "Implementation of Edge Vision Accelerator on FPGA for Edge Inference Acceleration in Educational Management Systems",
+        "generatedTitle":  "Implementation of Edge Vision Accelerator on FPGA for Real-time Vision Inference in Educational Management Systems",
         "errors":  [
 
                    ],
@@ -328,9 +329,9 @@
         "selectedTemplate":  "F2",
         "selectedComponents":  {
                                    "system":  "Gamified Learning System",
-                                   "technology":  "Unity Engine"
+                                   "technology":  "AR Technology"
                                },
-        "generatedTitle":  "Simulation of Gamified Learning System using Unity Engine",
+        "generatedTitle":  "Simulation of Gamified Learning System using AR Technology",
         "errors":  [
 
                    ],
@@ -351,9 +352,9 @@
         "selectedTemplate":  "F1",
         "selectedComponents":  {
                                    "game_type":  "Educational",
-                                   "feature":  "Quest-based Learning"
+                                   "feature":  "Collaborative Learning"
                                },
-        "generatedTitle":  "Development of an Educational Game with Quest-based Learning",
+        "generatedTitle":  "Development of an Educational Game with Collaborative Learning",
         "errors":  [
 
                    ],
@@ -396,10 +397,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "D1",
         "selectedComponents":  {
-                                   "system":  "Academic Credential Verification Platform",
-                                   "technique":  "Consensus Verification"
+                                   "system":  "Blockchain-based Learning Record System",
+                                   "technique":  "Distributed Ledger"
                                },
-        "generatedTitle":  "Secure Academic Credential Verification Platform with Consensus Verification",
+        "generatedTitle":  "Secure Blockchain-based Learning Record System with Distributed Ledger",
         "errors":  [
 
                    ],
@@ -419,10 +420,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "G5",
         "selectedComponents":  {
-                                   "system":  "Learning Assistant",
-                                   "domain":  "Student Support"
+                                   "system":  "Course Guidance Chatbot",
+                                   "domain":  "Educational Management Systems"
                                },
-        "generatedTitle":  "LLM-Based Learning Assistant for Student Support",
+        "generatedTitle":  "LLM-Based Course Guidance Chatbot for Educational Management Systems",
         "errors":  [
 
                    ],
@@ -442,10 +443,10 @@
         "directionOption":  "Educational Management Systems",
         "selectedTemplate":  "G1",
         "selectedComponents":  {
-                                   "domain":  "Student Support",
-                                   "technology":  "Transformer Model"
+                                   "domain":  "Educational Management Systems",
+                                   "technology":  "RAG"
                                },
-        "generatedTitle":  "Chatbot for Student Support using Transformer Model",
+        "generatedTitle":  "Chatbot for Educational Management Systems using RAG",
         "errors":  [
 
                    ],

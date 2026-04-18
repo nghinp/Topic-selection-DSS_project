@@ -12,12 +12,13 @@ import { TopicsService } from '../../services/topics.service';
 type SavedTopic = { id: string; topic: string; label?: string; createdAt?: string; title?: string; area?: string };
 type RecommendationHistory = {
   id: string;
-  topicId: string;
+  topicId: string | null;
   title: string;
   area: string;
   shortDescription?: string;
-  score: number;
+  score: number | null;
   createdAt: string;
+  source?: 'legacy' | 'generated';
 };
 type GeneratedTopic = {
   id: string;

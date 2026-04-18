@@ -203,8 +203,28 @@ function Apply-GeneratorPostProcessing {
     }
 
     $result = $Value
+    # Fix adjacent duplicate words
     $result = $result -replace "\b([A-Za-z]+)\s+\1\b", '$1'
-    $result = $result -replace "\b([Aa])\s+([AEIOaeio]|Un|Um|Ur|Up)", '$1n $2'
+    
+    # Fix 'a/an' grammatical errors with exception handling for vowel-letters with consonant-sounds (User, etc.)
+    $evaluator = {
+        param($m)
+        $article = $m.Groups[1].Value
+        $word = $m.Groups[2].Value.ToLower()
+        $firstChar = $word[0]
+        $exceptions = @('user', 'universal', 'unit', 'one', 'once')
+        
+        $needsAn = "aeio".Contains($firstChar) -or ($firstChar -eq 'u' -and (-not ($exceptions | Where-Object { $word.StartsWith($_) })))
+        
+        if ($needsAn) {
+            return "$($article)n $($m.Groups[2].Value)"
+        } else {
+            return "$($article) $($m.Groups[2].Value)"
+        }
+    }
+    
+    $result = [regex]::Replace($result, "\b([Aa])\s+([AEIOaeio][a-zA-Z]*)", $evaluator)
+    
     return $result
 }
 

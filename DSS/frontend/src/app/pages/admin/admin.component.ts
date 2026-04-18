@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AdminTopic, AdminTopicsService } from '../../services/admin-topics.service';
@@ -40,6 +40,7 @@ export class AdminComponent implements OnInit {
   protected saving = false;
   protected error = '';
   protected success = '';
+  protected isModalOpen = false;
 
   protected draft: DraftTopic = {
     area: '',
@@ -59,12 +60,19 @@ export class AdminComponent implements OnInit {
     'Web & Software Systems',
     'Cybersecurity & Networks',
     'IoT & Embedded Systems',
-    'Graphics, Games & HCI'
+    'Graphics, Games & HCI',
+    'Blockchain & Distributed Systems',
+    'Natural Language Processing'
   ];
   protected interestOptions = INTEREST_OPTIONS;
   protected difficultyOptions = ['Beginner', 'Intermediate', 'Advanced'] as const;
 
   constructor(private readonly adminTopics: AdminTopicsService) {}
+
+  @HostListener('window:keydown.escape')
+  onEscape() {
+    if (this.isModalOpen) this.closeModal();
+  }
 
   ngOnInit(): void {
     this.loadTopics();
@@ -83,6 +91,14 @@ export class AdminComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  protected openAddModal(): void {
+    this.resetForm();
+    this.isModalOpen = true;
+    this.success = '';
+    this.error = '';
+    document.body.classList.add('modal-open');
   }
 
   protected submit(): void {
@@ -117,7 +133,7 @@ export class AdminComponent implements OnInit {
           this.topics = [topic, ...this.topics];
           this.success = 'Topic added';
         }
-        this.resetForm();
+        this.closeModal();
       },
       error: () => {
         this.error = 'Save failed';
@@ -141,10 +157,13 @@ export class AdminComponent implements OnInit {
     };
     this.success = '';
     this.error = '';
+    this.isModalOpen = true;
+    document.body.classList.add('modal-open');
   }
 
   protected remove(id?: string): void {
     if (!id) return;
+    if (!confirm('Are you sure you want to delete this topic?')) return;
     this.saving = true;
     this.error = '';
     this.success = '';
@@ -160,6 +179,12 @@ export class AdminComponent implements OnInit {
         this.saving = false;
       }
     });
+  }
+
+  protected closeModal(): void {
+    this.isModalOpen = false;
+    this.resetForm();
+    document.body.classList.remove('modal-open');
   }
 
   protected resetForm(): void {

@@ -13,6 +13,30 @@ import {
 
 const router = express.Router();
 
+router.get('/', requireAdmin, async (_req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT topic_id AS id,
+              area,
+              title,
+              description,
+              thesis_type AS "thesisType",
+              COALESCE(interests, ARRAY[]::text[]) AS interests,
+              short_description AS "shortDescription",
+              difficulty,
+              COALESCE(detail_content, '{}'::jsonb) AS "detailContent",
+              created_at AS "createdAt",
+              updated_at AS "updatedAt"
+         FROM thesis_topics
+        ORDER BY created_at DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'DB fetch failed' });
+  }
+});
+
 router.post('/', requireAdmin, async (req, res) => {
   const { area, title, description = null, thesisType = null, shortDescription = null, difficulty = null } = req.body || {};
   if (!area || !title || !thesisType) return res.status(400).json({ message: 'area, title, thesisType are required' });
