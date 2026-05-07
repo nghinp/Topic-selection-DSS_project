@@ -49,6 +49,14 @@
   font-weight: 700;
 }
 
+.flow__intro {
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 680px;
+}
+
 .stepper {
   display: flex;
   align-items: center;

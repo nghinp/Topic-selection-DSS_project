@@ -10,17 +10,20 @@
 
       <div *ngIf="error" class="error-message">
         <p>{{error}}</p>
-        <button class="btn ghost" (click)="reset()">Try Again</button>
+        <button class="btn ghost" (click)="backToReview()" *ngIf="hasReviewData()">Back to Review</button>
+        <button class="btn ghost" (click)="reset()" *ngIf="!hasReviewData()">Try Again</button>
       </div>
 
       <ng-container *ngIf="!loadingConfig && !error && currentStep < 8">
         <header class="flow__header">
           <h1>Generate a Free Thesis Topic</h1>
+          <p class="flow__intro">
+            Follow a structured, rule-based selection flow that captures your major, technical area, skills, and
+            application direction to generate personalized thesis topic recommendations.
+          </p>
           <div class="stepper" aria-label="Progress">
             <ng-container *ngFor="let step of [1,2,3,4,5,6,7]; let last = last">
-              <span
-                class="stepper__circle"
-                [class.stepper__circle--active]="currentStep > step"
+              <span class="stepper__circle" [class.stepper__circle--active]="currentStep > step"
                 [class.stepper__circle--current]="currentStep === step">
                 {{step}}
               </span>
@@ -35,15 +38,18 @@
             <p class="flow__subtitle">Choose your core field of study.</p>
             <div class="question-grid">
               <label class="radio-card" [class.selected]="formData.major === 'IT'">
-                <input type="radio" name="major" value="IT" [(ngModel)]="formData.major" (ngModelChange)="onMajorChange($event)">
+                <input type="radio" name="major" value="IT" [(ngModel)]="formData.major"
+                  (ngModelChange)="onMajorChange($event)">
                 <span class="radio-card__title">Information Technology (IT)</span>
               </label>
               <label class="radio-card" [class.selected]="formData.major === 'CS'">
-                <input type="radio" name="major" value="CS" [(ngModel)]="formData.major" (ngModelChange)="onMajorChange($event)">
+                <input type="radio" name="major" value="CS" [(ngModel)]="formData.major"
+                  (ngModelChange)="onMajorChange($event)">
                 <span class="radio-card__title">Computer Science (CS)</span>
               </label>
               <label class="radio-card" [class.selected]="formData.major === 'DS'">
-                <input type="radio" name="major" value="DS" [(ngModel)]="formData.major" (ngModelChange)="onMajorChange($event)">
+                <input type="radio" name="major" value="DS" [(ngModel)]="formData.major"
+                  (ngModelChange)="onMajorChange($event)">
                 <span class="radio-card__title">Data Science (DS)</span>
               </label>
             </div>
@@ -53,15 +59,19 @@
             <h2>Step 2: Technical Specialization</h2>
             <p class="flow__subtitle">Select an area to view and choose its specializations.</p>
             <div class="groups-accordion">
-              <div class="accordion-item" *ngFor="let group of getSpecializationGroups()" [class.expanded]="expandedGroupStep2 === group.groupId">
+              <div class="accordion-item" *ngFor="let group of getSpecializationGroups()"
+                [class.expanded]="expandedGroupStep2 === group.groupId">
                 <div class="accordion-header" (click)="toggleGroupStep2(group.groupId)">
                   <h3>{{group.label}}</h3>
                   <span class="accordion-indicator">{{ expandedGroupStep2 === group.groupId ? '-' : '+' }}</span>
                 </div>
                 <div class="accordion-body" *ngIf="expandedGroupStep2 === group.groupId">
                   <div class="question-grid">
-                    <label class="radio-card" *ngFor="let opt of group.options" [class.selected]="formData.technical_specialization === opt.id">
-                      <input type="radio" name="specialization" [value]="opt.id" [(ngModel)]="formData.technical_specialization" (ngModelChange)="onSpecializationChange($event)">
+                    <label class="radio-card" *ngFor="let opt of group.options"
+                      [class.selected]="formData.technical_specialization === opt.id">
+                      <input type="radio" name="specialization" [value]="opt.id"
+                        [(ngModel)]="formData.technical_specialization"
+                        (ngModelChange)="onSpecializationChange($event)">
                       <span class="radio-card__title">{{opt.label}}</span>
                     </label>
                   </div>
@@ -71,18 +81,21 @@
           </ng-container>
 
           <ng-container *ngIf="currentStep === 3">
-            <h2>Step 3: Application Direction</h2>
+            <h2>Step 3: Appy in which field?</h2>
             <p class="flow__subtitle">Select a target domain to view and choose its applications.</p>
             <div class="groups-accordion">
-              <div class="accordion-item" *ngFor="let group of getAvailableDirectionGroups()" [class.expanded]="expandedGroupStep3 === group.groupId">
+              <div class="accordion-item" *ngFor="let group of getAvailableDirectionGroups()"
+                [class.expanded]="expandedGroupStep3 === group.groupId">
                 <div class="accordion-header" (click)="toggleGroupStep3(group.groupId, group)">
                   <h3>{{group.label}}</h3>
                   <span class="accordion-indicator">{{ expandedGroupStep3 === group.groupId ? '-' : '+' }}</span>
                 </div>
                 <div class="accordion-body" *ngIf="expandedGroupStep3 === group.groupId">
                   <div class="question-grid">
-                    <label class="radio-card" *ngFor="let opt of group.options" [class.selected]="formData.application_direction === opt.id">
-                      <input type="radio" name="direction" [value]="opt.id" [(ngModel)]="formData.application_direction">
+                    <label class="radio-card" *ngFor="let opt of group.options"
+                      [class.selected]="formData.application_direction === opt.id">
+                      <input type="radio" name="direction" [value]="opt.id"
+                        [(ngModel)]="formData.application_direction">
                       <span class="radio-card__title">{{opt.label}}</span>
                     </label>
                   </div>
@@ -93,10 +106,12 @@
 
           <ng-container *ngIf="currentStep === 4">
             <h2>Step 4: Skill Readiness</h2>
-            <p class="flow__subtitle">Select the skills you already possess or would like to develop (Optional).</p>
+            <p class="flow__subtitle">Select skills you are comfortable using (Optional).</p>
             <div class="question-grid">
-              <label class="checkbox-card" *ngFor="let skill of getSkills()" [class.selected]="formData.skills.includes(skill.id)">
-                <input type="checkbox" [value]="skill.id" (change)="toggleSkill(skill.id)" [checked]="formData.skills.includes(skill.id)">
+              <label class="checkbox-card" *ngFor="let skill of getSkills()"
+                [class.selected]="formData.skills.includes(skill.id)">
+                <input type="checkbox" [value]="skill.id" (change)="toggleSkill(skill.id)"
+                  [checked]="formData.skills.includes(skill.id)">
                 <span>{{skill.label}}</span>
               </label>
             </div>
@@ -120,22 +135,17 @@
 
           <ng-container *ngIf="currentStep === 6">
             <h2>Step 6: Feature Tags & Exclusions</h2>
-            <p class="flow__subtitle">Optionally refine the title with up to three feature tags, and list any terms you want to avoid.</p>
+            <p class="flow__subtitle">Optionally refine the title with up to three feature tags, and list any terms you
+              want to avoid.</p>
             <div class="form-container">
               <div class="form-group">
                 <label>Feature Tags (Optional, choose up to 3)</label>
                 <div class="question-grid">
-                  <label
-                    class="checkbox-card"
-                    *ngFor="let tag of getFeatureTags()"
+                  <label class="checkbox-card" *ngFor="let tag of getFeatureTags()"
                     [class.selected]="formData.feature_tags.includes(tag.id)"
                     [class.disabled]="isFeatureTagDisabled(tag.id)">
-                    <input
-                      type="checkbox"
-                      [value]="tag.id"
-                      (change)="toggleFeatureTag(tag.id)"
-                      [checked]="formData.feature_tags.includes(tag.id)"
-                      [disabled]="isFeatureTagDisabled(tag.id)">
+                    <input type="checkbox" [value]="tag.id" (change)="toggleFeatureTag(tag.id)"
+                      [checked]="formData.feature_tags.includes(tag.id)" [disabled]="isFeatureTagDisabled(tag.id)">
                     <span>{{tag.label}}</span>
                   </label>
                 </div>
@@ -143,7 +153,8 @@
               </div>
               <div class="form-group">
                 <label>Exclude Keywords (comma-separated)</label>
-                <input class="input-field" type="text" [(ngModel)]="formData.exclude_keywords" placeholder="e.g. blockchain">
+                <input class="input-field" type="text" [(ngModel)]="formData.exclude_keywords"
+                  placeholder="e.g. blockchain">
               </div>
             </div>
           </ng-container>
@@ -157,11 +168,11 @@
                 <span class="review-item__value">{{formData.major}}</span>
               </div>
               <div class="review-item">
-                <span class="review-item__label">Specialization</span>
+                <span class="review-item__label">Field of Study</span>
                 <span class="review-item__value">{{getSpecLabel()}}</span>
               </div>
               <div class="review-item">
-                <span class="review-item__label">Application Direction</span>
+                <span class="review-item__label">Which field should this apply to?</span>
                 <span class="review-item__value">{{getDirLabel()}}</span>
               </div>
               <div class="review-item">
@@ -186,7 +197,8 @@
           <div class="actions">
             <button type="button" class="btn ghost" (click)="prevStep()" [disabled]="currentStep === 1">Back</button>
             <span class="spacer"></span>
-            <button type="button" class="btn primary" [class.btn--disabled]="!isStepValid(currentStep)" [attr.aria-disabled]="!isStepValid(currentStep)" (click)="nextStep()">
+            <button type="button" class="btn primary" [class.btn--disabled]="!isStepValid(currentStep)"
+              [attr.aria-disabled]="!isStepValid(currentStep)" (click)="nextStep()">
               {{ currentStep === 7 ? 'Generate Topic' : 'Next' }}
             </button>
           </div>
@@ -209,11 +221,13 @@
 
           <div class="actions center-actions">
             <button class="btn ghost" (click)="reset()">Start Over</button>
-            <button class="btn primary" style="margin-left: 15px;" (click)="saveTopic()" [disabled]="saving || saved || !auth.isAuthed()">
+            <button class="btn primary" style="margin-left: 15px;" (click)="saveTopic()"
+              [disabled]="saving || saved || !auth.isAuthed()">
               {{ saved ? 'Saved to Profile!' : (saving ? 'Saving...' : 'Save to Profile') }}
             </button>
           </div>
-          <p *ngIf="!auth.isAuthed()" class="muted" style="text-align: center; margin-top: 15px; font-size: 13px;">Login to save topics to your profile</p>
+          <p *ngIf="!auth.isAuthed()" class="muted" style="text-align: center; margin-top: 15px; font-size: 13px;">Login
+            to save topics to your profile</p>
         </section>
       </ng-container>
     </section>

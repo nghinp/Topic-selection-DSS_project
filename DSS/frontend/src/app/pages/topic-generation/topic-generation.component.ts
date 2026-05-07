@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TopicGenerationService } from '../../services/topic-generation.service';
 import { AuthService } from '../../services/auth.service';
@@ -36,7 +36,6 @@ export class TopicGenerationComponent implements OnInit {
   saved = false;
 
   constructor(
-    private http: HttpClient,
     public auth: AuthService,
     public genService: TopicGenerationService
   ) { }
@@ -160,6 +159,16 @@ export class TopicGenerationComponent implements OnInit {
     }
   }
 
+  hasReviewData(): boolean {
+    return this.isStepValid(1) && this.isStepValid(2) && this.isStepValid(3) && this.isStepValid(5);
+  }
+
+  backToReview() {
+    this.error = null;
+    this.generating = false;
+    this.currentStep = this.hasReviewData() ? 7 : 1;
+  }
+
   isCurrentSpecializationValid(): boolean {
     if (!this.formData.technical_specialization) return false;
     return this.getSpecializationGroups().some((group: any) =>
@@ -254,12 +263,17 @@ export class TopicGenerationComponent implements OnInit {
     this.genService.generate(payload).subscribe({
       next: (res: any) => {
         this.generating = false;
-        if (res.error) this.error = res.error;
-        else this.result = res;
+        if (res.error) {
+          this.error = res.error;
+          this.currentStep = this.hasReviewData() ? 7 : 1;
+        } else {
+          this.result = res;
+        }
       },
       error: (err) => {
         this.generating = false;
         this.error = err?.error?.error || "An error occurred while generating the topic.";
+        this.currentStep = this.hasReviewData() ? 7 : 1;
       }
     });
   }
