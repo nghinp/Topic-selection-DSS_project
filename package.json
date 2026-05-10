@@ -1,4 +1,14 @@
 {
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
+    "backend:start": "npm --prefix backend start",
+    "backend:dev": "npm --prefix backend run dev",
+    "tools:validate-vocab": "node ./tools/validate-topic-generation-vocab.cjs",
+    "test:topic-quality": "powershell -NoProfile -ExecutionPolicy Bypass -File ./backend/tests/topic-generation/quality.ps1",
+    "test:topic-stress": "powershell -NoProfile -ExecutionPolicy Bypass -File ./backend/tests/topic-generation/stress.ps1"
+  },
   "dependencies": {
     "pg": "^8.20.0",
     "zone.js": "^0.16.0"

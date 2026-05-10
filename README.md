@@ -8,13 +8,14 @@ SPA (Angular) + REST API (Express) + PostgreSQL. Phase 2 uses Postgres Full-Text
 - Optional: Docker for Postgres
 
 ## Structure
-- `DSS/backend/` — Express API, connects to Postgres
-- `DSS/frontend/` — Angular SPA
+- `backend/` - Express API, routes, config, SQL, and backend test scripts.
+- `frontend/` - Angular source files.
+- `tools/` - local maintenance scripts.
 
 ## Setup
 ### Backend
 ```bash
-cd DSS/backend
+cd backend
 npm install
 ```
 Create `.env`:
@@ -26,7 +27,7 @@ ADMIN_EMAILS=admin@test.com
 
 ### Frontend
 ```bash
-cd DSS/frontend
+cd .
 npm install
 ```
 
@@ -80,19 +81,9 @@ CREATE TABLE IF NOT EXISTS saved_topics (
 
 Run Phase 2 migration:
 ```bash
-psql "$DATABASE_URL" -f DSS/backend/sql/20260227_phase2_fts_recommendation.sql
+psql "$DATABASE_URL" -f backend/sql/hybrid_recommendation.sql
 ```
 
-Run the hybrid recommendation schema migration:
-```bash
-psql "$DATABASE_URL" -f DSS/backend/sql/20260307_phase_hybrid_recommendation.sql
-```
-
-Optional cleanup to keep a single topic source (`thesis_topics`) and remove duplicate rows:
-```bash
-psql "$DATABASE_URL" -f DSS/backend/sql/20260227_cleanup_single_topic_source.sql
-```
-This cleanup also backs up and drops legacy `topics` and `quiz_submissions`.
 
 Hybrid flow:
 - Extract keywords from `includeKeywords + careerAim + interests + major`
@@ -101,6 +92,55 @@ Hybrid flow:
 - Validate with keyword coverage threshold and thesis-type cues for NULL topic types
 - Light-rank with `FinalScore = 0.8*topicRankNorm + 0.2*coverage`
 - Select exactly 1 topic by `ORDER BY final_score DESC, topic_rank DESC, created_at DESC`
+
+## Topic Generation Complexity
+The rule-based topic generation flow uses a fixed-size candidate generation process. It validates the student's academic profile, selects suitable template families, generates candidate thesis topics, removes duplicates, filters invalid candidates, scores the remaining candidates, and returns the highest-ranked result.
+
+Notation:
+- `T`: number of templates or template rules checked.
+- `C`: number of generated candidate topics.
+- `R`: number of filtering and scoring rules.
+- `L`: number of log messages or explanation entries.
+
+Time complexity:
+- Input validation is `O(1)` because the number of profile fields is fixed.
+- Template selection is `O(T)` because matching rules and templates are checked against the profile.
+- Candidate generation is `O(C)`, or `O(C * S)` if template slots are counted separately, where `S` is the number of slots per template. Since `S` is small and bounded, this simplifies to `O(C)`.
+- Duplicate detection is `O(C^2)` because generated candidates may be compared with previously generated candidates to remove repeated or highly similar titles.
+- Candidate filtering and scoring are `O(C * R)` because each candidate is checked against multiple rules.
+- Best-topic selection is `O(C)` because the system scans scored candidates to find the highest-ranked topic.
+
+Overall general time complexity:
+```text
+O(T + C^2 + C * R)
+```
+
+In the current implementation, `C` is fixed at 30 candidates, so practical runtime is near constant for each request:
+```text
+O(1)
+```
+
+Space complexity:
+- The input profile uses `O(1)` memory because the number of fields is fixed.
+- Configuration data such as templates, component pools, skill sets, and feature tags uses application-level memory of `O(T + P)`, where `P` is the number of component pool items. This data is static and reused across requests.
+- Generated candidates use `O(C)` memory.
+- Unique candidates use `O(C)` memory in the worst case.
+- Valid candidates use `O(C)` memory in the worst case.
+- Rejected candidates and rejection reasons use `O(C)` memory in the worst case.
+- Score breakdowns use `O(C)` memory because each candidate stores a bounded set of score fields.
+- Logs use `O(L)` memory.
+
+Overall per-request space complexity:
+```text
+O(C + L)
+```
+
+Because the number of generated candidates and log entries is bounded in the current system, the practical per-request space complexity is:
+```text
+O(1)
+```
+
+In summary, the theoretical topic generation complexity is `O(T + C^2 + C * R)` time and `O(C + L)` space. In practice, because the candidate count is fixed, both runtime and per-request memory usage behave as near constant.
 
 Seed topics (run once):
 ```sql
@@ -137,23 +177,33 @@ ON CONFLICT DO NOTHING;
 ## Run
 Backend:
 ```bash
-cd DSS/backend
+cd backend
 npm run dev   # or npm start
 # API: http://localhost:3000
 ```
 Frontend:
 ```bash
-cd DSS/frontend
+cd .
 npm start
 # App: http://localhost:4200
 ```
 
+Topic generation checks:
+```bash
+npm run test:topic-quality
+npm run test:topic-stress -- -Iterations 10
+```
+
+Maintenance tools:
+```bash
+npm run tools:validate-vocab
+```
+
 ## Key API endpoints
 - Auth: `POST /api/auth/register`, `POST /api/auth/login`
-- Recommendation (Phase 2): `POST /api/recommendation`
-- Recommendation (Hybrid): `POST /api/recommendation/hybrid`
-- Quiz: `GET /api/questions`, `POST /api/submissions`, `GET /api/submissions`, `GET /api/submissions/:id`
-- Topics: `GET /api/topics`, `GET /api/topics/search?q=...`, `GET /api/topics/:id`
+- Recommendation history: `GET /api/recommendations`
+- Topic generation: `GET /api/topic-generation/config`, `POST /api/topic-generation/generate`
+- Topics: `GET /api/topics`, `POST /api/topics/search`, `GET /api/topics/:id`
 - Saved topics: `GET/POST/DELETE /api/saved-topics`
 - Admin (email in `ADMIN_EMAILS`):
   - `GET /api/admin/topics`
@@ -165,59 +215,25 @@ npm start
 - Home: search, featured topics, metrics (total topics, areas, saved count), saved topics (if logged in)
 - Explore: browse all topics, filter by area, click to detail, save (login required)
 - Topic detail: title, area label, description, image (from `image_url` or embedded in description as markdown/data URL)
-- Quiz/Result: take questionnaire, see recommendations + suggested topics (clickable), save topics (login)
+- Topic generation: build thesis title candidates from specialization, direction, skills, and feature tags.
 - Admin: CRUD topics; description supports embedded images (file upload inserts data URL), optional `imageUrl`
 
 ## Notes
 - Image upload currently embeds data URL inside description (no server file storage).
 - If `topics` table is empty, seed via SQL above or restart backend to auto-seed when empty.
 - Update `DATABASE_URL` to match your Postgres credentials.
-- `POST /api/submissions` is deprecated for scoring. Use `POST /api/recommendation` for Phase 2.
-- The current repo uses UUID `users.id`, so `POST /api/recommendation/hybrid` expects `userId` in UUID format when you provide it.
 
-## Hybrid API example
+## Topic Generation API example
 ```bash
-curl -X POST http://localhost:3000/api/recommendation/hybrid \
+curl -X POST http://localhost:3000/api/topic-generation/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "major": "DS",
-    "thesisPreference": "Research",
-    "includeKeywords": "nlp education analytics",
-    "excludeKeywords": "iot blockchain",
-    "careerAim": "become a machine learning engineer",
-    "interests": "language models and student performance"
-  }'
-```
-
-Example response:
-```json
-{
-  "bestTopic": {
-    "topic_id": "7a1f0f0c-c8f8-46fc-95b0-4b0d9a3ab18b",
-    "title": "Student Performance Prediction using NLP Signals",
-    "description": "Analyze language-based engagement data to model academic outcomes.",
-    "area": "Data Science & Mining",
+    "major": "CS",
+    "technical_specialization": "machine_learning",
+    "application_direction": "education_learning",
     "thesis_type": "Research",
-    "created_at": "2026-03-07T12:00:00.000Z"
-  },
-  "scores": {
-    "finalScore": 0.86,
-    "topicRank": 0.42,
-    "topicRankNorm": 1,
-    "coverage": 0.3
-  },
-  "filters": {
-    "majorAllowlist": [
-      "AI & Machine Learning",
-      "Data Science & Mining",
-      "Computer Vision & Multimedia"
-    ],
-    "thesisPreferenceApplied": true,
-    "excludeApplied": true,
-    "coverageThreshold": 0.3
-  },
-  "explain": "Student Performance Prediction using NLP Signals was selected because it survived the Data Science & Mining major filter, coverage reached 30%, and ranked highest on full-text relevance (100% normalized). The thesis type matched the requested research preference.",
-  "recommendationId": "b5ddff42-93ea-4e1a-93b5-0a263b6114d5",
-  "intentId": "6e5d9f18-2d2f-45b3-a452-54633d7644f8"
-}
+    "skills": ["python", "machine_learning"],
+    "feature_tags": ["user_friendly"],
+    "exclude_keywords": []
+  }'
 ```
