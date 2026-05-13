@@ -13,10 +13,7 @@ import {
 
 const router = express.Router();
 
-router.get('/', requireAdmin, async (_req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT topic_id AS id,
+const ADMIN_TOPIC_FIELDS = `topic_id AS id,
               area,
               title,
               description,
@@ -26,7 +23,12 @@ router.get('/', requireAdmin, async (_req, res) => {
               difficulty,
               COALESCE(detail_content, '{}'::jsonb) AS "detailContent",
               created_at AS "createdAt",
-              updated_at AS "updatedAt"
+              updated_at AS "updatedAt"`;
+
+router.get('/', requireAdmin, async (_req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT ${ADMIN_TOPIC_FIELDS}
          FROM thesis_topics
         ORDER BY created_at DESC`
     );
@@ -51,12 +53,13 @@ router.post('/', requireAdmin, async (req, res) => {
 
   const id = randomUUID();
   try {
-    await pool.query(
+    const { rows } = await pool.query(
       `INSERT INTO thesis_topics (topic_id, area, title, description, thesis_type, interests, short_description, difficulty, detail_content)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING ${ADMIN_TOPIC_FIELDS}`,
       [id, area, title, description, thesisType, ti.value, normalizeWhitespace(shortDescription), dif.value, JSON.stringify(det.value)]
     );
-    res.status(201).json({ id, title, ok: true });
+    res.status(201).json(rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ message: 'DB insert failed' }); }
 });
 
@@ -66,8 +69,11 @@ router.put('/:id', requireAdmin, async (req, res) => {
   if (!ALLOWED_TOPIC_AREAS_SET.has(area)) return res.status(400).json({ message: 'area is invalid' }); 
   
   const ti = normalizeInterestArray(req.body?.interests, { maxItems: 3 });
+  if (ti.error) return res.status(ti.error.status).json({ message: ti.error.message });
   const dif = normalizeDifficulty(difficulty);
+  if (dif.error) return res.status(dif.error.status).json({ message: dif.error.message });
   const det = normalizeDetailContent(req.body?.detailContent);
+  if (det.error) return res.status(det.error.status).json({ message: det.error.message });
   
   try {
     const result = await pool.query(
@@ -75,7 +81,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
           SET area = $1, title = $2, description = $3, thesis_type = $4, interests = $5,
               short_description = $6, difficulty = $7, detail_content = $8::jsonb, updated_at = NOW()
         WHERE topic_id = $9
-       RETURNING topic_id AS id`,
+       RETURNING ${ADMIN_TOPIC_FIELDS}`,
       [area, title, description, thesisType, ti.value, normalizeWhitespace(shortDescription), dif.value, JSON.stringify(det.value), req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ message: 'Not found' });

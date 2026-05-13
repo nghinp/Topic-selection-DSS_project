@@ -65,6 +65,16 @@ label {
   font-weight: 600;
 }
 
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
 input,
 select,
 textarea {

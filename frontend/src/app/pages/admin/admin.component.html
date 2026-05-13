@@ -105,8 +105,8 @@
             <textarea rows="3" [(ngModel)]="draft.description" placeholder="Optional summary for this topic."></textarea>
           </label>
 
-          <label class="full">
-            <span>Interests (up to 3)</span>
+          <div class="full field-block">
+            <span class="field-label">Interests (up to 3)</span>
             <div class="interest-grid">
               <label class="interest-option" *ngFor="let interest of interestOptions">
                 <input
@@ -118,7 +118,7 @@
                 <span>{{ interest }}</span>
               </label>
             </div>
-          </label>
+          </div>
 
           <div class="detail-grid">
             <label class="full">

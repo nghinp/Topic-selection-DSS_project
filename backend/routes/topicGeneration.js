@@ -53,11 +53,13 @@ const containsExcludedPhrase = (text, excludedPhrases = []) => {
     });
 };
 
+const IMPORTANT_SHORT_WORDS = new Set(['ai', 'ui', 'ux', 'vr', 'ar', 'ml']);
+
 const extractWords = (list) => {
     const words = new Set();
     list.forEach((phrase) => {
         tokenize(phrase).forEach((word) => {
-            if (word.length > 2 && !STOP_WORDS.has(word)) {
+            if ((word.length > 2 || IMPORTANT_SHORT_WORDS.has(word)) && !STOP_WORDS.has(word)) {
                 words.add(word);
             }
         });
@@ -541,6 +543,7 @@ router.post('/generate', (req, res) => {
         }
     }
 
+    log("STEP 10: Keyword Preparation");
     // Collect Specialization Keywords
     let specializationKeywordsList = [
         selectedSpecOption.label,
